@@ -1,3 +1,49 @@
 baseURL = "http://example.org/"
 languageCode = "en-us"
-title = "My New Hugo Site"
+title = "Mythical Angular"
+theme = "cactus"
+copyright = "Kamil Gałek"
+
+
+[[menu.main]]
+name = "Home"
+url = "/"
+weight = 1
+
+[[menu.main]]
+name = "All posts"
+url = "/posts"
+weight = 2
+
+[[menu.main]]
+name = "Tags"
+url = "/tags"
+weight = 3
+
+[[menu.main]]
+name = "About"
+url = "/about"
+weight = 4
+
+[params]
+  showAllPostsOnHomePage = true
+  mainSectionTitle = "Posts"
+  mainSection = "posts"
+  colortheme = "white"
+  logo = "logo.jpeg"
+
+[markup]
+  [markup.highlight]
+    codeFences = true
+    guessSyntax = true
+    hl_Lines = ""
+    lineNoStart = 1
+    lineNos = true
+    lineNumbersInTable = true
+    noClasses = true
+    style = "dracula"
+    tabWidth = 4
+
+[[params.social]]
+name = "github"
+link = "https://github.com/monke  yWzr"
