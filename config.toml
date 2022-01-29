@@ -20,13 +20,12 @@ url = "/tags"
 weight = 3
 
 [[menu.main]]
-name = "About"
-url = "/about"
+name = "GitHub"
+url = "https://github.com/galczo5"
 weight = 4
 
 [params]
   showAllPostsOnHomePage = true
-  mainSectionTitle = "Posts"
   mainSection = "posts"
   colortheme = "white"
   logo = "logo.jpeg"
@@ -44,6 +43,3 @@ weight = 4
     style = "dracula"
     tabWidth = 4
 
-[[params.social]]
-name = "github"
-link = "https://github.com/galczo5"
