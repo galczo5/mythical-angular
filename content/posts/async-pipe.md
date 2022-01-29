@@ -1,8 +1,10 @@
 ---
 title: "Myth: Async pipes are good for performance"
-date: 2022-01-27
-draft: true
+date: 2022-01-29
+draft: false
 ---
+
+## Introduction
 
 Async pipes are considered as a very good practice, and it helps you with web performance problems. 
 BTW - async pipes are easy to use.
@@ -14,6 +16,8 @@ It would be so good to use async pipes everywhere and don't worry about any obse
 related performance problems.
 
 Before I'll start to explain where the problem with async pipe is, let's check how it's implemented.
+
+## `AsyncPipe` source code
 
 ``` typescript
 /**
@@ -178,9 +182,9 @@ It's just a standard
 not-pure pipe.
 
 There is the implementation of the `transform` method that gets `Observable` or `Promise` object, subscribes to it
-in `_subscribe`, and calls method `_updateLatestValue` for every value emitted in the provided stream.
+in `_subscribe`, and calls `_updateLatestValue` for every value emitted in the provided stream.
 
-So method `_updateLatestValue` is the most important method in the whole class.
+`_updateLatestValue` is the most important part in the whole class.
 
 ``` typescript
 private _updateLatestValue(async: any, value: Object): void {
@@ -191,7 +195,7 @@ private _updateLatestValue(async: any, value: Object): void {
 }
 ```
 
-Again, it's a quite simple method.
+Again, it's a very simple code.
 It sets the new value to the `_latestValue` and calls `ChangeDetectorRef.markForCheck()`.
 
 Little summary.
@@ -276,9 +280,15 @@ I'm going to cite the most important part: "Marks current view and **all ancesto
 It means that if you use async pipe, and there is a new value on the stream,
 it's going to refresh your component and all its parents.
 
+![trust-the-code](/mythical-angular/images/mark-for-check.png)
+
 Is it a necessary thing to do...? No.
 
-Template changed only in one component there is no reason to render more than one view.
+Template changed only in one component there is no reason to render more than one view. 
+Why Angular is checking everything on the path to the top...?
+There is a simple explanation. 
+To refresh the view after marking it dirty, we need NgZones to run the whole check.
+NgZones are using `ApplicationRef.tick()` to process the checking, and it's processed from the top to bottom.
 
 ## How to solve the problem
 
