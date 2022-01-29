@@ -29,8 +29,9 @@ weight = 4
   showAllPostsOnHomePage = true
   mainSectionTitle = "Posts"
   mainSection = "posts"
-  colortheme = "white"
+  colortheme = "classic"
   logo = "logo.jpeg"
+  css = ["css/custom.css"]
 
 [markup]
   [markup.highlight]
