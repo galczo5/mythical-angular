@@ -4,7 +4,6 @@ theme = "cactus"
 copyright = "Kamil Gałek"
 baseURL = "https://galczo5.github.io/mythical-angular"
 
-
 [[menu.main]]
 name = "Home"
 url = "/"
@@ -29,7 +28,7 @@ weight = 4
   showAllPostsOnHomePage = true
   mainSectionTitle = "Posts"
   mainSection = "posts"
-  colortheme = "classic"
+  colortheme = "white"
   logo = "logo.jpeg"
   css = ["css/custom.css"]
 
@@ -47,4 +46,4 @@ weight = 4
 
 [[params.social]]
 name = "github"
-link = "https://github.com/monke  yWzr"
+link = "https://github.com/galczo5"
