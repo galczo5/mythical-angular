@@ -6,16 +6,14 @@ draft: false
 
 ## Introduction
 
-Async pipes are considered as a very good practice, and it helps you with web performance problems. 
-BTW - async pipes are easy to use.
-
+Async pipes are considered a very good practice as they help with web performance problems and btw are easy to use.
 Sounds very cool, right?
 
 Unfortunately, it's not true.
 It would be so good to use async pipes everywhere and don't worry about any observable
 related performance problems.
 
-Before I'll start to explain where the problem with async pipe is, let's check how it's implemented.
+Before I'll start to explain what the problem with async pipe is, let's check how it's implemented.
 
 ## `AsyncPipe` source code
 
@@ -205,11 +203,11 @@ Easy right?
 
 ## Why we use AsyncPipe
 
-`AsyncPipe` is considered to be good because it solves another very important problem. 
+`AsyncPipe` is considered to be good because it solves another very important problem.
 Nature of observable streams is very simple.
-If you subscribed to a stream, you have to remember to unsubscribe.
+If you subscribe to a stream, you have to remember to unsubscribe.
 
-We can use a lot of very interesting patterns to make it easier to remember that.
+We can use a lot of very interesting patterns to make it easier to remember about that.
 This build-in pipe is using another build-in mechanism called Angular Lifecycle Hooks.
 It's very simple, `AsyncPipe` will unsubscribe on the `OnDestroy` hook.
 
@@ -219,11 +217,10 @@ With a little framework magic, we get the automatic unsubscribe mechanism.
 
 As you may notice, the whole idea behind this pipe is very smart.
 But there is no light without the dark.
-In method `_updateLatestValue` we have a call of the `ChangeDetectorRef.markForCheck()`.
+In method `_updateLatestValue` we call `ChangeDetectorRef.markForCheck()`.
 
 From the sources, we know that after marking the view dirty it's going to be refreshed.
-Nothing surprising.
-It looks OK at first sight.
+Nothing surprising, it looks OK at first sight.
 We updated the value so view has to render once again.
 
 ``` typescript
@@ -284,9 +281,9 @@ it's going to refresh your component and all its parents.
 
 Is it a necessary thing to do...? No.
 
-Template changed only in one component there is no reason to render more than one view. 
+Template changed only in one component there is no reason to render more than one view.
 Why Angular is checking everything on the path to the top...?
-There is a simple explanation. 
+There is a simple explanation.
 To refresh the view after marking it dirty, we need NgZones to run the whole check.
 NgZones are using `ApplicationRef.tick()` to process the checking, and it's processed from the top to bottom.
 
@@ -308,8 +305,8 @@ I'm not going to publish code for it, you can find it in the [repository](https:
 
 ## Summary
 
-Right now, I'm sure that I convinced you that `AsyncPipe` may be considered as harmful.
-It's not good for your performance. 
+Right now, I'm sure that I have convinced you that `AsyncPipe` should be considered harmful as
+it's not good for your performance.
 
 There are other solutions for the problem.
 It's not worth sacrificing rendering performance for automatic unsubscription.
