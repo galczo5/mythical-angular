@@ -156,8 +156,9 @@ One of the things he said was that using sets on inputs is a performance tweak.
 After that conversation, few other developers said the same.
 So, myth I&rsquo;m going to verify is &ldquo;Sets are faster than ngOnChanges&rdquo;.</p>
 <h2 id=verification>Verification</h2>
-<p>To verify this case, I created a GitHub repo. <a href=https://github.com/galczo5/experiment-setters>Here it is.</a>
-The App contains those routes, one with a component using setter on input.</p>
+<p>To verify this case, I created a GitHub repo.
+<a href=https://github.com/galczo5/experiment-setters>Here it is.</a>
+The App contains two routes, one with a component using setter on input.</p>
 <div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
 <table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
 <pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
@@ -319,7 +320,7 @@ What&rsquo;s more I decided to provide <code>noop</code> zone to minimize the ov
 </code></pre></td></tr></table>
 </div>
 </div><p>To have trustful results, I repeated the test 10 times.
-You can try it at home, but if you want, below I presented my results.</p>
+You can try it at home, but if you don&rsquo;t want, below I presented my results.</p>
 <table>
 <thead>
 <tr>
@@ -493,8 +494,8 @@ It&rsquo;s not going to be executed at the same moment, one set has to be second
 </div>
 </div><p>As you may notice, the order of sets is directed by order in a component usage.
 It means that a programmer who is going to use your component has to know its implementation.
-This one is very simple, in real-life applications it&rsquo;s very often a lot harder to find where the problem is.
-The last thing you want to have is these kinds of problems in your code base.</p>
+This one is very simple, in real-life applications it&rsquo;s a lot harder to find where the problem is.
+The last thing you want is to have these kinds of problems in your code base.</p>
 <p>If you ask me for advice, just don&rsquo;t use setters. Use <code>ngOnChanges</code> instead.</p>
 <h2 id=origin-of-the-myth>Origin of the myth</h2>
 <p>Once I asked person who told me again about that performance tip with setters.
