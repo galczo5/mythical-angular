@@ -21,8 +21,9 @@ So, myth I'm going to verify is "Sets are faster than ngOnChanges".
 
 ## Verification
 
-To verify this case, I created a GitHub repo. [Here it is.](https://github.com/galczo5/experiment-setters)
-The App contains those routes, one with a component using setter on input.
+To verify this case, I created a GitHub repo.
+[Here it is.](https://github.com/galczo5/experiment-setters)
+The App contains two routes, one with a component using setter on input.
 
 ``` typescript
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
@@ -110,7 +111,7 @@ export class OnChangesComponent {
 ```
 
 To have trustful results, I repeated the test 10 times.
-You can try it at home, but if you want, below I presented my results.
+You can try it at home, but if you don't want, below I presented my results.
 
 | No  | OnChanges | Setter   |
 |-----|-----------|----------|
@@ -185,8 +186,8 @@ So, if you use this component as in example below, you get an error.
 
 As you may notice, the order of sets is directed by order in a component usage. 
 It means that a programmer who is going to use your component has to know its implementation.
-This one is very simple, in real-life applications it's very often a lot harder to find where the problem is.
-The last thing you want to have is these kinds of problems in your code base.
+This one is very simple, in real-life applications it's a lot harder to find where the problem is.
+The last thing you want is to have these kinds of problems in your code base.
 
 If you ask me for advice, just don't use setters. Use `ngOnChanges` instead.
 
