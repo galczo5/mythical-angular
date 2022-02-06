@@ -27,5 +27,6 @@ If you like my work, I'll be grateful for a star on my repository. If you have a
 
 ![trust-the-code](/mythical-angular/images/trust-the-code.png)
 
-BTW. There is a link to a GitHub repository in the header. If you missed it: [galczo5/mythical-angular](https://github.com/galczo5/mythical-angular)
+BTW. Here is a link to a GitHub repository in the header.
+If you missed it: [galczo5/mythical-angular](https://github.com/galczo5/mythical-angular)
 
