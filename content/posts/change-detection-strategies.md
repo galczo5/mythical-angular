@@ -1,14 +1,11 @@
 ---
 title: "Myth: Change Detection Strategies"
-date: 2022-02-20T11:17:36+01:00
-draft: true
+date: 2022-02-20
+draft: false
 ---
 
-Not so long ago I noticed that change detection subject in Angular is very mythical.
-For the first sight it looks very simple. But it's not.
-
-Previously I wrote about async pipe and how it affects the change detection. I mentioned that it's not working without NgZones.
-NgZones are quite complicated in concept, so I decided to demystify two available strategies for change detection.
+Not so long ago I noticed that the change detection subject in Angular is very mythical.
+For the first sight, it looks very simple, and it is.
 
 ## Docs
 
@@ -17,7 +14,7 @@ Our experiment we should start with the [docs](https://angular.io/api/core/Chang
 
 ![docs](/mythical-angular/images/cd-docs.png)
 
-As you can see the documentation is not helpful at all. Even if you follow the [Change detection usage](https://angular.io/api/core/ChangeDetectorRef#usage-notes) links still it's not enough. In this case it's good to try using external sources to learn how it works.
+As you can see, the documentation is not helpful at all. Even if you follow the [Change detection usage](https://angular.io/api/core/ChangeDetectorRef#usage-notes) links, it's not enough. In this case, it's good to try using external sources to learn how it works.
 
 ## Testing app
 
@@ -71,3 +68,141 @@ export class OnPushParentComponent implements OnInit, OnChanges, DoCheck {
 
 In addition, I've added a button to disable/enable NgZones. NgZones is not a part of change detections strategies, but it's strongly connected, and I decided that it's worth to show it.
 
+## Facts
+
+### Fact 1. `Default` strategy checks objects recursively
+
+It's easy to test it. Just click on `set value` button.
+This button is executing very simple code:
+
+```typescript
+import {ChangeDetectorRef, Component, DoCheck, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+import {getConsoleStyle} from "../consoleStyleFactory";
+
+@Component({
+    selector: 'app-default-parent',
+    template: `
+    // ...
+      <button (click)="setValue()">Set value</button>
+      <button (click)="setNewValue()">Set new value</button>
+    // ...
+  `
+})
+export class DefaultParentComponent implements OnInit, OnChanges, DoCheck {
+
+    obj = { value: 0 };
+
+    /* ... */
+
+    setValue() {
+        this.obj.value = new Date().getTime();
+    }
+
+    setNewValue() {
+        this.obj = { value: new Date().getTime() };
+    }
+
+    /* ... */
+}
+```
+
+In case of `Default` strategy you'll see that value is rendered.
+When you repeat that test in `OnPush` branch value will not be rendered.
+In both cases in the console, you should get a similar output.
+
+Default:
+```text
+default-parent.component.ts:44 DefaultParentComponent ngDoCheck
+on-push-parent.component.ts:52 OnPushParentComponent ngDoCheck
+default-child1.component.ts:30 DefaultChild1Component ngDoCheck
+default-child2.component.ts:26 DefaultChild2Component ngDoCheck
+```
+
+OnPush:
+```text
+default-parent.component.ts:44 DefaultParentComponent ngDoCheck
+on-push-parent.component.ts:52 OnPushParentComponent ngDoCheck
+default-child1.component.ts:30 DefaultChild1Component ngDoCheck
+default-child2.component.ts:26 DefaultChild2Component ngDoCheck
+on-push-child1.component.ts:39 OnPushChild1Component ngDoCheck
+on-push-child2.component.ts:35 OnPushChild2Component ngDoCheck
+```
+
+So if you keep your object immutable, it should work like in method `setNewValue`.
+In both strategies value will be rendered.
+
+**This fact shows us why `OnPush` strategy is considered
+to be better for performance.** Comparing values recursively is not easy and complex.
+Not doing it is great.
+
+### Fact 2. `OnPush` stops Angular to check the whole view tree
+
+The test is even simpler than the previous one.
+Just click on `console.log` button from `AppComponent`.
+On the output you'll see:
+
+```text
+app.component.ts:52 Click!
+default-parent.component.ts:44 DefaultParentComponent ngDoCheck
+on-push-parent.component.ts:52 OnPushParentComponent ngDoCheck
+default-child1.component.ts:30 DefaultChild1Component ngDoCheck
+default-child2.component.ts:26 DefaultChild2Component ngDoCheck
+```
+
+Here we see
+that Angular is executing `DoCheck` hook for every component with the `Default` strategy and only for the direct child with `OnPush` strategy.
+
+Again, the summary is easy. Less work to do equals better performance.
+
+### Fact 3. Change detection is strongly connected to NgZones
+
+This test I'm starting with pushing the `toggle ngzone` button. The header `Noop Zone Provided` should appear.
+
+From this point, I'm repeating the test from the first fact.
+In every case, no matter if I click on `set value` or `set new value` there is nothing.
+Value is not rendered.
+The console is clear.
+It looks like the app is broken. 
+
+To fix that issue, we have to execute change detection manually.
+In our case we can use `detect changes` button.
+After that, it's working again!
+
+**Important!** Check the output in the console.
+In this case, it's executing a lot less `DoCheck` hooks.
+For button in `Default` branch it'll execute only the hooks for components from `Default` subtree.
+Analogical for the `OnPush` strategy.
+
+This test proves that for refreshing the Angular views responsible is `NgZones` mechanism.
+No matter if you use `Default` or `OnPush`, at the end value was rendered because `zone.js` reacted to click event. 
+
+### Fact 4. Only events from inside the app are triggering change detection
+
+Just click on the button from section in the red box.
+Nothing will happen.
+No hook was executed in this test.
+
+### Fact 5. NgZones does not change strategy behaviour
+
+If you use `NgZones` or if you're not.
+The basic rule for the change detection strategies is not changing.
+It's not going to render value from an object after mutation when you use `OnPush`.
+
+
+## Summary
+
+I'm not sure why there are a lot of myths about this subject.
+I heard just too many very strange answers for a question "what is the difference between change detection strategies in Angular".
+
+At the end, it's pretty simple:
+- `Default` - check recursively
+- `OnPush` - check only the reference to an object.
+
+Change detection cycle is started by click event, or anything else caught by `NgZone`.
+
+
+In my opinion, If you care about performance,
+you may want to use `OnPush` strategy in every component, and you may consider switching to zone-less approach.
+It's just faster when your app is not executing code that is not necessary to render the value in one place.
+
+I think that I proved it in this article. 
