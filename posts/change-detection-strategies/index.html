@@ -162,12 +162,11 @@ Our experiment we should start with the <a href=https://angular.io/api/core/Chan
 In this case, it&rsquo;s good to try using external sources to learn how it works,
 and we all know that it&rsquo;s not the best source of truth.</p>
 <h2 id=testing-app>Testing app</h2>
-<p>I&rsquo;ve created for you an app that will let you try everything yourself. It&rsquo;s a very simple app. Basically there are two branches of almost identical components, one branch with <code>Default</code> strategy and the second one with the <code>OnPush</code>.<br>
+<p>I&rsquo;ve created for you an app that will let you try everything yourself. You can find it here: <a href=https://github.com/galczo5/experiment-change-detection-strategy>github.com/galczo5/experiment-change-detection-strategy</a>. It&rsquo;s a very simple app. Basically there are two branches of almost identical components, one branch with <code>Default</code> strategy and the second one with the <code>OnPush</code>.<br>
 Every branch contains three components: Parent and two children.</p>
-<p>You can find it here: <a href=https://github.com/galczo5/experiment-change-detection-strategy>github.com/galczo5/experiment-change-detection-strategy</a>.</p>
 <p><img src=/mythical-angular/images/cd-app.png alt=docs></p>
 <p>Every component of my app implements <code>OnInit</code>, <code>OnChanges</code> and <code>DoCheck</code> hooks to log what is called by Angular.
-Today we are not using it to do anything, I just want to know which component was checked etc.</p>
+Today we are not using it to do anything. I just want to know which component was checked etc.</p>
 <div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
 <table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
 <pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
@@ -248,7 +247,7 @@ Today we are not using it to do anything, I just want to know which component wa
 
 </code></pre></td></tr></table>
 </div>
-</div><p>In addition, I&rsquo;ve added a button to disable/enable NgZones. NgZones is not a part of change detections strategies, but it&rsquo;s strongly connected, and I decided that it&rsquo;s worth to show it.</p>
+</div><p>In addition, I&rsquo;ve added a button to disable/enable NgZones. NgZones is not a part of change detection strategies, but it&rsquo;s strongly connected, and I decided that it&rsquo;s worth showing it.</p>
 <h2 id=facts>Facts</h2>
 <h3 id=fact-1-default-strategy-checks-a-lot-more-than-onpush>Fact 1. <code>Default</code> strategy checks a lot more than <code>OnPush</code></h3>
 <p>It&rsquo;s easy to test it. Just click on <code>set value</code> button.
