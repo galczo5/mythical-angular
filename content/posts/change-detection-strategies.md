@@ -14,12 +14,16 @@ Our experiment we should start with the [docs](https://angular.io/api/core/Chang
 
 ![docs](/mythical-angular/images/cd-docs.png)
 
-As you can see, the documentation is not helpful at all. Even if you follow the [Change detection usage](https://angular.io/api/core/ChangeDetectorRef#usage-notes) links, it's not enough. In this case, it's good to try using external sources to learn how it works.
+As you can see, the documentation is not that easy to base here only on the docs. Even if you follow the [Change detection usage](https://angular.io/api/core/ChangeDetectorRef#usage-notes) links, it's not enough. 
+In this case, it's good to try using external sources to learn how it works,
+and we all know that it's not the best source of truth.
 
 ## Testing app
 
 I've created for you an app that will let you try everything yourself. It's a very simple app. Basically there are two branches of almost identical components, one branch with `Default` strategy and the second one with the `OnPush`.  
 Every branch contains three components: Parent and two children.
+
+You can find it here: [github.com/galczo5/experiment-change-detection-strategy](https://github.com/galczo5/experiment-change-detection-strategy).
 
 ![docs](/mythical-angular/images/cd-app.png)
 
@@ -70,7 +74,7 @@ In addition, I've added a button to disable/enable NgZones. NgZones is not a par
 
 ## Facts
 
-### Fact 1. `Default` strategy checks objects recursively
+### Fact 1. `Default` strategy checks a lot more than `OnPush`
 
 It's easy to test it. Just click on `set value` button.
 This button is executing very simple code:
@@ -135,7 +139,7 @@ In both strategies value will be rendered.
 to be better for performance.** Comparing values recursively is not easy and complex.
 Not doing it is great.
 
-### Fact 2. `OnPush` stops Angular to check the whole view tree
+### Fact 2. Using `OnPush` reduce the number of components to check
 
 The test is even simpler than the previous one.
 Just click on `console.log` button from `AppComponent`.
@@ -173,7 +177,8 @@ In this case, it's executing a lot less `DoCheck` hooks.
 For button in `Default` branch it'll execute only the hooks for components from `Default` subtree.
 Analogical for the `OnPush` strategy.
 
-This test proves that for refreshing the Angular views responsible is `NgZones` mechanism.
+This test proves one very important thing. 
+`NgZone` is the mechanism responsible for triggering the change detection cycle.
 No matter if you use `Default` or `OnPush`, at the end value was rendered because `zone.js` reacted to click event. 
 
 ### Fact 4. Only events from inside the app are triggering change detection
@@ -187,7 +192,6 @@ No hook was executed in this test.
 If you use `NgZones` or if you're not.
 The basic rule for the change detection strategies is not changing.
 It's not going to render value from an object after mutation when you use `OnPush`.
-
 
 ## Summary
 
