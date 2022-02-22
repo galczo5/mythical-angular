@@ -20,15 +20,13 @@ and we all know that it's not the best source of truth.
 
 ## Testing app
 
-I've created for you an app that will let you try everything yourself. It's a very simple app. Basically there are two branches of almost identical components, one branch with `Default` strategy and the second one with the `OnPush`.  
+I've created for you an app that will let you try everything yourself. You can find it here: [github.com/galczo5/experiment-change-detection-strategy](https://github.com/galczo5/experiment-change-detection-strategy). It's a very simple app. Basically there are two branches of almost identical components, one branch with `Default` strategy and the second one with the `OnPush`.  
 Every branch contains three components: Parent and two children.
-
-You can find it here: [github.com/galczo5/experiment-change-detection-strategy](https://github.com/galczo5/experiment-change-detection-strategy).
 
 ![docs](/mythical-angular/images/cd-app.png)
 
 Every component of my app implements `OnInit`, `OnChanges` and `DoCheck` hooks to log what is called by Angular.
-Today we are not using it to do anything, I just want to know which component was checked etc.
+Today we are not using it to do anything. I just want to know which component was checked etc.
 
 ``` typescript
 import {
@@ -70,7 +68,7 @@ export class OnPushParentComponent implements OnInit, OnChanges, DoCheck {
 
 ```
 
-In addition, I've added a button to disable/enable NgZones. NgZones is not a part of change detections strategies, but it's strongly connected, and I decided that it's worth to show it.
+In addition, I've added a button to disable/enable NgZones. NgZones is not a part of change detection strategies, but it's strongly connected, and I decided that it's worth showing it.
 
 ## Facts
 
