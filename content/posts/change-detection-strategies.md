@@ -20,7 +20,18 @@ and we all know that it's not the best source of truth.
 
 ## Testing app
 
-I've created for you an app that will let you try everything yourself. You can find it here: [github.com/galczo5/experiment-change-detection-strategy](https://github.com/galczo5/experiment-change-detection-strategy). It's a very simple app. Basically there are two branches of almost identical components, one branch with `Default` strategy and the second one with the `OnPush`.  
+I've created for you an app that will let you try everything yourself. 
+You can find it here: [github.com/galczo5/experiment-change-detection-strategy](https://github.com/galczo5/experiment-change-detection-strategy).
+The app is hosted below in the iframe, so it's fully interactive, and you can do every test I did.
+
+{{< rawhtml >}}
+<div style="height: 800px; width: 1050px; border: 1px solid lightgray;">
+    <iframe style="border: 0; width: 100%; height: 100%;" src="https://galczo5.github.io/experiment-change-detection-strategy/"></iframe>
+</div>
+{{< /rawhtml >}}
+
+It's a very simple app. 
+Basically there are two branches of almost identical components, one branch with `Default` strategy and the second one with the `OnPush`.
 Every branch contains three components: Parent and two children.
 
 ![docs](/mythical-angular/images/cd-app.png)
@@ -74,7 +85,15 @@ In addition, I've added a button to disable/enable NgZones. NgZones is not a par
 
 ### Fact 1. `Default` strategy checks a lot more than `OnPush`
 
-It's easy to test it. Just click on `set value` button.
+It's easy to test it. Just click on `set value` button or follow the instructions bellow"
+
+1. Click on the button "set value" in Default Strategy parent
+2. Value should be displayed below Child 1 in Default Strategy
+3. Click on the button "set value" in OnPush Strategy parent
+4. Observe value not being displayed below Child 1 in OnPush Strategy
+
+Repeat the test clicking "set new value".
+
 This button is executing very simple code:
 
 ```typescript
@@ -140,7 +159,12 @@ Not doing it is great.
 ### Fact 2. Using `OnPush` reduce the number of components to check
 
 The test is even simpler than the previous one.
-Just click on `console.log` button from `AppComponent`.
+
+
+1. Open the dev tools of your browser.
+2. Clear the console.
+3. Click on `console.log` button from `AppComponent`.
+
 On the output you'll see:
 
 ```text
@@ -154,7 +178,14 @@ default-child2.component.ts:26 DefaultChild2Component ngDoCheck
 Here we see
 that Angular is executing `DoCheck` hook for every component with the `Default` strategy and only for the direct child with `OnPush` strategy.
 
-Again, the summary is easy. Less work to do equals better performance.
+This button is not changing anything in my view.
+There is only a side effect in form of console.log.
+In my opinion, there is no reason to check any of the components and Angular will execute some code.
+When you use `OnPush` it executes less code.
+
+When you turn off the `NgZone`, it will print only the console.log and no checks will be executed.
+
+Sounds like optimization, right? 
 
 ### Fact 3. Change detection is strongly connected to NgZones
 
@@ -170,7 +201,11 @@ To fix that issue, we have to execute change detection manually.
 In our case we can use `detect changes` button.
 After that, it's working again!
 
-**Important!** Check the output in the console.
+Now, you have full control of the change detection in Angular.
+When you work with performance, it's very important to have it,
+ because you don't need to care about external bottlenecks.
+
+**Important!** Check out the output in the console.
 In this case, it's executing a lot less `DoCheck` hooks.
 For button in `Default` branch it'll execute only the hooks for components from `Default` subtree.
 Analogical for the `OnPush` strategy.
@@ -181,15 +216,12 @@ No matter if you use `Default` or `OnPush`, at the end value was rendered becaus
 
 ### Fact 4. Only events from inside the app are triggering change detection
 
-Just click on the button from section in the red box.
+Click on the button from section in the red box bellow apps.
+
 Nothing will happen.
 No hook was executed in this test.
 
-### Fact 5. NgZones does not change strategy behaviour
-
-If you use `NgZones` or if you're not.
-The basic rule for the change detection strategies is not changing.
-It's not going to render value from an object after mutation when you use `OnPush`.
+Code outside your app will not affect your performance or trigger the change detection, and it's great.
 
 ## Summary
 
@@ -201,7 +233,6 @@ At the end, it's pretty simple:
 - `OnPush` - check only the reference to an object.
 
 Change detection cycle is started by click event, or anything else caught by `NgZone`.
-
 
 In my opinion, If you care about performance,
 you may want to use `OnPush` strategy in every component, and you may consider switching to zone-less approach.
