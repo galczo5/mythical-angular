@@ -131,7 +131,6 @@ As you can see, the documentation is not that easy to base here only on the docs
 <li><a href=#fact-2-using-onpush-reduce-the-number-of-components-to-check>Fact 2. Using <code>OnPush</code> reduce the number of components to check</a></li>
 <li><a href=#fact-3-change-detection-is-strongly-connected-to-ngzones>Fact 3. Change detection is strongly connected to NgZones</a></li>
 <li><a href=#fact-4-only-events-from-inside-the-app-are-triggering-change-detection>Fact 4. Only events from inside the app are triggering change detection</a></li>
-<li><a href=#fact-5-ngzones-does-not-change-strategy-behaviour>Fact 5. NgZones does not change strategy behaviour</a></li>
 </ul>
 </li>
 <li><a href=#summary>Summary</a></li>
@@ -162,7 +161,14 @@ Our experiment we should start with the <a href=https://angular.io/api/core/Chan
 In this case, it&rsquo;s good to try using external sources to learn how it works,
 and we all know that it&rsquo;s not the best source of truth.</p>
 <h2 id=testing-app>Testing app</h2>
-<p>I&rsquo;ve created for you an app that will let you try everything yourself. You can find it here: <a href=https://github.com/galczo5/experiment-change-detection-strategy>github.com/galczo5/experiment-change-detection-strategy</a>. It&rsquo;s a very simple app. Basically there are two branches of almost identical components, one branch with <code>Default</code> strategy and the second one with the <code>OnPush</code>.<br>
+<p>I&rsquo;ve created for you an app that will let you try everything yourself.
+You can find it here: <a href=https://github.com/galczo5/experiment-change-detection-strategy>github.com/galczo5/experiment-change-detection-strategy</a>.
+The app is hosted below in the iframe, so it&rsquo;s fully interactive, and you can do every test I did.</p>
+<div style="height:800px;width:1050px;border:1px solid #d3d3d3">
+<iframe style=border:0;width:100%;height:100% src=https://galczo5.github.io/experiment-change-detection-strategy/></iframe>
+</div>
+<p>It&rsquo;s a very simple app.
+Basically there are two branches of almost identical components, one branch with <code>Default</code> strategy and the second one with the <code>OnPush</code>.
 Every branch contains three components: Parent and two children.</p>
 <p><img src=/mythical-angular/images/cd-app.png alt=docs></p>
 <p>Every component of my app implements <code>OnInit</code>, <code>OnChanges</code> and <code>DoCheck</code> hooks to log what is called by Angular.
@@ -250,8 +256,15 @@ Today we are not using it to do anything. I just want to know which component wa
 </div><p>In addition, I&rsquo;ve added a button to disable/enable NgZones. NgZones is not a part of change detection strategies, but it&rsquo;s strongly connected, and I decided that it&rsquo;s worth showing it.</p>
 <h2 id=facts>Facts</h2>
 <h3 id=fact-1-default-strategy-checks-a-lot-more-than-onpush>Fact 1. <code>Default</code> strategy checks a lot more than <code>OnPush</code></h3>
-<p>It&rsquo;s easy to test it. Just click on <code>set value</code> button.
-This button is executing very simple code:</p>
+<p>It&rsquo;s easy to test it. Just click on <code>set value</code> button or follow the instructions bellow"</p>
+<ol>
+<li>Click on the button &ldquo;set value&rdquo; in Default Strategy parent</li>
+<li>Value should be displayed below Child 1 in Default Strategy</li>
+<li>Click on the button &ldquo;set value&rdquo; in OnPush Strategy parent</li>
+<li>Observe value not being displayed below Child 1 in OnPush Strategy</li>
+</ol>
+<p>Repeat the test clicking &ldquo;set new value&rdquo;.</p>
+<p>This button is executing very simple code:</p>
 <div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
 <table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
 <pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
@@ -357,9 +370,13 @@ In both strategies value will be rendered.</p>
 to be better for performance.</strong> Comparing values recursively is not easy and complex.
 Not doing it is great.</p>
 <h3 id=fact-2-using-onpush-reduce-the-number-of-components-to-check>Fact 2. Using <code>OnPush</code> reduce the number of components to check</h3>
-<p>The test is even simpler than the previous one.
-Just click on <code>console.log</code> button from <code>AppComponent</code>.
-On the output you&rsquo;ll see:</p>
+<p>The test is even simpler than the previous one.</p>
+<ol>
+<li>Open the dev tools of your browser.</li>
+<li>Clear the console.</li>
+<li>Click on <code>console.log</code> button from <code>AppComponent</code>.</li>
+</ol>
+<p>On the output you&rsquo;ll see:</p>
 <div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
 <table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
 <pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
@@ -378,7 +395,12 @@ default-child2.component.ts:26 DefaultChild2Component ngDoCheck
 </div>
 </div><p>Here we see
 that Angular is executing <code>DoCheck</code> hook for every component with the <code>Default</code> strategy and only for the direct child with <code>OnPush</code> strategy.</p>
-<p>Again, the summary is easy. Less work to do equals better performance.</p>
+<p>This button is not changing anything in my view.
+There is only a side effect in form of console.log.
+In my opinion, there is no reason to check any of the components and Angular will execute some code.
+When you use <code>OnPush</code> it executes less code.</p>
+<p>When you turn off the <code>NgZone</code>, it will print only the console.log and no checks will be executed.</p>
+<p>Sounds like optimization, right?</p>
 <h3 id=fact-3-change-detection-is-strongly-connected-to-ngzones>Fact 3. Change detection is strongly connected to NgZones</h3>
 <p>This test I&rsquo;m starting with pushing the <code>toggle ngzone</code> button. The header <code>Noop Zone Provided</code> should appear.</p>
 <p>From this point, I&rsquo;m repeating the test from the first fact.
@@ -389,7 +411,10 @@ It looks like the app is broken.</p>
 <p>To fix that issue, we have to execute change detection manually.
 In our case we can use <code>detect changes</code> button.
 After that, it&rsquo;s working again!</p>
-<p><strong>Important!</strong> Check the output in the console.
+<p>Now, you have full control of the change detection in Angular.
+When you work with performance, it&rsquo;s very important to have it,
+because you don&rsquo;t need to care about external bottlenecks.</p>
+<p><strong>Important!</strong> Check out the output in the console.
 In this case, it&rsquo;s executing a lot less <code>DoCheck</code> hooks.
 For button in <code>Default</code> branch it&rsquo;ll execute only the hooks for components from <code>Default</code> subtree.
 Analogical for the <code>OnPush</code> strategy.</p>
@@ -397,13 +422,10 @@ Analogical for the <code>OnPush</code> strategy.</p>
 <code>NgZone</code> is the mechanism responsible for triggering the change detection cycle.
 No matter if you use <code>Default</code> or <code>OnPush</code>, at the end value was rendered because <code>zone.js</code> reacted to click event.</p>
 <h3 id=fact-4-only-events-from-inside-the-app-are-triggering-change-detection>Fact 4. Only events from inside the app are triggering change detection</h3>
-<p>Just click on the button from section in the red box.
-Nothing will happen.
+<p>Click on the button from section in the red box bellow apps.</p>
+<p>Nothing will happen.
 No hook was executed in this test.</p>
-<h3 id=fact-5-ngzones-does-not-change-strategy-behaviour>Fact 5. NgZones does not change strategy behaviour</h3>
-<p>If you use <code>NgZones</code> or if you&rsquo;re not.
-The basic rule for the change detection strategies is not changing.
-It&rsquo;s not going to render value from an object after mutation when you use <code>OnPush</code>.</p>
+<p>Code outside your app will not affect your performance or trigger the change detection, and it&rsquo;s great.</p>
 <h2 id=summary>Summary</h2>
 <p>I&rsquo;m not sure why there are a lot of myths about this subject.
 I heard just too many very strange answers for a question &ldquo;what is the difference between change detection strategies in Angular&rdquo;.</p>
@@ -440,7 +462,6 @@ It&rsquo;s just faster when your app is not executing code that is not necessary
 <li><a href=#fact-2-using-onpush-reduce-the-number-of-components-to-check>Fact 2. Using <code>OnPush</code> reduce the number of components to check</a></li>
 <li><a href=#fact-3-change-detection-is-strongly-connected-to-ngzones>Fact 3. Change detection is strongly connected to NgZones</a></li>
 <li><a href=#fact-4-only-events-from-inside-the-app-are-triggering-change-detection>Fact 4. Only events from inside the app are triggering change detection</a></li>
-<li><a href=#fact-5-ngzones-does-not-change-strategy-behaviour>Fact 5. NgZones does not change strategy behaviour</a></li>
 </ul>
 </li>
 <li><a href=#summary>Summary</a></li>
