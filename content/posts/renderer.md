@@ -7,7 +7,7 @@ draft: false
 Today I'm going to show you how to test different methods of html styling in Angular.
 You're going to learn what is `Renderer`, how and when to it and of course how it's implemented in the framework. I'm going to compare different approaches of adding styles to find the best one. You'll see that it's not that simple.
 
-## Angular build in directives
+## Angular build-in directives
 At the very beginning, when you learn about Angular styling. It's very simple in the framework to add style or class dynamically to an html element.
 
 For example. If I want to add background to my div, and value is not static, I can do it like in the code below.
