@@ -8,8 +8,7 @@
 <link rel=stylesheet href=https://latest.cactus.chat/style.css type=text/css>
 <meta charset=utf-8>
 <meta http-equiv=x-ua-compatible content="IE=edge">
-<title> Myth: Change Detection Strategies | Mythical Angular</title>
-<link rel=canonical href=https://galczo5.github.io/mythical-angular/posts/change-detection-strategies/>
+<title> Myth: Change Detection Strategies | Mythical Angular</title><link rel=canonical href=https://galczo5.github.io/mythical-angular/posts/change-detection-strategies/>
 <meta name=viewport content="width=device-width,initial-scale=1">
 <meta name=robots content="all,follow">
 <meta name=googlebot content="index,follow,snippet,archive">
@@ -30,42 +29,36 @@ As you can see, the documentation is not that easy to base here only on the docs
 <link rel=stylesheet href=https://galczo5.github.io/mythical-angular/css/custom.css><!--[if lt IE 9]><script src=https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js></script>
 <script src=https://oss.maxcdn.com/respond/1.4.2/respond.min.js></script><![endif]-->
 <link rel=icon type=image/png href=https://galczo5.github.io/mythical-angular/images/favicon.ico>
-</head>
-<body class="max-width mx-auto px3 ltr">
+</head><body class="max-width mx-auto px3 ltr">
 <div class="content index py4">
 <div id=header-post>
 <a id=menu-icon href=#><i class="fas fa-bars fa-lg"></i></a>
 <a id=menu-icon-tablet href=#><i class="fas fa-bars fa-lg"></i></a>
-<a id=top-icon-tablet href=# onclick="$('html, body').animate({scrollTop:0},'fast')" style=display:none aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg"></i></a>
+<a id=top-icon-tablet href=# onclick='$("html, body").animate({scrollTop:0},"fast")' style=display:none aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg"></i></a>
 <span id=menu>
 <span id=nav>
 <ul>
-<li><a href=/mythical-angular/>Home</a></li>
-<li><a href=/mythical-angular/posts>All posts</a></li>
-<li><a href=/mythical-angular/tags>Tags</a></li>
-<li><a href=https://github.com/galczo5>GitHub</a></li>
-</ul>
-</span>
+<li><a href=/mythical-angular/>Home</a></li><li><a href=/mythical-angular/posts>All posts</a></li><li><a href=/mythical-angular/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></span>
 <br>
 <span id=actions>
 <ul>
 <li>
 <a class=icon href=https://galczo5.github.io/mythical-angular/posts/setters/ aria-label=Previous>
-<i class="fas fa-chevron-left" aria-hidden=true onmouseover="$('#i-prev').toggle()" onmouseout="$('#i-prev').toggle()"></i>
+<i class="fas fa-chevron-left" aria-hidden=true onmouseover='$("#i-prev").toggle()' onmouseout='$("#i-prev").toggle()'></i>
 </a>
-</li>
-<li>
-<a class=icon href=# onclick="$('html, body').animate({scrollTop:0},'fast')" aria-label="Top of Page">
-<i class="fas fa-chevron-up" aria-hidden=true onmouseover="$('#i-top').toggle()" onmouseout="$('#i-top').toggle()"></i>
+</li><li>
+<a class=icon href=https://galczo5.github.io/mythical-angular/posts/renderer/ aria-label=Next>
+<i class="fas fa-chevron-right" aria-hidden=true onmouseover='$("#i-next").toggle()' onmouseout='$("#i-next").toggle()'></i>
 </a>
-</li>
-<li>
+</li><li>
+<a class=icon href=# onclick='$("html, body").animate({scrollTop:0},"fast")' aria-label="Top of Page">
+<i class="fas fa-chevron-up" aria-hidden=true onmouseover='$("#i-top").toggle()' onmouseout='$("#i-top").toggle()'></i>
+</a>
+</li><li>
 <a class=icon href=# aria-label=Share>
-<i class="fas fa-share-alt" aria-hidden=true onmouseover="$('#i-share').toggle()" onmouseout="$('#i-share').toggle()" onclick="return $('#share').toggle(),!1"></i>
+<i class="fas fa-share-alt" aria-hidden=true onmouseover='$("#i-share").toggle()' onmouseout='$("#i-share").toggle()' onclick='return $("#share").toggle(),!1'></i>
 </a>
-</li>
-</ul>
-<span id=i-prev class=info style=display:none>Previous post</span>
+</li></ul><span id=i-prev class=info style=display:none>Previous post</span>
 <span id=i-next class=info style=display:none>Next post</span>
 <span id=i-top class=info style=display:none>Back to top</span>
 <span id=i-share class=info style=display:none>Share post</span>
@@ -77,476 +70,328 @@ As you can see, the documentation is not that easy to base here only on the docs
 <a class=icon href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fchange-detection-strategies%2f" aria-label=Facebook>
 <i class="fab fa-facebook" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://twitter.com/share?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fchange-detection-strategies%2f&text=Myth%3a%20Change%20Detection%20Strategies" aria-label=Twitter>
 <i class="fab fa-twitter" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fchange-detection-strategies%2f&title=Myth%3a%20Change%20Detection%20Strategies" aria-label=Linkedin>
 <i class="fab fa-linkedin" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fchange-detection-strategies%2f&is_video=false&description=Myth%3a%20Change%20Detection%20Strategies" aria-label=Pinterest>
 <i class="fab fa-pinterest" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="mailto:?subject=Myth%3a%20Change%20Detection%20Strategies&body=Check out this article: https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fchange-detection-strategies%2f" aria-label=Email>
 <i class="fas fa-envelope" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://getpocket.com/save?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fchange-detection-strategies%2f&title=Myth%3a%20Change%20Detection%20Strategies" aria-label=Pocket>
 <i class="fab fa-get-pocket" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://reddit.com/submit?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fchange-detection-strategies%2f&title=Myth%3a%20Change%20Detection%20Strategies" aria-label=reddit>
 <i class="fab fa-reddit" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://www.tumblr.com/share/link?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fchange-detection-strategies%2f&name=Myth%3a%20Change%20Detection%20Strategies&description=Not%20so%20long%20ago%20I%20noticed%20that%20the%20change%20detection%20subject%20in%20Angular%20is%20very%20mythical.%20For%20the%20first%20sight%2c%20it%20looks%20very%20simple%2c%20and%20it%20is.%0aDocs%20So%2c%20we%20have%20two%20change%20detection%20strategies%3a%20Default%20and%20OnPush.%20If%20you%20have%20not%20specified%20which%20one%20you%20want%20to%20use%20in%20your%20component%2c%20it%26rsquo%3bs%20going%20to%20use%20Default%20one.%20Our%20experiment%20we%20should%20start%20with%20the%20docs.%0aAs%20you%20can%20see%2c%20the%20documentation%20is%20not%20that%20easy%20to%20base%20here%20only%20on%20the%20docs." aria-label=Tumblr>
 <i class="fab fa-tumblr" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fchange-detection-strategies%2f&t=Myth%3a%20Change%20Detection%20Strategies" aria-label="Hacker News">
 <i class="fab fa-hacker-news" aria-hidden=true></i>
 </a>
-</li>
-</ul>
-</div>
-<div id=toc>
+</li></ul></div><div id=toc>
 <nav id=TableOfContents>
 <ul>
-<li><a href=#docs>Docs</a></li>
-<li><a href=#testing-app>Testing app</a></li>
-<li><a href=#facts>Facts</a>
+<li><a href=#docs>Docs</a></li><li><a href=#testing-app>Testing app</a></li><li><a href=#facts>Facts</a>
 <ul>
-<li><a href=#fact-1-default-strategy-checks-a-lot-more-than-onpush>Fact 1. <code>Default</code> strategy checks a lot more than <code>OnPush</code></a></li>
-<li><a href=#fact-2-using-onpush-reduce-the-number-of-components-to-check>Fact 2. Using <code>OnPush</code> reduce the number of components to check</a></li>
-<li><a href=#fact-3-change-detection-is-strongly-connected-to-ngzones>Fact 3. Change detection is strongly connected to NgZones</a></li>
-<li><a href=#fact-4-only-events-from-inside-the-app-are-triggering-change-detection>Fact 4. Only events from inside the app are triggering change detection</a></li>
-</ul>
-</li>
-<li><a href=#summary>Summary</a></li>
-</ul>
-</nav>
-</div>
-</span>
-</div>
-<article class=post itemscope itemtype=http://schema.org/BlogPosting>
+<li><a href=#fact-1-default-strategy-checks-a-lot-more-than-onpush>Fact 1. <code>Default</code> strategy checks a lot more than <code>OnPush</code></a></li><li><a href=#fact-2-using-onpush-reduce-the-number-of-components-to-check>Fact 2. Using <code>OnPush</code> reduce the number of components to check</a></li><li><a href=#fact-3-change-detection-is-strongly-connected-to-ngzones>Fact 3. Change detection is strongly connected to NgZones</a></li><li><a href=#fact-4-only-events-from-inside-the-app-are-triggering-change-detection>Fact 4. Only events from inside the app are triggering change detection</a></li></ul></li><li><a href=#summary>Summary</a></li></ul></nav></div></span>
+</div><article class=post itemscope itemtype=http://schema.org/BlogPosting>
 <header>
 <h1 class=posttitle itemprop="name headline">
 Myth: Change Detection Strategies
-</h1>
-<div class=meta>
+</h1><div class=meta>
 <div class=postdate>
 <time datetime="2022-02-20 00:00:00 +0000 UTC" itemprop=datePublished>2022-02-20</time>
-</div>
-</div>
-</header>
-<div class=content itemprop=articleBody>
+</div></div></header><div class=content itemprop=articleBody>
 <p>Not so long ago I noticed that the change detection subject in Angular is very mythical.
-For the first sight, it looks very simple, and it is.</p>
-<h2 id=docs>Docs</h2>
-<p>So, we have two change detection strategies: <code>Default</code> and <code>OnPush</code>. If you have not specified which one you want to use in your component, it&rsquo;s going to use <code>Default</code> one.
-Our experiment we should start with the <a href=https://angular.io/api/core/ChangeDetectionStrategy>docs</a>.</p>
-<p><img src=/mythical-angular/images/cd-docs.png alt=docs></p>
-<p>As you can see, the documentation is not that easy to base here only on the docs. Even if you follow the <a href=https://angular.io/api/core/ChangeDetectorRef#usage-notes>Change detection usage</a> links, it&rsquo;s not enough.
+For the first sight, it looks very simple, and it is.</p><h2 id=docs>Docs</h2><p>So, we have two change detection strategies: <code>Default</code> and <code>OnPush</code>. If you have not specified which one you want to use in your component, it&rsquo;s going to use <code>Default</code> one.
+Our experiment we should start with the <a href=https://angular.io/api/core/ChangeDetectionStrategy>docs</a>.</p><p><img src=/mythical-angular/images/cd-docs.png alt=docs></p><p>As you can see, the documentation is not that easy to base here only on the docs. Even if you follow the <a href=https://angular.io/api/core/ChangeDetectorRef#usage-notes>Change detection usage</a> links, it&rsquo;s not enough.
 In this case, it&rsquo;s good to try using external sources to learn how it works,
-and we all know that it&rsquo;s not the best source of truth.</p>
-<h2 id=testing-app>Testing app</h2>
-<p>I&rsquo;ve created for you an app that will let you try everything yourself.
+and we all know that it&rsquo;s not the best source of truth.</p><h2 id=testing-app>Testing app</h2><p>I&rsquo;ve created for you an app that will let you try everything yourself.
 You can find it here: <a href=https://github.com/galczo5/experiment-change-detection-strategy>github.com/galczo5/experiment-change-detection-strategy</a>.
-The app is hosted below in the iframe, so it&rsquo;s fully interactive, and you can do every test I did.</p>
-<div style="height:800px;width:1050px;border:1px solid #d3d3d3">
+The app is hosted below in the iframe, so it&rsquo;s fully interactive, and you can do every test I did.</p><div style="height:800px;width:1050px;border:1px solid #d3d3d3">
 <iframe style=border:0;width:100%;height:100% src=https://galczo5.github.io/experiment-change-detection-strategy/></iframe>
-</div>
-<p>It&rsquo;s a very simple app.
+</div><p>It&rsquo;s a very simple app.
 Basically there are two branches of almost identical components, one branch with <code>Default</code> strategy and the second one with the <code>OnPush</code>.
-Every branch contains three components: Parent and two children.</p>
-<p><img src=/mythical-angular/images/cd-app.png alt=docs></p>
-<p>Every component of my app implements <code>OnInit</code>, <code>OnChanges</code> and <code>DoCheck</code> hooks to log what is called by Angular.
-Today we are not using it to do anything. I just want to know which component was checked etc.</p>
-<div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
-<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
-<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">36
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">37
-</span></code></pre></td>
-<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
-<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=color:#ff79c6>import</span> {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  DoCheck,
-  OnChanges,
-  OnInit,
-  SimpleChanges
-} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;@angular/core&#39;</span>;
-<span style=color:#ff79c6>import</span> {getConsoleStyle} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;../consoleStyleFactory&#34;</span>;
-
-<span style=color:#8be9fd;font-style:italic>@Component</span>({
-  selector<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;app-on-push-parent&#39;</span>,
-  template<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>`
-</span><span style=color:#f1fa8c>    // ...
-</span><span style=color:#f1fa8c>  `</span>,
-  changeDetection: <span style=color:#8be9fd>ChangeDetectionStrategy.OnPush</span>
-})
-<span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> OnPushParentComponent <span style=color:#ff79c6>implements</span> OnInit, OnChanges, DoCheck {
-
-  <span style=color:#6272a4>/* ... */</span>
-
-  ngOnInit() {
-    console.log(<span style=color:#f1fa8c>&#39;%cOnPushParentComponent&#39;</span>, getConsoleStyle(<span style=color:#f1fa8c>&#39;green&#39;</span>), <span style=color:#f1fa8c>&#39;ngOnInit&#39;</span>);
-  }
-
-  ngDoCheck() {
-    console.log(<span style=color:#f1fa8c>&#39;%cOnPushParentComponent&#39;</span>, getConsoleStyle(<span style=color:#f1fa8c>&#39;green&#39;</span>), <span style=color:#f1fa8c>&#39;ngDoCheck&#39;</span>);
-  }
-
-  ngOnChanges(changes: <span style=color:#8be9fd>SimpleChanges</span>) {
-    console.log(<span style=color:#f1fa8c>&#39;%cOnPushParentComponent&#39;</span>, getConsoleStyle(<span style=color:#f1fa8c>&#39;green&#39;</span>), <span style=color:#f1fa8c>&#39;ngOnChanges&#39;</span>, changes);
-  }
-
-  <span style=color:#6272a4>/* ... */</span>
-}
-
-</code></pre></td></tr></table>
-</div>
-</div><p>In addition, I&rsquo;ve added a button to disable/enable NgZones. NgZones is not a part of change detection strategies, but it&rsquo;s strongly connected, and I decided that it&rsquo;s worth showing it.</p>
-<h2 id=facts>Facts</h2>
-<h3 id=fact-1-default-strategy-checks-a-lot-more-than-onpush>Fact 1. <code>Default</code> strategy checks a lot more than <code>OnPush</code></h3>
-<p>It&rsquo;s easy to test it. Just click on <code>set value</code> button or follow the instructions bellow"</p>
-<ol>
-<li>Click on the button &ldquo;set value&rdquo; in Default Strategy parent</li>
-<li>Value should be displayed below Child 1 in Default Strategy</li>
-<li>Click on the button &ldquo;set value&rdquo; in OnPush Strategy parent</li>
-<li>Observe value not being displayed below Child 1 in OnPush Strategy</li>
-</ol>
-<p>Repeat the test clicking &ldquo;set new value&rdquo;.</p>
-<p>This button is executing very simple code:</p>
-<div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
-<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
-<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
-</span></code></pre></td>
-<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
-<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=color:#ff79c6>import</span> {ChangeDetectorRef, Component, DoCheck, OnChanges, OnInit, SimpleChanges} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;@angular/core&#39;</span>;
-<span style=color:#ff79c6>import</span> {getConsoleStyle} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;../consoleStyleFactory&#34;</span>;
-
-<span style=color:#8be9fd;font-style:italic>@Component</span>({
-    selector<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;app-default-parent&#39;</span>,
-    template<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>`
-</span><span style=color:#f1fa8c>    // ...
-</span><span style=color:#f1fa8c>      &lt;button (click)=&#34;setValue()&#34;&gt;Set value&lt;/button&gt;
-</span><span style=color:#f1fa8c>      &lt;button (click)=&#34;setNewValue()&#34;&gt;Set new value&lt;/button&gt;
-</span><span style=color:#f1fa8c>    // ...
-</span><span style=color:#f1fa8c>  `</span>
-})
-<span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> DefaultParentComponent <span style=color:#ff79c6>implements</span> OnInit, OnChanges, DoCheck {
-
-    obj <span style=color:#ff79c6>=</span> { value: <span style=color:#8be9fd>0</span> };
-
-    <span style=color:#6272a4>/* ... */</span>
-
-    setValue() {
-        <span style=color:#ff79c6>this</span>.obj.value <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> <span style=color:#8be9fd;font-style:italic>Date</span>().getTime();
-    }
-
-    setNewValue() {
-        <span style=color:#ff79c6>this</span>.obj <span style=color:#ff79c6>=</span> { value: <span style=color:#8be9fd>new</span> <span style=color:#8be9fd;font-style:italic>Date</span>().getTime() };
-    }
-
-    <span style=color:#6272a4>/* ... */</span>
-}
-</code></pre></td></tr></table>
-</div>
-</div><p>In case of <code>Default</code> strategy you&rsquo;ll see that value is rendered.
+Every branch contains three components: Parent and two children.</p><p><img src=/mythical-angular/images/cd-app.png alt=docs></p><p>Every component of my app implements <code>OnInit</code>, <code>OnChanges</code> and <code>DoCheck</code> hooks to log what is called by Angular.
+Today we are not using it to do anything. I just want to know which component was checked etc.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">36
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>import</span> {
+</span></span><span style=display:flex><span>  ChangeDetectionStrategy,
+</span></span><span style=display:flex><span>  ChangeDetectorRef,
+</span></span><span style=display:flex><span>  Component,
+</span></span><span style=display:flex><span>  DoCheck,
+</span></span><span style=display:flex><span>  OnChanges,
+</span></span><span style=display:flex><span>  OnInit,
+</span></span><span style=display:flex><span>  SimpleChanges
+</span></span><span style=display:flex><span>} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;@angular/core&#39;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {getConsoleStyle} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;../consoleStyleFactory&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>@Component</span>({
+</span></span><span style=display:flex><span>  selector<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;app-on-push-parent&#39;</span>,
+</span></span><span style=display:flex><span>  template<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>`
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>    // ...
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>  `</span>,
+</span></span><span style=display:flex><span>  changeDetection: <span style=color:#8be9fd>ChangeDetectionStrategy.OnPush</span>
+</span></span><span style=display:flex><span>})
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> OnPushParentComponent <span style=color:#ff79c6>implements</span> OnInit, OnChanges, DoCheck {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#6272a4>/* ... */</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ngOnInit() {
+</span></span><span style=display:flex><span>    console.log(<span style=color:#f1fa8c>&#39;%cOnPushParentComponent&#39;</span>, getConsoleStyle(<span style=color:#f1fa8c>&#39;green&#39;</span>), <span style=color:#f1fa8c>&#39;ngOnInit&#39;</span>);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ngDoCheck() {
+</span></span><span style=display:flex><span>    console.log(<span style=color:#f1fa8c>&#39;%cOnPushParentComponent&#39;</span>, getConsoleStyle(<span style=color:#f1fa8c>&#39;green&#39;</span>), <span style=color:#f1fa8c>&#39;ngDoCheck&#39;</span>);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ngOnChanges(changes: <span style=color:#8be9fd>SimpleChanges</span>) {
+</span></span><span style=display:flex><span>    console.log(<span style=color:#f1fa8c>&#39;%cOnPushParentComponent&#39;</span>, getConsoleStyle(<span style=color:#f1fa8c>&#39;green&#39;</span>), <span style=color:#f1fa8c>&#39;ngOnChanges&#39;</span>, changes);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#6272a4>/* ... */</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>In addition, I&rsquo;ve added a button to disable/enable NgZones. NgZones is not a part of change detection strategies, but it&rsquo;s strongly connected, and I decided that it&rsquo;s worth showing it.</p><h2 id=facts>Facts</h2><h3 id=fact-1-default-strategy-checks-a-lot-more-than-onpush>Fact 1. <code>Default</code> strategy checks a lot more than <code>OnPush</code></h3><p>It&rsquo;s easy to test it. Just click on <code>set value</code> button or follow the instructions bellow"</p><ol>
+<li>Click on the button &ldquo;set value&rdquo; in Default Strategy parent</li><li>Value should be displayed below Child 1 in Default Strategy</li><li>Click on the button &ldquo;set value&rdquo; in OnPush Strategy parent</li><li>Observe value not being displayed below Child 1 in OnPush Strategy</li></ol><p>Repeat the test clicking &ldquo;set new value&rdquo;.</p><p>This button is executing very simple code:</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>import</span> {ChangeDetectorRef, Component, DoCheck, OnChanges, OnInit, SimpleChanges} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;@angular/core&#39;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {getConsoleStyle} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;../consoleStyleFactory&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>@Component</span>({
+</span></span><span style=display:flex><span>    selector<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;app-default-parent&#39;</span>,
+</span></span><span style=display:flex><span>    template<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>`
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>    // ...
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>      &lt;button (click)=&#34;setValue()&#34;&gt;Set value&lt;/button&gt;
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>      &lt;button (click)=&#34;setNewValue()&#34;&gt;Set new value&lt;/button&gt;
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>    // ...
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>  `</span>
+</span></span><span style=display:flex><span>})
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> DefaultParentComponent <span style=color:#ff79c6>implements</span> OnInit, OnChanges, DoCheck {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    obj <span style=color:#ff79c6>=</span> { value: <span style=color:#8be9fd>0</span> };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>/* ... */</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    setValue() {
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>this</span>.obj.value <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> <span style=color:#8be9fd;font-style:italic>Date</span>().getTime();
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    setNewValue() {
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>this</span>.obj <span style=color:#ff79c6>=</span> { value: <span style=color:#8be9fd>new</span> <span style=color:#8be9fd;font-style:italic>Date</span>().getTime() };
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>/* ... */</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>In case of <code>Default</code> strategy you&rsquo;ll see that value is rendered.
 When you repeat that test in <code>OnPush</code> branch value will not be rendered.
-In both cases in the console, you should get a similar output.</p>
-<p>Default:</p>
-<div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
-<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
-<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
-</span></code></pre></td>
-<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
-<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>default-parent.component.ts:44 DefaultParentComponent ngDoCheck
-on-push-parent.component.ts:52 OnPushParentComponent ngDoCheck
-default-child1.component.ts:30 DefaultChild1Component ngDoCheck
-default-child2.component.ts:26 DefaultChild2Component ngDoCheck
-</code></pre></td></tr></table>
-</div>
-</div><p>OnPush:</p>
-<div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
-<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
-<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">6
-</span></code></pre></td>
-<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
-<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>default-parent.component.ts:44 DefaultParentComponent ngDoCheck
-on-push-parent.component.ts:52 OnPushParentComponent ngDoCheck
-default-child1.component.ts:30 DefaultChild1Component ngDoCheck
-default-child2.component.ts:26 DefaultChild2Component ngDoCheck
-on-push-child1.component.ts:39 OnPushChild1Component ngDoCheck
-on-push-child2.component.ts:35 OnPushChild2Component ngDoCheck
-</code></pre></td></tr></table>
-</div>
-</div><p>So if you keep your object immutable, it should work like in method <code>setNewValue</code>.
-In both strategies value will be rendered.</p>
-<p><strong>This fact shows us why <code>OnPush</code> strategy is considered
+In both cases in the console, you should get a similar output.</p><p>Default:</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>default-parent.component.ts:44 DefaultParentComponent ngDoCheck
+</span></span><span style=display:flex><span>on-push-parent.component.ts:52 OnPushParentComponent ngDoCheck
+</span></span><span style=display:flex><span>default-child1.component.ts:30 DefaultChild1Component ngDoCheck
+</span></span><span style=display:flex><span>default-child2.component.ts:26 DefaultChild2Component ngDoCheck
+</span></span></code></pre></td></tr></table></div></div><p>OnPush:</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">6
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>default-parent.component.ts:44 DefaultParentComponent ngDoCheck
+</span></span><span style=display:flex><span>on-push-parent.component.ts:52 OnPushParentComponent ngDoCheck
+</span></span><span style=display:flex><span>default-child1.component.ts:30 DefaultChild1Component ngDoCheck
+</span></span><span style=display:flex><span>default-child2.component.ts:26 DefaultChild2Component ngDoCheck
+</span></span><span style=display:flex><span>on-push-child1.component.ts:39 OnPushChild1Component ngDoCheck
+</span></span><span style=display:flex><span>on-push-child2.component.ts:35 OnPushChild2Component ngDoCheck
+</span></span></code></pre></td></tr></table></div></div><p>So if you keep your object immutable, it should work like in method <code>setNewValue</code>.
+In both strategies value will be rendered.</p><p><strong>This fact shows us why <code>OnPush</code> strategy is considered
 to be better for performance.</strong> Comparing values recursively is not easy and complex.
-Not doing it is great.</p>
-<h3 id=fact-2-using-onpush-reduce-the-number-of-components-to-check>Fact 2. Using <code>OnPush</code> reduce the number of components to check</h3>
-<p>The test is even simpler than the previous one.</p>
-<ol>
-<li>Open the dev tools of your browser.</li>
-<li>Clear the console.</li>
-<li>Click on <code>console.log</code> button from <code>AppComponent</code>.</li>
-</ol>
-<p>On the output you&rsquo;ll see:</p>
-<div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
-<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
-<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
-</span></code></pre></td>
-<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
-<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>app.component.ts:52 Click!
-default-parent.component.ts:44 DefaultParentComponent ngDoCheck
-on-push-parent.component.ts:52 OnPushParentComponent ngDoCheck
-default-child1.component.ts:30 DefaultChild1Component ngDoCheck
-default-child2.component.ts:26 DefaultChild2Component ngDoCheck
-</code></pre></td></tr></table>
-</div>
-</div><p>Here we see
-that Angular is executing <code>DoCheck</code> hook for every component with the <code>Default</code> strategy and only for the direct child with <code>OnPush</code> strategy.</p>
-<p>This button is not changing anything in my view.
+Not doing it is great.</p><h3 id=fact-2-using-onpush-reduce-the-number-of-components-to-check>Fact 2. Using <code>OnPush</code> reduce the number of components to check</h3><p>The test is even simpler than the previous one.</p><ol>
+<li>Open the dev tools of your browser.</li><li>Clear the console.</li><li>Click on <code>console.log</code> button from <code>AppComponent</code>.</li></ol><p>On the output you&rsquo;ll see:</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>app.component.ts:52 Click!
+</span></span><span style=display:flex><span>default-parent.component.ts:44 DefaultParentComponent ngDoCheck
+</span></span><span style=display:flex><span>on-push-parent.component.ts:52 OnPushParentComponent ngDoCheck
+</span></span><span style=display:flex><span>default-child1.component.ts:30 DefaultChild1Component ngDoCheck
+</span></span><span style=display:flex><span>default-child2.component.ts:26 DefaultChild2Component ngDoCheck
+</span></span></code></pre></td></tr></table></div></div><p>Here we see
+that Angular is executing <code>DoCheck</code> hook for every component with the <code>Default</code> strategy and only for the direct child with <code>OnPush</code> strategy.</p><p>This button is not changing anything in my view.
 There is only a side effect in form of console.log.
 In my opinion, there is no reason to check any of the components and Angular will execute some code.
-When you use <code>OnPush</code> it executes less code.</p>
-<p>When you turn off the <code>NgZone</code>, it will print only the console.log and no checks will be executed.</p>
-<p>Sounds like optimization, right?</p>
-<h3 id=fact-3-change-detection-is-strongly-connected-to-ngzones>Fact 3. Change detection is strongly connected to NgZones</h3>
-<p>This test I&rsquo;m starting with pushing the <code>toggle ngzone</code> button. The header <code>Noop Zone Provided</code> should appear.</p>
-<p>From this point, I&rsquo;m repeating the test from the first fact.
+When you use <code>OnPush</code> it executes less code.</p><p>When you turn off the <code>NgZone</code>, it will print only the console.log and no checks will be executed.</p><p>Sounds like optimization, right?</p><h3 id=fact-3-change-detection-is-strongly-connected-to-ngzones>Fact 3. Change detection is strongly connected to NgZones</h3><p>This test I&rsquo;m starting with pushing the <code>toggle ngzone</code> button. The header <code>Noop Zone Provided</code> should appear.</p><p>From this point, I&rsquo;m repeating the test from the first fact.
 In every case, no matter if I click on <code>set value</code> or <code>set new value</code> there is nothing.
 Value is not rendered.
 The console is clear.
-It looks like the app is broken.</p>
-<p>To fix that issue, we have to execute change detection manually.
+It looks like the app is broken.</p><p>To fix that issue, we have to execute change detection manually.
 In our case we can use <code>detect changes</code> button.
-After that, it&rsquo;s working again!</p>
-<p>Now, you have full control of the change detection in Angular.
+After that, it&rsquo;s working again!</p><p>Now, you have full control of the change detection in Angular.
 When you work with performance, it&rsquo;s very important to have it,
-because you don&rsquo;t need to care about external bottlenecks.</p>
-<p><strong>Important!</strong> Check out the output in the console.
+because you don&rsquo;t need to care about external bottlenecks.</p><p><strong>Important!</strong> Check out the output in the console.
 In this case, it&rsquo;s executing a lot less <code>DoCheck</code> hooks.
 For button in <code>Default</code> branch it&rsquo;ll execute only the hooks for components from <code>Default</code> subtree.
-Analogical for the <code>OnPush</code> strategy.</p>
-<p>This test proves one very important thing.
+Analogical for the <code>OnPush</code> strategy.</p><p>This test proves one very important thing.
 <code>NgZone</code> is the mechanism responsible for triggering the change detection cycle.
-No matter if you use <code>Default</code> or <code>OnPush</code>, at the end value was rendered because <code>zone.js</code> reacted to click event.</p>
-<h3 id=fact-4-only-events-from-inside-the-app-are-triggering-change-detection>Fact 4. Only events from inside the app are triggering change detection</h3>
-<p>Click on the button from section in the red box bellow apps.</p>
-<p>Nothing will happen.
-No hook was executed in this test.</p>
-<p>Code outside your app will not affect your performance or trigger the change detection, and it&rsquo;s great.</p>
-<h2 id=summary>Summary</h2>
-<p>I&rsquo;m not sure why there are a lot of myths about this subject.
-I heard just too many very strange answers for a question &ldquo;what is the difference between change detection strategies in Angular&rdquo;.</p>
-<p>At the end, it&rsquo;s pretty simple:</p>
-<ul>
-<li><code>Default</code> - check recursively</li>
-<li><code>OnPush</code> - check only the reference to an object.</li>
-</ul>
-<p>Change detection cycle is started by click event, or anything else caught by <code>NgZone</code>.</p>
-<p>In my opinion, If you care about performance,
+No matter if you use <code>Default</code> or <code>OnPush</code>, at the end value was rendered because <code>zone.js</code> reacted to click event.</p><h3 id=fact-4-only-events-from-inside-the-app-are-triggering-change-detection>Fact 4. Only events from inside the app are triggering change detection</h3><p>Click on the button from section in the red box bellow apps.</p><p>Nothing will happen.
+No hook was executed in this test.</p><p>Code outside your app will not affect your performance or trigger the change detection, and it&rsquo;s great.</p><h2 id=summary>Summary</h2><p>I&rsquo;m not sure why there are a lot of myths about this subject.
+I heard just too many very strange answers for a question &ldquo;what is the difference between change detection strategies in Angular&rdquo;.</p><p>At the end, it&rsquo;s pretty simple:</p><ul>
+<li><code>Default</code> - check recursively</li><li><code>OnPush</code> - check only the reference to an object.</li></ul><p>Change detection cycle is started by click event, or anything else caught by <code>NgZone</code>.</p><p>In my opinion, If you care about performance,
 you may want to use <code>OnPush</code> strategy in every component, and you may consider switching to zone-less approach.
-It&rsquo;s just faster when your app is not executing code that is not necessary to render the value in one place.</p>
-<p>I think that I proved it in this article.</p>
-</div>
-</article>
-<div id=footer-post-container>
+It&rsquo;s just faster when your app is not executing code that is not necessary to render the value in one place.</p><p>I think that I proved it in this article.</p></div></article><div id=footer-post-container>
 <div id=footer-post>
 <div id=nav-footer style=display:none>
 <ul>
-<li><a href=/mythical-angular/>Home</a></li>
-<li><a href=/mythical-angular/posts>All posts</a></li>
-<li><a href=/mythical-angular/tags>Tags</a></li>
-<li><a href=https://github.com/galczo5>GitHub</a></li>
-</ul>
-</div>
-<div id=toc-footer style=display:none>
+<li><a href=/mythical-angular/>Home</a></li><li><a href=/mythical-angular/posts>All posts</a></li><li><a href=/mythical-angular/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></div><div id=toc-footer style=display:none>
 <nav id=TableOfContents>
 <ul>
-<li><a href=#docs>Docs</a></li>
-<li><a href=#testing-app>Testing app</a></li>
-<li><a href=#facts>Facts</a>
+<li><a href=#docs>Docs</a></li><li><a href=#testing-app>Testing app</a></li><li><a href=#facts>Facts</a>
 <ul>
-<li><a href=#fact-1-default-strategy-checks-a-lot-more-than-onpush>Fact 1. <code>Default</code> strategy checks a lot more than <code>OnPush</code></a></li>
-<li><a href=#fact-2-using-onpush-reduce-the-number-of-components-to-check>Fact 2. Using <code>OnPush</code> reduce the number of components to check</a></li>
-<li><a href=#fact-3-change-detection-is-strongly-connected-to-ngzones>Fact 3. Change detection is strongly connected to NgZones</a></li>
-<li><a href=#fact-4-only-events-from-inside-the-app-are-triggering-change-detection>Fact 4. Only events from inside the app are triggering change detection</a></li>
-</ul>
-</li>
-<li><a href=#summary>Summary</a></li>
-</ul>
-</nav>
-</div>
-<div id=share-footer style=display:none>
+<li><a href=#fact-1-default-strategy-checks-a-lot-more-than-onpush>Fact 1. <code>Default</code> strategy checks a lot more than <code>OnPush</code></a></li><li><a href=#fact-2-using-onpush-reduce-the-number-of-components-to-check>Fact 2. Using <code>OnPush</code> reduce the number of components to check</a></li><li><a href=#fact-3-change-detection-is-strongly-connected-to-ngzones>Fact 3. Change detection is strongly connected to NgZones</a></li><li><a href=#fact-4-only-events-from-inside-the-app-are-triggering-change-detection>Fact 4. Only events from inside the app are triggering change detection</a></li></ul></li><li><a href=#summary>Summary</a></li></ul></nav></div><div id=share-footer style=display:none>
 <ul>
 <li>
 <a class=icon href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fchange-detection-strategies%2f" aria-label=Facebook>
 <i class="fab fa-facebook fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://twitter.com/share?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fchange-detection-strategies%2f&text=Myth%3a%20Change%20Detection%20Strategies" aria-label=Twitter>
 <i class="fab fa-twitter fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fchange-detection-strategies%2f&title=Myth%3a%20Change%20Detection%20Strategies" aria-label=Linkedin>
 <i class="fab fa-linkedin fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fchange-detection-strategies%2f&is_video=false&description=Myth%3a%20Change%20Detection%20Strategies" aria-label=Pinterest>
 <i class="fab fa-pinterest fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="mailto:?subject=Myth%3a%20Change%20Detection%20Strategies&body=Check out this article: https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fchange-detection-strategies%2f" aria-label=Email>
 <i class="fas fa-envelope fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://getpocket.com/save?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fchange-detection-strategies%2f&title=Myth%3a%20Change%20Detection%20Strategies" aria-label=Pocket>
 <i class="fab fa-get-pocket fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://reddit.com/submit?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fchange-detection-strategies%2f&title=Myth%3a%20Change%20Detection%20Strategies" aria-label=reddit>
 <i class="fab fa-reddit fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://www.tumblr.com/share/link?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fchange-detection-strategies%2f&name=Myth%3a%20Change%20Detection%20Strategies&description=Not%20so%20long%20ago%20I%20noticed%20that%20the%20change%20detection%20subject%20in%20Angular%20is%20very%20mythical.%20For%20the%20first%20sight%2c%20it%20looks%20very%20simple%2c%20and%20it%20is.%0aDocs%20So%2c%20we%20have%20two%20change%20detection%20strategies%3a%20Default%20and%20OnPush.%20If%20you%20have%20not%20specified%20which%20one%20you%20want%20to%20use%20in%20your%20component%2c%20it%26rsquo%3bs%20going%20to%20use%20Default%20one.%20Our%20experiment%20we%20should%20start%20with%20the%20docs.%0aAs%20you%20can%20see%2c%20the%20documentation%20is%20not%20that%20easy%20to%20base%20here%20only%20on%20the%20docs." aria-label=Tumblr>
 <i class="fab fa-tumblr fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fchange-detection-strategies%2f&t=Myth%3a%20Change%20Detection%20Strategies" aria-label="Hacker News">
 <i class="fab fa-hacker-news fa-lg" aria-hidden=true></i>
 </a>
-</li>
-</ul>
-</div>
-<div id=actions-footer>
-<a id=menu-toggle class=icon href=# onclick="return $('#nav-footer').toggle(),!1" aria-label=Menu>
+</li></ul></div><div id=actions-footer>
+<a id=menu-toggle class=icon href=# onclick='return $("#nav-footer").toggle(),!1' aria-label=Menu>
 <i class="fas fa-bars fa-lg" aria-hidden=true></i> Menu</a>
-<a id=toc-toggle class=icon href=# onclick="return $('#toc-footer').toggle(),!1" aria-label=TOC>
+<a id=toc-toggle class=icon href=# onclick='return $("#toc-footer").toggle(),!1' aria-label=TOC>
 <i class="fas fa-list fa-lg" aria-hidden=true></i> TOC</a>
-<a id=share-toggle class=icon href=# onclick="return $('#share-footer').toggle(),!1" aria-label=Share>
+<a id=share-toggle class=icon href=# onclick='return $("#share-footer").toggle(),!1' aria-label=Share>
 <i class="fas fa-share-alt fa-lg" aria-hidden=true></i> share</a>
-<a id=top style=display:none class=icon href=# onclick="$('html, body').animate({scrollTop:0},'fast')" aria-label="Top of Page">
+<a id=top style=display:none class=icon href=# onclick='$("html, body").animate({scrollTop:0},"fast")' aria-label="Top of Page">
 <i class="fas fa-chevron-up fa-lg" aria-hidden=true></i> Top</a>
-</div>
-</div>
-</div>
-<footer id=footer>
+</div></div></div><footer id=footer>
 <div class=footer-left>
 Copyright &copy; 2022 Kamil Gałek
-</div>
-<div class=footer-right>
+</div><div class=footer-right>
 <nav>
 <ul>
-<li><a href=/mythical-angular/>Home</a></li>
-<li><a href=/mythical-angular/posts>All posts</a></li>
-<li><a href=/mythical-angular/tags>Tags</a></li>
-<li><a href=https://github.com/galczo5>GitHub</a></li>
-</ul>
-</nav>
-</div>
-</footer>
-</div>
-</body>
-<link rel=stylesheet href=/mythical-angular/lib/font-awesome/css/all.min.css>
+<li><a href=/mythical-angular/>Home</a></li><li><a href=/mythical-angular/posts>All posts</a></li><li><a href=/mythical-angular/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></nav></div></footer></div></body><link rel=stylesheet href=/mythical-angular/lib/font-awesome/css/all.min.css>
 <script src=/mythical-angular/lib/jquery/jquery.min.js></script>
 <script src=/mythical-angular/js/main.js></script>
 <script src=/mythical-angular/js/code-copy.js></script>

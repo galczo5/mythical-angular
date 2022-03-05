@@ -8,8 +8,7 @@
 <link rel=stylesheet href=https://latest.cactus.chat/style.css type=text/css>
 <meta charset=utf-8>
 <meta http-equiv=x-ua-compatible content="IE=edge">
-<title> Myth: Async pipes are good for performance | Mythical Angular</title>
-<link rel=canonical href=https://galczo5.github.io/mythical-angular/posts/async-pipe/>
+<title> Myth: Async pipes are good for performance | Mythical Angular</title><link rel=canonical href=https://galczo5.github.io/mythical-angular/posts/async-pipe/>
 <meta name=viewport content="width=device-width,initial-scale=1">
 <meta name=robots content="all,follow">
 <meta name=googlebot content="index,follow,snippet,archive">
@@ -32,47 +31,36 @@ AsyncPipe source code 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 2
 <link rel=stylesheet href=https://galczo5.github.io/mythical-angular/css/custom.css><!--[if lt IE 9]><script src=https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js></script>
 <script src=https://oss.maxcdn.com/respond/1.4.2/respond.min.js></script><![endif]-->
 <link rel=icon type=image/png href=https://galczo5.github.io/mythical-angular/images/favicon.ico>
-</head>
-<body class="max-width mx-auto px3 ltr">
+</head><body class="max-width mx-auto px3 ltr">
 <div class="content index py4">
 <div id=header-post>
 <a id=menu-icon href=#><i class="fas fa-bars fa-lg"></i></a>
 <a id=menu-icon-tablet href=#><i class="fas fa-bars fa-lg"></i></a>
-<a id=top-icon-tablet href=# onclick="$('html, body').animate({scrollTop:0},'fast')" style=display:none aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg"></i></a>
+<a id=top-icon-tablet href=# onclick='$("html, body").animate({scrollTop:0},"fast")' style=display:none aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg"></i></a>
 <span id=menu>
 <span id=nav>
 <ul>
-<li><a href=/mythical-angular/>Home</a></li>
-<li><a href=/mythical-angular/posts>All posts</a></li>
-<li><a href=/mythical-angular/tags>Tags</a></li>
-<li><a href=https://github.com/galczo5>GitHub</a></li>
-</ul>
-</span>
+<li><a href=/mythical-angular/>Home</a></li><li><a href=/mythical-angular/posts>All posts</a></li><li><a href=/mythical-angular/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></span>
 <br>
 <span id=actions>
 <ul>
 <li>
 <a class=icon href=https://galczo5.github.io/mythical-angular/posts/intro/ aria-label=Previous>
-<i class="fas fa-chevron-left" aria-hidden=true onmouseover="$('#i-prev').toggle()" onmouseout="$('#i-prev').toggle()"></i>
+<i class="fas fa-chevron-left" aria-hidden=true onmouseover='$("#i-prev").toggle()' onmouseout='$("#i-prev").toggle()'></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href=https://galczo5.github.io/mythical-angular/posts/setters/ aria-label=Next>
-<i class="fas fa-chevron-right" aria-hidden=true onmouseover="$('#i-next').toggle()" onmouseout="$('#i-next').toggle()"></i>
+<i class="fas fa-chevron-right" aria-hidden=true onmouseover='$("#i-next").toggle()' onmouseout='$("#i-next").toggle()'></i>
 </a>
-</li>
-<li>
-<a class=icon href=# onclick="$('html, body').animate({scrollTop:0},'fast')" aria-label="Top of Page">
-<i class="fas fa-chevron-up" aria-hidden=true onmouseover="$('#i-top').toggle()" onmouseout="$('#i-top').toggle()"></i>
+</li><li>
+<a class=icon href=# onclick='$("html, body").animate({scrollTop:0},"fast")' aria-label="Top of Page">
+<i class="fas fa-chevron-up" aria-hidden=true onmouseover='$("#i-top").toggle()' onmouseout='$("#i-top").toggle()'></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href=# aria-label=Share>
-<i class="fas fa-share-alt" aria-hidden=true onmouseover="$('#i-share').toggle()" onmouseout="$('#i-share').toggle()" onclick="return $('#share').toggle(),!1"></i>
+<i class="fas fa-share-alt" aria-hidden=true onmouseover='$("#i-share").toggle()' onmouseout='$("#i-share").toggle()' onclick='return $("#share").toggle(),!1'></i>
 </a>
-</li>
-</ul>
-<span id=i-prev class=info style=display:none>Previous post</span>
+</li></ul><span id=i-prev class=info style=display:none>Previous post</span>
 <span id=i-next class=info style=display:none>Next post</span>
 <span id=i-top class=info style=display:none>Back to top</span>
 <span id=i-share class=info style=display:none>Share post</span>
@@ -84,681 +72,564 @@ AsyncPipe source code 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 2
 <a class=icon href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fasync-pipe%2f" aria-label=Facebook>
 <i class="fab fa-facebook" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://twitter.com/share?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fasync-pipe%2f&text=Myth%3a%20Async%20pipes%20are%20good%20for%20performance" aria-label=Twitter>
 <i class="fab fa-twitter" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fasync-pipe%2f&title=Myth%3a%20Async%20pipes%20are%20good%20for%20performance" aria-label=Linkedin>
 <i class="fab fa-linkedin" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fasync-pipe%2f&is_video=false&description=Myth%3a%20Async%20pipes%20are%20good%20for%20performance" aria-label=Pinterest>
 <i class="fab fa-pinterest" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="mailto:?subject=Myth%3a%20Async%20pipes%20are%20good%20for%20performance&body=Check out this article: https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fasync-pipe%2f" aria-label=Email>
 <i class="fas fa-envelope" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://getpocket.com/save?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fasync-pipe%2f&title=Myth%3a%20Async%20pipes%20are%20good%20for%20performance" aria-label=Pocket>
 <i class="fab fa-get-pocket" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://reddit.com/submit?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fasync-pipe%2f&title=Myth%3a%20Async%20pipes%20are%20good%20for%20performance" aria-label=reddit>
 <i class="fab fa-reddit" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://www.tumblr.com/share/link?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fasync-pipe%2f&name=Myth%3a%20Async%20pipes%20are%20good%20for%20performance&description=Introduction%20Async%20pipes%20are%20considered%20a%20very%20good%20practice%20as%20they%20help%20with%20web%20performance%20problems%20and%20btw%20are%20easy%20to%20use.%20Sounds%20very%20cool%2c%20right%3f%0aUnfortunately%2c%20it%26rsquo%3bs%20not%20true.%20It%20would%20be%20so%20good%20to%20use%20async%20pipes%20everywhere%20and%20don%26rsquo%3bt%20worry%20about%20any%20observable%20related%20performance%20problems.%0aBefore%20I%26rsquo%3bll%20start%20to%20explain%20what%20the%20problem%20with%20async%20pipe%20is%2c%20let%26rsquo%3bs%20check%20how%20it%26rsquo%3bs%20implemented.%0aAsyncPipe%20source%20code%201%202%203%204%205%206%207%208%209%2010%2011%2012%2013%2014%2015%2016%2017%2018%2019%2020%2021%2022%2023%2024%2025%2026%2027%2028%2029%2030%2031%2032%2033%2034%2035%2036%2037%2038%2039%2040%2041%2042%2043%2044%2045%2046%2047%2048%2049%2050%2051%2052%2053%2054%2055%2056%2057%2058%2059%2060%2061%2062%2063%2064%2065%2066%2067%2068%2069%2070%2071%2072%2073%2074%2075%2076%2077%2078%2079%2080%2081%2082%2083%2084%2085%2086%2087%2088%2089%2090%2091%2092%2093%2094%2095%2096%2097%2098%2099%20100%20101%20102%20103%20104%20105%20106%20107%20108%20109%20110%20111%20112%20113%20114%20115%20116%20117%20118%20119%20120%20121%20122%20123%20124%20125%20126%20127%20128%20129%20130%20131%20132%20133%20134%20135%20136%20137%20138%20139%20140%20141%20142%20143%20144%20145%20146%20147%20148%20149%20150%20151%20152%20153%20154%20%20%2f%2a%2a%20%2a%20%40license%20%2a%20Copyright%20Google%20LLC%20All%20Rights%20Reserved." aria-label=Tumblr>
 <i class="fab fa-tumblr" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fasync-pipe%2f&t=Myth%3a%20Async%20pipes%20are%20good%20for%20performance" aria-label="Hacker News">
 <i class="fab fa-hacker-news" aria-hidden=true></i>
 </a>
-</li>
-</ul>
-</div>
-<div id=toc>
+</li></ul></div><div id=toc>
 <nav id=TableOfContents>
 <ul>
-<li><a href=#introduction>Introduction</a></li>
-<li><a href=#asyncpipe-source-code><code>AsyncPipe</code> source code</a></li>
-<li><a href=#why-we-use-asyncpipe>Why we use AsyncPipe</a></li>
-<li><a href=#where-is-the-problem>Where is the problem?</a></li>
-<li><a href=#how-to-solve-the-problem>How to solve the problem</a>
+<li><a href=#introduction>Introduction</a></li><li><a href=#asyncpipe-source-code><code>AsyncPipe</code> source code</a></li><li><a href=#why-we-use-asyncpipe>Why we use AsyncPipe</a></li><li><a href=#where-is-the-problem>Where is the problem?</a></li><li><a href=#how-to-solve-the-problem>How to solve the problem</a>
 <ul>
-<li><a href=#manual-solution>Manual solution</a></li>
-<li><a href=#pushpipe-or-rxlet-directive-from-rx-angular><code>PushPipe</code> or <code>rxLet</code> directive from <code>rx-angular</code></a></li>
-</ul>
-</li>
-<li><a href=#summary>Summary</a></li>
-</ul>
-</nav>
-</div>
-</span>
-</div>
-<article class=post itemscope itemtype=http://schema.org/BlogPosting>
+<li><a href=#manual-solution>Manual solution</a></li><li><a href=#pushpipe-or-rxlet-directive-from-rx-angular><code>PushPipe</code> or <code>rxLet</code> directive from <code>rx-angular</code></a></li></ul></li><li><a href=#summary>Summary</a></li></ul></nav></div></span>
+</div><article class=post itemscope itemtype=http://schema.org/BlogPosting>
 <header>
 <h1 class=posttitle itemprop="name headline">
 Myth: Async pipes are good for performance
-</h1>
-<div class=meta>
+</h1><div class=meta>
 <div class=postdate>
 <time datetime="2022-01-29 00:00:00 +0000 UTC" itemprop=datePublished>2022-01-29</time>
-</div>
-</div>
-</header>
-<div class=content itemprop=articleBody>
-<h2 id=introduction>Introduction</h2>
-<p>Async pipes are considered a very good practice as they help with web performance problems and btw are easy to use.
-Sounds very cool, right?</p>
-<p>Unfortunately, it&rsquo;s not true.
+</div></div></header><div class=content itemprop=articleBody>
+<h2 id=introduction>Introduction</h2><p>Async pipes are considered a very good practice as they help with web performance problems and btw are easy to use.
+Sounds very cool, right?</p><p>Unfortunately, it&rsquo;s not true.
 It would be so good to use async pipes everywhere and don&rsquo;t worry about any observable
-related performance problems.</p>
-<p>Before I&rsquo;ll start to explain what the problem with async pipe is, let&rsquo;s check how it&rsquo;s implemented.</p>
-<h2 id=asyncpipe-source-code><code>AsyncPipe</code> source code</h2>
-<div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
-<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
-<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">  1
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">  2
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">  3
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">  4
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">  5
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">  6
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">  7
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">  8
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">  9
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 10
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 11
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 12
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 13
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 14
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 15
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 16
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 17
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 18
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 19
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 20
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 21
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 22
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 23
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 24
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 25
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 26
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 27
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 28
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 29
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 30
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 31
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 32
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 33
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 34
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 35
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 36
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 37
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 38
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 39
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 40
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 41
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 42
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 43
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 44
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 45
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 46
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 47
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 48
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 49
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 50
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 51
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 52
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 53
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 54
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 55
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 56
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 57
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 58
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 59
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 60
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 61
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 62
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 63
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 64
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 65
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 66
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 67
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 68
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 69
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 70
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 71
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 72
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 73
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 74
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 75
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 76
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 77
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 78
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 79
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 80
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 81
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 82
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 83
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 84
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 85
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 86
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 87
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 88
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 89
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 90
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 91
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 92
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 93
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 94
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 95
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 96
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 97
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 98
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 99
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">100
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">101
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">102
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">103
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">104
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">105
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">106
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">107
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">108
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">109
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">110
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">111
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">112
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">113
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">114
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">115
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">116
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">117
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">118
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">119
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">120
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">121
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">122
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">123
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">124
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">125
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">126
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">127
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">128
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">129
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">130
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">131
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">132
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">133
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">134
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">135
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">136
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">137
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">138
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">139
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">140
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">141
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">142
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">143
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">144
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">145
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">146
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">147
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">148
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">149
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">150
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">151
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">152
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">153
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">154
-</span></code></pre></td>
-<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
-<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=color:#6272a4>/**
-</span><span style=color:#6272a4> * @license
-</span><span style=color:#6272a4> * Copyright Google LLC All Rights Reserved.
-</span><span style=color:#6272a4> *
-</span><span style=color:#6272a4> * Use of this source code is governed by an MIT-style license that can be
-</span><span style=color:#6272a4> * found in the LICENSE file at https://angular.io/license
-</span><span style=color:#6272a4> */</span>
-
-<span style=color:#ff79c6>import</span> {ChangeDetectorRef, EventEmitter, OnDestroy, Pipe, PipeTransform, ɵisPromise, ɵisSubscribable} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;@angular/core&#39;</span>;
-<span style=color:#ff79c6>import</span> {Observable, Subscribable, Unsubscribable} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;rxjs&#39;</span>;
-
-<span style=color:#ff79c6>import</span> {invalidPipeArgumentError} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;./invalid_pipe_argument_error&#39;</span>;
-
-<span style=color:#ff79c6>interface</span> SubscriptionStrategy {
-  createSubscription(<span style=color:#ff79c6>async</span><span style=color:#ff79c6>:</span> Subscribable&lt;<span style=color:#ff79c6>any</span>&gt;<span style=color:#ff79c6>|</span>Promise&lt;<span style=color:#ff79c6>any</span>&gt;, updateLatestValue: <span style=color:#8be9fd>any</span>)<span style=color:#ff79c6>:</span> Unsubscribable
-      <span style=color:#ff79c6>|</span>Promise&lt;<span style=color:#ff79c6>any</span>&gt;;
-  dispose(subscription: <span style=color:#8be9fd>Unsubscribable</span><span style=color:#ff79c6>|</span>Promise&lt;<span style=color:#ff79c6>any</span>&gt;)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span>;
-  onDestroy(subscription: <span style=color:#8be9fd>Unsubscribable</span><span style=color:#ff79c6>|</span>Promise&lt;<span style=color:#ff79c6>any</span>&gt;)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span>;
-}
-
-<span style=color:#ff79c6>class</span> SubscribableStrategy <span style=color:#ff79c6>implements</span> SubscriptionStrategy {
-  createSubscription(<span style=color:#ff79c6>async</span><span style=color:#ff79c6>:</span> Subscribable&lt;<span style=color:#ff79c6>any</span>&gt;, updateLatestValue: <span style=color:#8be9fd>any</span>)<span style=color:#ff79c6>:</span> Unsubscribable {
-    <span style=color:#ff79c6>return</span> <span style=color:#ff79c6>async</span>.subscribe({
-      next: <span style=color:#8be9fd>updateLatestValue</span>,
-      error<span style=color:#ff79c6>:</span> (e: <span style=color:#8be9fd>any</span>) <span style=color:#ff79c6>=&gt;</span> {
-        <span style=color:#ff79c6>throw</span> e;
-      }
-    });
-  }
-
-  dispose(subscription: <span style=color:#8be9fd>Unsubscribable</span>)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
-    subscription.unsubscribe();
-  }
-
-  onDestroy(subscription: <span style=color:#8be9fd>Unsubscribable</span>)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
-    subscription.unsubscribe();
-  }
-}
-
-<span style=color:#ff79c6>class</span> PromiseStrategy <span style=color:#ff79c6>implements</span> SubscriptionStrategy {
-  createSubscription(<span style=color:#ff79c6>async</span><span style=color:#ff79c6>:</span> Promise&lt;<span style=color:#ff79c6>any</span>&gt;, updateLatestValue<span style=color:#ff79c6>:</span> (v: <span style=color:#8be9fd>any</span>) <span style=color:#ff79c6>=&gt;</span> <span style=color:#8be9fd>any</span>)<span style=color:#ff79c6>:</span> Promise&lt;<span style=color:#ff79c6>any</span>&gt; {
-    <span style=color:#ff79c6>return</span> <span style=color:#ff79c6>async</span>.then(updateLatestValue, e <span style=color:#ff79c6>=&gt;</span> {
-      <span style=color:#ff79c6>throw</span> e;
-    });
-  }
-
-  dispose(subscription: <span style=color:#8be9fd>Promise</span>&lt;<span style=color:#ff79c6>any</span>&gt;)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {}
-
-  onDestroy(subscription: <span style=color:#8be9fd>Promise</span>&lt;<span style=color:#ff79c6>any</span>&gt;)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {}
-}
-
-<span style=color:#ff79c6>const</span> _promiseStrategy <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> PromiseStrategy();
-<span style=color:#ff79c6>const</span> _subscribableStrategy <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> SubscribableStrategy();
-
-<span style=color:#6272a4>/**
-</span><span style=color:#6272a4> * @ngModule CommonModule
-</span><span style=color:#6272a4> * @description
-</span><span style=color:#6272a4> *
-</span><span style=color:#6272a4> * Unwraps a value from an asynchronous primitive.
-</span><span style=color:#6272a4> *
-</span><span style=color:#6272a4> * The `async` pipe subscribes to an `Observable` or `Promise` and returns the latest value it has
-</span><span style=color:#6272a4> * emitted. When a new value is emitted, the `async` pipe marks the component to be checked for
-</span><span style=color:#6272a4> * changes. When the component gets destroyed, the `async` pipe unsubscribes automatically to avoid
-</span><span style=color:#6272a4> * potential memory leaks. When the reference of the expression changes, the `async` pipe
-</span><span style=color:#6272a4> * automatically unsubscribes from the old `Observable` or `Promise` and subscribes to the new one.
-</span><span style=color:#6272a4> *
-</span><span style=color:#6272a4> * @usageNotes
-</span><span style=color:#6272a4> *
-</span><span style=color:#6272a4> * ### Examples
-</span><span style=color:#6272a4> *
-</span><span style=color:#6272a4> * This example binds a `Promise` to the view. Clicking the `Resolve` button resolves the
-</span><span style=color:#6272a4> * promise.
-</span><span style=color:#6272a4> *
-</span><span style=color:#6272a4> * {@example common/pipes/ts/async_pipe.ts region=&#39;AsyncPipePromise&#39;}
-</span><span style=color:#6272a4> *
-</span><span style=color:#6272a4> * It&#39;s also possible to use `async` with Observables. The example below binds the `time` Observable
-</span><span style=color:#6272a4> * to the view. The Observable continuously updates the view with the current time.
-</span><span style=color:#6272a4> *
-</span><span style=color:#6272a4> * {@example common/pipes/ts/async_pipe.ts region=&#39;AsyncPipeObservable&#39;}
-</span><span style=color:#6272a4> *
-</span><span style=color:#6272a4> * @publicApi
-</span><span style=color:#6272a4> */</span>
-<span style=color:#8be9fd;font-style:italic>@Pipe</span>({name<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;async&#39;</span>, pure: <span style=color:#8be9fd>false</span>})
-<span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> AsyncPipe <span style=color:#ff79c6>implements</span> OnDestroy, PipeTransform {
-  <span style=color:#ff79c6>private</span> _latestValue: <span style=color:#8be9fd>any</span> <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>null</span>;
-
-  <span style=color:#ff79c6>private</span> _subscription: <span style=color:#8be9fd>Unsubscribable</span><span style=color:#ff79c6>|</span>Promise&lt;<span style=color:#ff79c6>any</span>&gt;<span style=color:#ff79c6>|</span><span style=color:#ff79c6>null</span> <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>null</span>;
-  <span style=color:#ff79c6>private</span> _obj: <span style=color:#8be9fd>Subscribable</span>&lt;<span style=color:#ff79c6>any</span>&gt;<span style=color:#ff79c6>|</span>Promise&lt;<span style=color:#ff79c6>any</span>&gt;<span style=color:#ff79c6>|</span>EventEmitter&lt;<span style=color:#ff79c6>any</span>&gt;<span style=color:#ff79c6>|</span><span style=color:#ff79c6>null</span> <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>null</span>;
-  <span style=color:#ff79c6>private</span> _strategy: <span style=color:#8be9fd>SubscriptionStrategy</span> <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>null</span><span style=color:#ff79c6>!</span>;
-
-  <span style=color:#ff79c6>constructor</span>(<span style=color:#ff79c6>private</span> _ref: <span style=color:#8be9fd>ChangeDetectorRef</span>) {}
-
-  ngOnDestroy()<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
-    <span style=color:#ff79c6>if</span> (<span style=color:#ff79c6>this</span>._subscription) {
-      <span style=color:#ff79c6>this</span>._dispose();
-    }
-  }
-
-  <span style=color:#6272a4>// NOTE(@benlesh): Because Observable has deprecated a few call patterns for `subscribe`,
-</span><span style=color:#6272a4></span>  <span style=color:#6272a4>// TypeScript has a hard time matching Observable to Subscribable, for more information
-</span><span style=color:#6272a4></span>  <span style=color:#6272a4>// see https://github.com/microsoft/TypeScript/issues/43643
-</span><span style=color:#6272a4></span>
-  transform&lt;<span style=color:#ff79c6>T</span>&gt;(obj: <span style=color:#8be9fd>Observable</span>&lt;<span style=color:#ff79c6>T</span>&gt;<span style=color:#ff79c6>|</span>Subscribable&lt;<span style=color:#ff79c6>T</span>&gt;<span style=color:#ff79c6>|</span>Promise&lt;<span style=color:#ff79c6>T</span>&gt;)<span style=color:#ff79c6>:</span> T<span style=color:#ff79c6>|</span><span style=color:#ff79c6>null</span>;
-  transform&lt;<span style=color:#ff79c6>T</span>&gt;(obj: <span style=color:#8be9fd>null</span><span style=color:#ff79c6>|</span><span style=color:#ff79c6>undefined</span>)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>null</span>;
-  transform&lt;<span style=color:#ff79c6>T</span>&gt;(obj: <span style=color:#8be9fd>Observable</span>&lt;<span style=color:#ff79c6>T</span>&gt;<span style=color:#ff79c6>|</span>Subscribable&lt;<span style=color:#ff79c6>T</span>&gt;<span style=color:#ff79c6>|</span>Promise&lt;<span style=color:#ff79c6>T</span>&gt;<span style=color:#ff79c6>|</span><span style=color:#ff79c6>null</span><span style=color:#ff79c6>|</span><span style=color:#ff79c6>undefined</span>)<span style=color:#ff79c6>:</span> T<span style=color:#ff79c6>|</span><span style=color:#ff79c6>null</span>;
-  transform&lt;<span style=color:#ff79c6>T</span>&gt;(obj: <span style=color:#8be9fd>Observable</span>&lt;<span style=color:#ff79c6>T</span>&gt;<span style=color:#ff79c6>|</span>Subscribable&lt;<span style=color:#ff79c6>T</span>&gt;<span style=color:#ff79c6>|</span>Promise&lt;<span style=color:#ff79c6>T</span>&gt;<span style=color:#ff79c6>|</span><span style=color:#ff79c6>null</span><span style=color:#ff79c6>|</span><span style=color:#ff79c6>undefined</span>)<span style=color:#ff79c6>:</span> T<span style=color:#ff79c6>|</span><span style=color:#ff79c6>null</span> {
-    <span style=color:#ff79c6>if</span> (<span style=color:#ff79c6>!</span><span style=color:#ff79c6>this</span>._obj) {
-      <span style=color:#ff79c6>if</span> (obj) {
-        <span style=color:#ff79c6>this</span>._subscribe(obj);
-      }
-      <span style=color:#ff79c6>return</span> <span style=color:#ff79c6>this</span>._latestValue;
-    }
-
-    <span style=color:#ff79c6>if</span> (obj <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>this</span>._obj) {
-      <span style=color:#ff79c6>this</span>._dispose();
-      <span style=color:#ff79c6>return</span> <span style=color:#ff79c6>this</span>.transform(obj);
-    }
-
-    <span style=color:#ff79c6>return</span> <span style=color:#ff79c6>this</span>._latestValue;
-  }
-
-  <span style=color:#ff79c6>private</span> _subscribe(obj: <span style=color:#8be9fd>Subscribable</span>&lt;<span style=color:#ff79c6>any</span>&gt;<span style=color:#ff79c6>|</span>Promise&lt;<span style=color:#ff79c6>any</span>&gt;<span style=color:#ff79c6>|</span>EventEmitter&lt;<span style=color:#ff79c6>any</span>&gt;)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
-    <span style=color:#ff79c6>this</span>._obj <span style=color:#ff79c6>=</span> obj;
-    <span style=color:#ff79c6>this</span>._strategy <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>this</span>._selectStrategy(obj);
-    <span style=color:#ff79c6>this</span>._subscription <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>this</span>._strategy.createSubscription(
-        obj, (value: <span style=color:#8be9fd>Object</span>) <span style=color:#ff79c6>=&gt;</span> <span style=color:#ff79c6>this</span>._updateLatestValue(obj, value));
-  }
-
-  <span style=color:#ff79c6>private</span> _selectStrategy(obj: <span style=color:#8be9fd>Subscribable</span>&lt;<span style=color:#ff79c6>any</span>&gt;<span style=color:#ff79c6>|</span>Promise&lt;<span style=color:#ff79c6>any</span>&gt;<span style=color:#ff79c6>|</span>EventEmitter&lt;<span style=color:#ff79c6>any</span>&gt;)<span style=color:#ff79c6>:</span> <span style=color:#8be9fd>any</span> {
-    <span style=color:#ff79c6>if</span> (ɵisPromise(obj)) {
-      <span style=color:#ff79c6>return</span> _promiseStrategy;
-    }
-
-    <span style=color:#ff79c6>if</span> (ɵisSubscribable(obj)) {
-      <span style=color:#ff79c6>return</span> _subscribableStrategy;
-    }
-
-    <span style=color:#ff79c6>throw</span> invalidPipeArgumentError(AsyncPipe, obj);
-  }
-
-  <span style=color:#ff79c6>private</span> _dispose()<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
-    <span style=color:#ff79c6>this</span>._strategy.dispose(<span style=color:#ff79c6>this</span>._subscription<span style=color:#ff79c6>!</span>);
-    <span style=color:#ff79c6>this</span>._latestValue <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>null</span>;
-    <span style=color:#ff79c6>this</span>._subscription <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>null</span>;
-    <span style=color:#ff79c6>this</span>._obj <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>null</span>;
-  }
-
-  <span style=color:#ff79c6>private</span> _updateLatestValue(<span style=color:#ff79c6>async</span><span style=color:#ff79c6>:</span> <span style=color:#8be9fd>any</span>, value: <span style=color:#8be9fd>Object</span>)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
-    <span style=color:#ff79c6>if</span> (<span style=color:#ff79c6>async</span> <span style=color:#ff79c6>===</span> <span style=color:#ff79c6>this</span>._obj) {
-      <span style=color:#ff79c6>this</span>._latestValue <span style=color:#ff79c6>=</span> value;
-      <span style=color:#ff79c6>this</span>._ref.markForCheck();
-    }
-  }
-}
-</code></pre></td></tr></table>
-</div>
-</div><p>The important part starts in line 55.
+related performance problems.</p><p>Before I&rsquo;ll start to explain what the problem with async pipe is, let&rsquo;s check how it&rsquo;s implemented.</p><h2 id=asyncpipe-source-code><code>AsyncPipe</code> source code</h2><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 36
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 37
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 38
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 39
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 40
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 41
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 42
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 43
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 44
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 45
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 46
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 47
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 48
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 49
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 50
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 51
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 52
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 53
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 54
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 55
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 56
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 57
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 58
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 59
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 60
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 61
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 62
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 63
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 64
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 65
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 66
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 67
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 68
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 69
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 70
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 71
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 72
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 73
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 74
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 75
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 76
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 77
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 78
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 79
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 80
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 81
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 82
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 83
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 84
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 85
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 86
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 87
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 88
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 89
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 90
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 91
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 92
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 93
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 94
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 95
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 96
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 97
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 98
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 99
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">100
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">101
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">102
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">103
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">104
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">105
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">106
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">107
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">108
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">109
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">110
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">111
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">112
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">113
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">114
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">115
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">116
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">117
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">118
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">119
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">120
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">121
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">122
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">123
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">124
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">125
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">126
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">127
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">128
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">129
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">130
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">131
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">132
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">133
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">134
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">135
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">136
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">137
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">138
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">139
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">140
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">141
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">142
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">143
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">144
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">145
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">146
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">147
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">148
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">149
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">150
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">151
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">152
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">153
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">154
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#6272a4>/**
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * @license
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * Copyright Google LLC All Rights Reserved.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * Use of this source code is governed by an MIT-style license that can be
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * found in the LICENSE file at https://angular.io/license
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> */</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {ChangeDetectorRef, EventEmitter, OnDestroy, Pipe, PipeTransform, ɵisPromise, ɵisSubscribable} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;@angular/core&#39;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {Observable, Subscribable, Unsubscribable} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;rxjs&#39;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {invalidPipeArgumentError} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;./invalid_pipe_argument_error&#39;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>interface</span> SubscriptionStrategy {
+</span></span><span style=display:flex><span>  createSubscription(<span style=color:#ff79c6>async</span><span style=color:#ff79c6>:</span> Subscribable&lt;<span style=color:#ff79c6>any</span>&gt;<span style=color:#ff79c6>|</span>Promise&lt;<span style=color:#ff79c6>any</span>&gt;, updateLatestValue: <span style=color:#8be9fd>any</span>)<span style=color:#ff79c6>:</span> Unsubscribable
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>|</span>Promise&lt;<span style=color:#ff79c6>any</span>&gt;;
+</span></span><span style=display:flex><span>  dispose(subscription: <span style=color:#8be9fd>Unsubscribable</span><span style=color:#ff79c6>|</span>Promise&lt;<span style=color:#ff79c6>any</span>&gt;)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span>;
+</span></span><span style=display:flex><span>  onDestroy(subscription: <span style=color:#8be9fd>Unsubscribable</span><span style=color:#ff79c6>|</span>Promise&lt;<span style=color:#ff79c6>any</span>&gt;)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span>;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>class</span> SubscribableStrategy <span style=color:#ff79c6>implements</span> SubscriptionStrategy {
+</span></span><span style=display:flex><span>  createSubscription(<span style=color:#ff79c6>async</span><span style=color:#ff79c6>:</span> Subscribable&lt;<span style=color:#ff79c6>any</span>&gt;, updateLatestValue: <span style=color:#8be9fd>any</span>)<span style=color:#ff79c6>:</span> Unsubscribable {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> <span style=color:#ff79c6>async</span>.subscribe({
+</span></span><span style=display:flex><span>      next: <span style=color:#8be9fd>updateLatestValue</span>,
+</span></span><span style=display:flex><span>      error<span style=color:#ff79c6>:</span> (e: <span style=color:#8be9fd>any</span>) <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>throw</span> e;
+</span></span><span style=display:flex><span>      }
+</span></span><span style=display:flex><span>    });
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  dispose(subscription: <span style=color:#8be9fd>Unsubscribable</span>)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    subscription.unsubscribe();
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  onDestroy(subscription: <span style=color:#8be9fd>Unsubscribable</span>)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    subscription.unsubscribe();
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>class</span> PromiseStrategy <span style=color:#ff79c6>implements</span> SubscriptionStrategy {
+</span></span><span style=display:flex><span>  createSubscription(<span style=color:#ff79c6>async</span><span style=color:#ff79c6>:</span> Promise&lt;<span style=color:#ff79c6>any</span>&gt;, updateLatestValue<span style=color:#ff79c6>:</span> (v: <span style=color:#8be9fd>any</span>) <span style=color:#ff79c6>=&gt;</span> <span style=color:#8be9fd>any</span>)<span style=color:#ff79c6>:</span> Promise&lt;<span style=color:#ff79c6>any</span>&gt; {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> <span style=color:#ff79c6>async</span>.then(updateLatestValue, e <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>throw</span> e;
+</span></span><span style=display:flex><span>    });
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  dispose(subscription: <span style=color:#8be9fd>Promise</span>&lt;<span style=color:#ff79c6>any</span>&gt;)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  onDestroy(subscription: <span style=color:#8be9fd>Promise</span>&lt;<span style=color:#ff79c6>any</span>&gt;)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {}
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>const</span> _promiseStrategy <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> PromiseStrategy();
+</span></span><span style=display:flex><span><span style=color:#ff79c6>const</span> _subscribableStrategy <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> SubscribableStrategy();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#6272a4>/**
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * @ngModule CommonModule
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * @description
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * Unwraps a value from an asynchronous primitive.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * The `async` pipe subscribes to an `Observable` or `Promise` and returns the latest value it has
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * emitted. When a new value is emitted, the `async` pipe marks the component to be checked for
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * changes. When the component gets destroyed, the `async` pipe unsubscribes automatically to avoid
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * potential memory leaks. When the reference of the expression changes, the `async` pipe
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * automatically unsubscribes from the old `Observable` or `Promise` and subscribes to the new one.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * @usageNotes
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * ### Examples
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * This example binds a `Promise` to the view. Clicking the `Resolve` button resolves the
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * promise.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * {@example common/pipes/ts/async_pipe.ts region=&#39;AsyncPipePromise&#39;}
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * It&#39;s also possible to use `async` with Observables. The example below binds the `time` Observable
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * to the view. The Observable continuously updates the view with the current time.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * {@example common/pipes/ts/async_pipe.ts region=&#39;AsyncPipeObservable&#39;}
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * @publicApi
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> */</span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>@Pipe</span>({name<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;async&#39;</span>, pure: <span style=color:#8be9fd>false</span>})
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> AsyncPipe <span style=color:#ff79c6>implements</span> OnDestroy, PipeTransform {
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> _latestValue: <span style=color:#8be9fd>any</span> <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>null</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> _subscription: <span style=color:#8be9fd>Unsubscribable</span><span style=color:#ff79c6>|</span>Promise&lt;<span style=color:#ff79c6>any</span>&gt;<span style=color:#ff79c6>|</span><span style=color:#ff79c6>null</span> <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>null</span>;
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> _obj: <span style=color:#8be9fd>Subscribable</span>&lt;<span style=color:#ff79c6>any</span>&gt;<span style=color:#ff79c6>|</span>Promise&lt;<span style=color:#ff79c6>any</span>&gt;<span style=color:#ff79c6>|</span>EventEmitter&lt;<span style=color:#ff79c6>any</span>&gt;<span style=color:#ff79c6>|</span><span style=color:#ff79c6>null</span> <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>null</span>;
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> _strategy: <span style=color:#8be9fd>SubscriptionStrategy</span> <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>null</span><span style=color:#ff79c6>!</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>constructor</span>(<span style=color:#ff79c6>private</span> _ref: <span style=color:#8be9fd>ChangeDetectorRef</span>) {}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ngOnDestroy()<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (<span style=color:#ff79c6>this</span>._subscription) {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>this</span>._dispose();
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#6272a4>// NOTE(@benlesh): Because Observable has deprecated a few call patterns for `subscribe`,
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>  <span style=color:#6272a4>// TypeScript has a hard time matching Observable to Subscribable, for more information
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>  <span style=color:#6272a4>// see https://github.com/microsoft/TypeScript/issues/43643
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>
+</span></span><span style=display:flex><span>  transform&lt;<span style=color:#ff79c6>T</span>&gt;(obj: <span style=color:#8be9fd>Observable</span>&lt;<span style=color:#ff79c6>T</span>&gt;<span style=color:#ff79c6>|</span>Subscribable&lt;<span style=color:#ff79c6>T</span>&gt;<span style=color:#ff79c6>|</span>Promise&lt;<span style=color:#ff79c6>T</span>&gt;)<span style=color:#ff79c6>:</span> T<span style=color:#ff79c6>|</span><span style=color:#ff79c6>null</span>;
+</span></span><span style=display:flex><span>  transform&lt;<span style=color:#ff79c6>T</span>&gt;(obj: <span style=color:#8be9fd>null</span><span style=color:#ff79c6>|</span><span style=color:#ff79c6>undefined</span>)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>null</span>;
+</span></span><span style=display:flex><span>  transform&lt;<span style=color:#ff79c6>T</span>&gt;(obj: <span style=color:#8be9fd>Observable</span>&lt;<span style=color:#ff79c6>T</span>&gt;<span style=color:#ff79c6>|</span>Subscribable&lt;<span style=color:#ff79c6>T</span>&gt;<span style=color:#ff79c6>|</span>Promise&lt;<span style=color:#ff79c6>T</span>&gt;<span style=color:#ff79c6>|</span><span style=color:#ff79c6>null</span><span style=color:#ff79c6>|</span><span style=color:#ff79c6>undefined</span>)<span style=color:#ff79c6>:</span> T<span style=color:#ff79c6>|</span><span style=color:#ff79c6>null</span>;
+</span></span><span style=display:flex><span>  transform&lt;<span style=color:#ff79c6>T</span>&gt;(obj: <span style=color:#8be9fd>Observable</span>&lt;<span style=color:#ff79c6>T</span>&gt;<span style=color:#ff79c6>|</span>Subscribable&lt;<span style=color:#ff79c6>T</span>&gt;<span style=color:#ff79c6>|</span>Promise&lt;<span style=color:#ff79c6>T</span>&gt;<span style=color:#ff79c6>|</span><span style=color:#ff79c6>null</span><span style=color:#ff79c6>|</span><span style=color:#ff79c6>undefined</span>)<span style=color:#ff79c6>:</span> T<span style=color:#ff79c6>|</span><span style=color:#ff79c6>null</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (<span style=color:#ff79c6>!</span><span style=color:#ff79c6>this</span>._obj) {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>if</span> (obj) {
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>this</span>._subscribe(obj);
+</span></span><span style=display:flex><span>      }
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>return</span> <span style=color:#ff79c6>this</span>._latestValue;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (obj <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>this</span>._obj) {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>this</span>._dispose();
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>return</span> <span style=color:#ff79c6>this</span>.transform(obj);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> <span style=color:#ff79c6>this</span>._latestValue;
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> _subscribe(obj: <span style=color:#8be9fd>Subscribable</span>&lt;<span style=color:#ff79c6>any</span>&gt;<span style=color:#ff79c6>|</span>Promise&lt;<span style=color:#ff79c6>any</span>&gt;<span style=color:#ff79c6>|</span>EventEmitter&lt;<span style=color:#ff79c6>any</span>&gt;)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>._obj <span style=color:#ff79c6>=</span> obj;
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>._strategy <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>this</span>._selectStrategy(obj);
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>._subscription <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>this</span>._strategy.createSubscription(
+</span></span><span style=display:flex><span>        obj, (value: <span style=color:#8be9fd>Object</span>) <span style=color:#ff79c6>=&gt;</span> <span style=color:#ff79c6>this</span>._updateLatestValue(obj, value));
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> _selectStrategy(obj: <span style=color:#8be9fd>Subscribable</span>&lt;<span style=color:#ff79c6>any</span>&gt;<span style=color:#ff79c6>|</span>Promise&lt;<span style=color:#ff79c6>any</span>&gt;<span style=color:#ff79c6>|</span>EventEmitter&lt;<span style=color:#ff79c6>any</span>&gt;)<span style=color:#ff79c6>:</span> <span style=color:#8be9fd>any</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (ɵisPromise(obj)) {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>return</span> _promiseStrategy;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (ɵisSubscribable(obj)) {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>return</span> _subscribableStrategy;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>throw</span> invalidPipeArgumentError(AsyncPipe, obj);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> _dispose()<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>._strategy.dispose(<span style=color:#ff79c6>this</span>._subscription<span style=color:#ff79c6>!</span>);
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>._latestValue <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>null</span>;
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>._subscription <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>null</span>;
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>._obj <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>null</span>;
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> _updateLatestValue(<span style=color:#ff79c6>async</span><span style=color:#ff79c6>:</span> <span style=color:#8be9fd>any</span>, value: <span style=color:#8be9fd>Object</span>)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (<span style=color:#ff79c6>async</span> <span style=color:#ff79c6>===</span> <span style=color:#ff79c6>this</span>._obj) {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>this</span>._latestValue <span style=color:#ff79c6>=</span> value;
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>this</span>._ref.markForCheck();
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>The important part starts in line 55.
 As you can see, <code>AsyncPipe</code> code is not that complicated.
 It&rsquo;s just a standard
-not-pure pipe.</p>
-<p>There is the implementation of the <code>transform</code> method that gets <code>Observable</code> or <code>Promise</code> object, subscribes to it
-in <code>_subscribe</code>, and calls <code>_updateLatestValue</code> for every value emitted in the provided stream.</p>
-<p><code>_updateLatestValue</code> is the most important part in the whole class.</p>
-<div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
-<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
-<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">6
-</span></code></pre></td>
-<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
-<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=color:#ff79c6>private</span> _updateLatestValue(<span style=color:#ff79c6>async</span><span style=color:#ff79c6>:</span> <span style=color:#8be9fd>any</span>, value: <span style=color:#8be9fd>Object</span>)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
-    <span style=color:#ff79c6>if</span> (<span style=color:#ff79c6>async</span> <span style=color:#ff79c6>===</span> <span style=color:#ff79c6>this</span>._obj) {
-        <span style=color:#ff79c6>this</span>._latestValue <span style=color:#ff79c6>=</span> value;
-        <span style=color:#ff79c6>this</span>._ref.markForCheck();
-    }
-}
-</code></pre></td></tr></table>
-</div>
-</div><p>Again, it&rsquo;s a very simple code.
-It sets the new value to the <code>_latestValue</code> and calls <code>ChangeDetectorRef.markForCheck()</code>.</p>
-<p>Little summary.
+not-pure pipe.</p><p>There is the implementation of the <code>transform</code> method that gets <code>Observable</code> or <code>Promise</code> object, subscribes to it
+in <code>_subscribe</code>, and calls <code>_updateLatestValue</code> for every value emitted in the provided stream.</p><p><code>_updateLatestValue</code> is the most important part in the whole class.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">6
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>private</span> _updateLatestValue(<span style=color:#ff79c6>async</span><span style=color:#ff79c6>:</span> <span style=color:#8be9fd>any</span>, value: <span style=color:#8be9fd>Object</span>)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (<span style=color:#ff79c6>async</span> <span style=color:#ff79c6>===</span> <span style=color:#ff79c6>this</span>._obj) {
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>this</span>._latestValue <span style=color:#ff79c6>=</span> value;
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>this</span>._ref.markForCheck();
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>Again, it&rsquo;s a very simple code.
+It sets the new value to the <code>_latestValue</code> and calls <code>ChangeDetectorRef.markForCheck()</code>.</p><p>Little summary.
 So, <code>AsyncPipe</code> subscribes to a stream,
 saves the last emitted value to the local state, and at the end marks component for a check.
-Easy right?</p>
-<h2 id=why-we-use-asyncpipe>Why we use AsyncPipe</h2>
-<p><code>AsyncPipe</code> is considered to be good because it solves another very important problem.
+Easy right?</p><h2 id=why-we-use-asyncpipe>Why we use AsyncPipe</h2><p><code>AsyncPipe</code> is considered to be good because it solves another very important problem.
 Nature of observable streams is very simple.
-If you subscribe to a stream, you have to remember to unsubscribe.</p>
-<p>We can use a lot of very interesting patterns to make it easier to remember about that.
+If you subscribe to a stream, you have to remember to unsubscribe.</p><p>We can use a lot of very interesting patterns to make it easier to remember about that.
 This build-in pipe is using another build-in mechanism called Angular Lifecycle Hooks.
-It&rsquo;s very simple, <code>AsyncPipe</code> will unsubscribe on the <code>OnDestroy</code> hook.</p>
-<p>With a little framework magic, we get the automatic unsubscribe mechanism.</p>
-<h2 id=where-is-the-problem>Where is the problem?</h2>
-<p>As you may notice, the whole idea behind this pipe is very smart.
+It&rsquo;s very simple, <code>AsyncPipe</code> will unsubscribe on the <code>OnDestroy</code> hook.</p><p>With a little framework magic, we get the automatic unsubscribe mechanism.</p><h2 id=where-is-the-problem>Where is the problem?</h2><p>As you may notice, the whole idea behind this pipe is very smart.
 But there is no light without the dark.
-In method <code>_updateLatestValue</code> we call <code>ChangeDetectorRef.markForCheck()</code>.</p>
-<p>From the sources, we know that after marking the view dirty it&rsquo;s going to be refreshed.
+In method <code>_updateLatestValue</code> we call <code>ChangeDetectorRef.markForCheck()</code>.</p><p>From the sources, we know that after marking the view dirty it&rsquo;s going to be refreshed.
 Nothing surprising, it looks OK at first sight.
-We updated the value so view has to render once again.</p>
-<div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
-<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
-<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
-</span></code></pre></td>
-<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
-<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>abstract</span> <span style=color:#ff79c6>class</span> ChangeDetectorRef {
-  <span style=color:#6272a4>/**
-</span><span style=color:#6272a4>   * When a view uses the {@link ChangeDetectionStrategy#OnPush OnPush} (checkOnce)
-</span><span style=color:#6272a4>   * change detection strategy, explicitly marks the view as changed so that
-</span><span style=color:#6272a4>   * it can be checked again.
-</span><span style=color:#6272a4>   *
-</span><span style=color:#6272a4>   * Components are normally marked as dirty (in need of rerendering) when inputs
-</span><span style=color:#6272a4>   * have changed or events have fired in the view. Call this method to ensure that
-</span><span style=color:#6272a4>   * a component is checked even if these triggers have not occured.
-</span><span style=color:#6272a4>   *
-</span><span style=color:#6272a4>   * &lt;!-- TODO: Add a link to a chapter on OnPush components --&gt;
-</span><span style=color:#6272a4>   *
-</span><span style=color:#6272a4>   */</span>
-  <span style=color:#ff79c6>abstract</span> markForCheck()<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span>;
-  
-  <span style=color:#6272a4>/* ... */</span>
-}
-</code></pre></td></tr></table>
-</div>
-</div><p><code>ChangeDetectorRef</code> is an abstract class. After a few jumps in the code, you&rsquo;ll find the right implementation.
-So at the very end of there is code presented bellow.</p>
-<div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
-<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
-<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
-</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
-</span></code></pre></td>
-<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
-<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=color:#6272a4>/**
-</span><span style=color:#6272a4> * Marks current view and all ancestors dirty.
-</span><span style=color:#6272a4> *
-</span><span style=color:#6272a4> * Returns the root view because it is found as a byproduct of marking the view tree
-</span><span style=color:#6272a4> * dirty, and can be used by methods that consume markViewDirty() to easily schedule
-</span><span style=color:#6272a4> * change detection. Otherwise, such methods would need to traverse up the view tree
-</span><span style=color:#6272a4> * an additional time to get the root view and schedule a tick on it.
-</span><span style=color:#6272a4> *
-</span><span style=color:#6272a4> * @param lView The starting LView to mark dirty
-</span><span style=color:#6272a4> * @returns the root LView
-</span><span style=color:#6272a4> */</span>
-<span style=color:#ff79c6>export</span> <span style=color:#8be9fd;font-style:italic>function</span> markViewDirty(lView: <span style=color:#8be9fd>LView</span>)<span style=color:#ff79c6>:</span> LView<span style=color:#ff79c6>|</span><span style=color:#ff79c6>null</span> {
-  <span style=color:#ff79c6>while</span> (lView) {
-    lView[FLAGS] <span style=color:#ff79c6>|=</span> LViewFlags.Dirty;
-    <span style=color:#ff79c6>const</span> parent <span style=color:#ff79c6>=</span> getLViewParent(lView);
-    <span style=color:#6272a4>// Stop traversing up as soon as you find a root view that wasn&#39;t attached to any container
-</span><span style=color:#6272a4></span>    <span style=color:#ff79c6>if</span> (isRootView(lView) <span style=color:#ff79c6>&amp;&amp;</span> <span style=color:#ff79c6>!</span>parent) {
-      <span style=color:#ff79c6>return</span> lView;
-    }
-    <span style=color:#6272a4>// continue otherwise
-</span><span style=color:#6272a4></span>    lView <span style=color:#ff79c6>=</span> parent<span style=color:#ff79c6>!</span>;
-  }
-  <span style=color:#ff79c6>return</span> <span style=color:#ff79c6>null</span>;
-}
-</code></pre></td></tr></table>
-</div>
-</div><p>I&rsquo;m going to cite the most important part: &ldquo;Marks current view and <strong>all ancestors dirty.</strong>&rdquo;.
+We updated the value so view has to render once again.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>abstract</span> <span style=color:#ff79c6>class</span> ChangeDetectorRef {
+</span></span><span style=display:flex><span>  <span style=color:#6272a4>/**
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   * When a view uses the {@link ChangeDetectionStrategy#OnPush OnPush} (checkOnce)
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   * change detection strategy, explicitly marks the view as changed so that
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   * it can be checked again.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   * Components are normally marked as dirty (in need of rerendering) when inputs
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   * have changed or events have fired in the view. Call this method to ensure that
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   * a component is checked even if these triggers have not occured.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   * &lt;!-- TODO: Add a link to a chapter on OnPush components --&gt;
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   */</span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>abstract</span> markForCheck()<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span>;
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  <span style=color:#6272a4>/* ... */</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p><code>ChangeDetectorRef</code> is an abstract class. After a few jumps in the code, you&rsquo;ll find the right implementation.
+So at the very end of there is code presented bellow.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#6272a4>/**
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * Marks current view and all ancestors dirty.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * Returns the root view because it is found as a byproduct of marking the view tree
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * dirty, and can be used by methods that consume markViewDirty() to easily schedule
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * change detection. Otherwise, such methods would need to traverse up the view tree
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * an additional time to get the root view and schedule a tick on it.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * @param lView The starting LView to mark dirty
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * @returns the root LView
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> */</span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#8be9fd;font-style:italic>function</span> markViewDirty(lView: <span style=color:#8be9fd>LView</span>)<span style=color:#ff79c6>:</span> LView<span style=color:#ff79c6>|</span><span style=color:#ff79c6>null</span> {
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>while</span> (lView) {
+</span></span><span style=display:flex><span>    lView[FLAGS] <span style=color:#ff79c6>|=</span> LViewFlags.Dirty;
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> parent <span style=color:#ff79c6>=</span> getLViewParent(lView);
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>// Stop traversing up as soon as you find a root view that wasn&#39;t attached to any container
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>    <span style=color:#ff79c6>if</span> (isRootView(lView) <span style=color:#ff79c6>&amp;&amp;</span> <span style=color:#ff79c6>!</span>parent) {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>return</span> lView;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>// continue otherwise
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>    lView <span style=color:#ff79c6>=</span> parent<span style=color:#ff79c6>!</span>;
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>return</span> <span style=color:#ff79c6>null</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>I&rsquo;m going to cite the most important part: &ldquo;Marks current view and <strong>all ancestors dirty.</strong>&rdquo;.
 It means that if you use async pipe, and there is a new value on the stream,
-it&rsquo;s going to refresh your component and all its parents.</p>
-<p><img src=/mythical-angular/images/mark-for-check.png alt=trust-the-code></p>
-<p>Is it a necessary thing to do&mldr;? No.</p>
-<p>Template changed only in one component there is no reason to render more than one view.
+it&rsquo;s going to refresh your component and all its parents.</p><p><img src=/mythical-angular/images/mark-for-check.png alt=trust-the-code></p><p>Is it a necessary thing to do&mldr;? No.</p><p>Template changed only in one component there is no reason to render more than one view.
 Why Angular is checking everything on the path to the top&mldr;?
 There is a simple explanation.
 To refresh the view after marking it dirty, we need NgZones to run the whole check.
-NgZones are using <code>ApplicationRef.tick()</code> to process the checking, and it&rsquo;s processed from the top to bottom.</p>
-<h2 id=how-to-solve-the-problem>How to solve the problem</h2>
-<h3 id=manual-solution>Manual solution</h3>
-<p>Forget about <code>AsyncPipes</code>.
+NgZones are using <code>ApplicationRef.tick()</code> to process the checking, and it&rsquo;s processed from the top to bottom.</p><h2 id=how-to-solve-the-problem>How to solve the problem</h2><h3 id=manual-solution>Manual solution</h3><p>Forget about <code>AsyncPipes</code>.
 Subscribe to your streams in a component.
-Assign the value from the stream to class field and call <code>ChangeDetectorRef.detectChanges()</code>.</p>
-<p>It&rsquo;s that simple. <code>ChangeDetectorRef.detectChanges()</code> will refresh only one view.
-You still need to unsubscribe the streams, but your runtime performance will be a lot better.</p>
-<h3 id=pushpipe-or-rxlet-directive-from-rx-angular><code>PushPipe</code> or <code>rxLet</code> directive from <code>rx-angular</code></h3>
-<p>Package <code>rx-angular</code> offers a smart solution for the problem.
+Assign the value from the stream to class field and call <code>ChangeDetectorRef.detectChanges()</code>.</p><p>It&rsquo;s that simple. <code>ChangeDetectorRef.detectChanges()</code> will refresh only one view.
+You still need to unsubscribe the streams, but your runtime performance will be a lot better.</p><h3 id=pushpipe-or-rxlet-directive-from-rx-angular><code>PushPipe</code> or <code>rxLet</code> directive from <code>rx-angular</code></h3><p>Package <code>rx-angular</code> offers a smart solution for the problem.
 It&rsquo;s called <code>PushPipe</code>.
-I&rsquo;m not going to publish code for it, you can find it in the <a href=https://github.com/rx-angular/rx-angular/>repository</a>.</p>
-<h2 id=summary>Summary</h2>
-<p>Right now, I&rsquo;m sure that I have convinced you that <code>AsyncPipe</code> should be considered harmful as
-it&rsquo;s not good for your performance.</p>
-<p>There are other solutions for the problem.
+I&rsquo;m not going to publish code for it, you can find it in the <a href=https://github.com/rx-angular/rx-angular/>repository</a>.</p><h2 id=summary>Summary</h2><p>Right now, I&rsquo;m sure that I have convinced you that <code>AsyncPipe</code> should be considered harmful as
+it&rsquo;s not good for your performance.</p><p>There are other solutions for the problem.
 It&rsquo;s not worth sacrificing rendering performance for automatic unsubscription.
-You can handle it manually or use other solutions.</p>
-<p>BTW. If you&rsquo;re planning to go for zone-less app, you have to remove usages of the <code>async</code> anyway.
-It&rsquo;s not working without <code>zone.js</code>.</p>
-</div>
-</article>
-<div id=footer-post-container>
+You can handle it manually or use other solutions.</p><p>BTW. If you&rsquo;re planning to go for zone-less app, you have to remove usages of the <code>async</code> anyway.
+It&rsquo;s not working without <code>zone.js</code>.</p></div></article><div id=footer-post-container>
 <div id=footer-post>
 <div id=nav-footer style=display:none>
 <ul>
-<li><a href=/mythical-angular/>Home</a></li>
-<li><a href=/mythical-angular/posts>All posts</a></li>
-<li><a href=/mythical-angular/tags>Tags</a></li>
-<li><a href=https://github.com/galczo5>GitHub</a></li>
-</ul>
-</div>
-<div id=toc-footer style=display:none>
+<li><a href=/mythical-angular/>Home</a></li><li><a href=/mythical-angular/posts>All posts</a></li><li><a href=/mythical-angular/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></div><div id=toc-footer style=display:none>
 <nav id=TableOfContents>
 <ul>
-<li><a href=#introduction>Introduction</a></li>
-<li><a href=#asyncpipe-source-code><code>AsyncPipe</code> source code</a></li>
-<li><a href=#why-we-use-asyncpipe>Why we use AsyncPipe</a></li>
-<li><a href=#where-is-the-problem>Where is the problem?</a></li>
-<li><a href=#how-to-solve-the-problem>How to solve the problem</a>
+<li><a href=#introduction>Introduction</a></li><li><a href=#asyncpipe-source-code><code>AsyncPipe</code> source code</a></li><li><a href=#why-we-use-asyncpipe>Why we use AsyncPipe</a></li><li><a href=#where-is-the-problem>Where is the problem?</a></li><li><a href=#how-to-solve-the-problem>How to solve the problem</a>
 <ul>
-<li><a href=#manual-solution>Manual solution</a></li>
-<li><a href=#pushpipe-or-rxlet-directive-from-rx-angular><code>PushPipe</code> or <code>rxLet</code> directive from <code>rx-angular</code></a></li>
-</ul>
-</li>
-<li><a href=#summary>Summary</a></li>
-</ul>
-</nav>
-</div>
-<div id=share-footer style=display:none>
+<li><a href=#manual-solution>Manual solution</a></li><li><a href=#pushpipe-or-rxlet-directive-from-rx-angular><code>PushPipe</code> or <code>rxLet</code> directive from <code>rx-angular</code></a></li></ul></li><li><a href=#summary>Summary</a></li></ul></nav></div><div id=share-footer style=display:none>
 <ul>
 <li>
 <a class=icon href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fasync-pipe%2f" aria-label=Facebook>
 <i class="fab fa-facebook fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://twitter.com/share?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fasync-pipe%2f&text=Myth%3a%20Async%20pipes%20are%20good%20for%20performance" aria-label=Twitter>
 <i class="fab fa-twitter fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fasync-pipe%2f&title=Myth%3a%20Async%20pipes%20are%20good%20for%20performance" aria-label=Linkedin>
 <i class="fab fa-linkedin fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fasync-pipe%2f&is_video=false&description=Myth%3a%20Async%20pipes%20are%20good%20for%20performance" aria-label=Pinterest>
 <i class="fab fa-pinterest fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="mailto:?subject=Myth%3a%20Async%20pipes%20are%20good%20for%20performance&body=Check out this article: https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fasync-pipe%2f" aria-label=Email>
 <i class="fas fa-envelope fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://getpocket.com/save?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fasync-pipe%2f&title=Myth%3a%20Async%20pipes%20are%20good%20for%20performance" aria-label=Pocket>
 <i class="fab fa-get-pocket fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://reddit.com/submit?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fasync-pipe%2f&title=Myth%3a%20Async%20pipes%20are%20good%20for%20performance" aria-label=reddit>
 <i class="fab fa-reddit fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://www.tumblr.com/share/link?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fasync-pipe%2f&name=Myth%3a%20Async%20pipes%20are%20good%20for%20performance&description=Introduction%20Async%20pipes%20are%20considered%20a%20very%20good%20practice%20as%20they%20help%20with%20web%20performance%20problems%20and%20btw%20are%20easy%20to%20use.%20Sounds%20very%20cool%2c%20right%3f%0aUnfortunately%2c%20it%26rsquo%3bs%20not%20true.%20It%20would%20be%20so%20good%20to%20use%20async%20pipes%20everywhere%20and%20don%26rsquo%3bt%20worry%20about%20any%20observable%20related%20performance%20problems.%0aBefore%20I%26rsquo%3bll%20start%20to%20explain%20what%20the%20problem%20with%20async%20pipe%20is%2c%20let%26rsquo%3bs%20check%20how%20it%26rsquo%3bs%20implemented.%0aAsyncPipe%20source%20code%201%202%203%204%205%206%207%208%209%2010%2011%2012%2013%2014%2015%2016%2017%2018%2019%2020%2021%2022%2023%2024%2025%2026%2027%2028%2029%2030%2031%2032%2033%2034%2035%2036%2037%2038%2039%2040%2041%2042%2043%2044%2045%2046%2047%2048%2049%2050%2051%2052%2053%2054%2055%2056%2057%2058%2059%2060%2061%2062%2063%2064%2065%2066%2067%2068%2069%2070%2071%2072%2073%2074%2075%2076%2077%2078%2079%2080%2081%2082%2083%2084%2085%2086%2087%2088%2089%2090%2091%2092%2093%2094%2095%2096%2097%2098%2099%20100%20101%20102%20103%20104%20105%20106%20107%20108%20109%20110%20111%20112%20113%20114%20115%20116%20117%20118%20119%20120%20121%20122%20123%20124%20125%20126%20127%20128%20129%20130%20131%20132%20133%20134%20135%20136%20137%20138%20139%20140%20141%20142%20143%20144%20145%20146%20147%20148%20149%20150%20151%20152%20153%20154%20%20%2f%2a%2a%20%2a%20%40license%20%2a%20Copyright%20Google%20LLC%20All%20Rights%20Reserved." aria-label=Tumblr>
 <i class="fab fa-tumblr fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fasync-pipe%2f&t=Myth%3a%20Async%20pipes%20are%20good%20for%20performance" aria-label="Hacker News">
 <i class="fab fa-hacker-news fa-lg" aria-hidden=true></i>
 </a>
-</li>
-</ul>
-</div>
-<div id=actions-footer>
-<a id=menu-toggle class=icon href=# onclick="return $('#nav-footer').toggle(),!1" aria-label=Menu>
+</li></ul></div><div id=actions-footer>
+<a id=menu-toggle class=icon href=# onclick='return $("#nav-footer").toggle(),!1' aria-label=Menu>
 <i class="fas fa-bars fa-lg" aria-hidden=true></i> Menu</a>
-<a id=toc-toggle class=icon href=# onclick="return $('#toc-footer').toggle(),!1" aria-label=TOC>
+<a id=toc-toggle class=icon href=# onclick='return $("#toc-footer").toggle(),!1' aria-label=TOC>
 <i class="fas fa-list fa-lg" aria-hidden=true></i> TOC</a>
-<a id=share-toggle class=icon href=# onclick="return $('#share-footer').toggle(),!1" aria-label=Share>
+<a id=share-toggle class=icon href=# onclick='return $("#share-footer").toggle(),!1' aria-label=Share>
 <i class="fas fa-share-alt fa-lg" aria-hidden=true></i> share</a>
-<a id=top style=display:none class=icon href=# onclick="$('html, body').animate({scrollTop:0},'fast')" aria-label="Top of Page">
+<a id=top style=display:none class=icon href=# onclick='$("html, body").animate({scrollTop:0},"fast")' aria-label="Top of Page">
 <i class="fas fa-chevron-up fa-lg" aria-hidden=true></i> Top</a>
-</div>
-</div>
-</div>
-<footer id=footer>
+</div></div></div><footer id=footer>
 <div class=footer-left>
 Copyright &copy; 2022 Kamil Gałek
-</div>
-<div class=footer-right>
+</div><div class=footer-right>
 <nav>
 <ul>
-<li><a href=/mythical-angular/>Home</a></li>
-<li><a href=/mythical-angular/posts>All posts</a></li>
-<li><a href=/mythical-angular/tags>Tags</a></li>
-<li><a href=https://github.com/galczo5>GitHub</a></li>
-</ul>
-</nav>
-</div>
-</footer>
-</div>
-</body>
-<link rel=stylesheet href=/mythical-angular/lib/font-awesome/css/all.min.css>
+<li><a href=/mythical-angular/>Home</a></li><li><a href=/mythical-angular/posts>All posts</a></li><li><a href=/mythical-angular/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></nav></div></footer></div></body><link rel=stylesheet href=/mythical-angular/lib/font-awesome/css/all.min.css>
 <script src=/mythical-angular/lib/jquery/jquery.min.js></script>
 <script src=/mythical-angular/js/main.js></script>
 <script src=/mythical-angular/js/code-copy.js></script>
