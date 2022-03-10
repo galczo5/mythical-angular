@@ -507,13 +507,15 @@ And of course, the template:
 
 ### My results 
 
-If you don't want to do the tests on your computer, here are my results. 
+If you don't want to do the tests on your computer, here are my results.
+If you want to do it, remember to open dev tools.
+The time of the test will be printed there.
 
 | Encapsulation type | Total | Avg iteration time |
-|--------------------| --- |--------------------|
-| None               | 12496ms | 124,9 ms           |
-| Emulated           | 13027ms | 130,2ms            |
-| ShadowDom          | 21352ms | 213,5ms            |
+|--------------------| --- |-------------|
+| None               | 12496ms | 124,9ms     |
+| Emulated           | 13027ms | 130,2ms     |
+| ShadowDom          | 21352ms | 213,5ms     |
 
 There is almost no difference between the `Emulated` and disabled encapsulation.
 The difference between `ShadowDom` and the rest of the encapsulation types is huge.
