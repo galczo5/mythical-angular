@@ -1,0 +1,666 @@
+<!doctype html><html lang=en-us><head><link rel=preload href=/mythical-angular/lib/font-awesome/webfonts/fa-brands-400.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=preload href=/mythical-angular/lib/font-awesome/webfonts/fa-regular-400.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=preload href=/mythical-angular/lib/font-awesome/webfonts/fa-solid-900.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=preload href=/mythical-angular/lib/JetBrainsMono/web/woff2/JetBrainsMono-Regular.woff2 as=font type=font/woff2 crossorigin=anonymous><script type=text/javascript src=https://latest.cactus.chat/cactus.js></script>
+<link rel=stylesheet href=https://latest.cactus.chat/style.css type=text/css><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><title>Myth: Component styles | Mythical Angular</title><link rel=canonical href=https://galczo5.github.io/mythical-angular/posts/styles/><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="all,follow"><meta name=googlebot content="index,follow,snippet,archive"><meta property="og:title" content="Myth: Component styles"><meta property="og:description" content="This is a very short and interesting subject to me. In Angular every component can have its own attached styles. Styles can be in the same file or in separated files, similar to the templates.
+In addition, we can encapsulate styles. There are two methods of encapsulation: Emulated and ShadowDom. This article describes both types of encapsulation, and its influence on the performance of the whole app.
+Using styles instead of styleUrls is good for performance Just before we start with the &ldquo;complicated&rdquo; stuff, I want to mention one of the myths connected to the place where you can put your style."><meta property="og:type" content="article"><meta property="og:url" content="https://galczo5.github.io/mythical-angular/posts/styles/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-03-10T00:00:00+00:00"><meta property="article:modified_time" content="2022-03-10T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Myth: Component styles"><meta name=twitter:description content="This is a very short and interesting subject to me. In Angular every component can have its own attached styles. Styles can be in the same file or in separated files, similar to the templates.
+In addition, we can encapsulate styles. There are two methods of encapsulation: Emulated and ShadowDom. This article describes both types of encapsulation, and its influence on the performance of the whole app.
+Using styles instead of styleUrls is good for performance Just before we start with the &ldquo;complicated&rdquo; stuff, I want to mention one of the myths connected to the place where you can put your style."><link rel=stylesheet href=https://galczo5.github.io/mythical-angular/css/styles.94f653e9e151e28067a7c5dbbc4600cbd5a3c721e79faaf971e523c40f3b249b8e4f20bb57810dfffa8d559ca5c140fd56eb4cd9c0853113ad08e66afdb08bdd.css integrity="sha512-lPZT6eFR4oBnp8XbvEYAy9WjxyHnn6r5ceUjxA87JJuOTyC7V4EN//qNVZylwUD9VutM2cCFMROtCOZq/bCL3Q=="><link rel=stylesheet href=https://galczo5.github.io/mythical-angular/css/custom.css><!--[if lt IE 9]><script src=https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js></script>
+<script src=https://oss.maxcdn.com/respond/1.4.2/respond.min.js></script><![endif]--><link rel=icon type=image/png href=https://galczo5.github.io/mythical-angular/images/favicon.ico></head><body class="max-width mx-auto px3 ltr"><div class="content index py4"><div id=header-post><a id=menu-icon href=#><i class="fas fa-bars fa-lg"></i></a>
+<a id=menu-icon-tablet href=#><i class="fas fa-bars fa-lg"></i></a>
+<a id=top-icon-tablet href=# onclick='$("html, body").animate({scrollTop:0},"fast")' style=display:none aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg"></i></a>
+<span id=menu><span id=nav><ul><li><a href=/mythical-angular/>Home</a></li><li><a href=/mythical-angular/posts>All posts</a></li><li><a href=/mythical-angular/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></span><br><span id=actions><ul><li><a class=icon href=https://galczo5.github.io/mythical-angular/posts/renderer/ aria-label=Previous><i class="fas fa-chevron-left" aria-hidden=true onmouseover='$("#i-prev").toggle()' onmouseout='$("#i-prev").toggle()'></i></a></li><li><a class=icon href=# onclick='$("html, body").animate({scrollTop:0},"fast")' aria-label="Top of Page"><i class="fas fa-chevron-up" aria-hidden=true onmouseover='$("#i-top").toggle()' onmouseout='$("#i-top").toggle()'></i></a></li><li><a class=icon href=# aria-label=Share><i class="fas fa-share-alt" aria-hidden=true onmouseover='$("#i-share").toggle()' onmouseout='$("#i-share").toggle()' onclick='return $("#share").toggle(),!1'></i></a></li></ul><span id=i-prev class=info style=display:none>Previous post</span>
+<span id=i-next class=info style=display:none>Next post</span>
+<span id=i-top class=info style=display:none>Back to top</span>
+<span id=i-share class=info style=display:none>Share post</span></span><br><div id=share style=display:none><ul><li><a class=icon href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fstyles%2f" aria-label=Facebook><i class="fab fa-facebook" aria-hidden=true></i></a></li><li><a class=icon href="https://twitter.com/share?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fstyles%2f&text=Myth%3a%20Component%20styles" aria-label=Twitter><i class="fab fa-twitter" aria-hidden=true></i></a></li><li><a class=icon href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fstyles%2f&title=Myth%3a%20Component%20styles" aria-label=Linkedin><i class="fab fa-linkedin" aria-hidden=true></i></a></li><li><a class=icon href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fstyles%2f&is_video=false&description=Myth%3a%20Component%20styles" aria-label=Pinterest><i class="fab fa-pinterest" aria-hidden=true></i></a></li><li><a class=icon href="mailto:?subject=Myth%3a%20Component%20styles&body=Check out this article: https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fstyles%2f" aria-label=Email><i class="fas fa-envelope" aria-hidden=true></i></a></li><li><a class=icon href="https://getpocket.com/save?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fstyles%2f&title=Myth%3a%20Component%20styles" aria-label=Pocket><i class="fab fa-get-pocket" aria-hidden=true></i></a></li><li><a class=icon href="http://reddit.com/submit?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fstyles%2f&title=Myth%3a%20Component%20styles" aria-label=reddit><i class="fab fa-reddit" aria-hidden=true></i></a></li><li><a class=icon href="http://www.tumblr.com/share/link?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fstyles%2f&name=Myth%3a%20Component%20styles&description=This%20is%20a%20very%20short%20and%20interesting%20subject%20to%20me.%20In%20Angular%20every%20component%20can%20have%20its%20own%20attached%20styles.%20Styles%20can%20be%20in%20the%20same%20file%20or%20in%20separated%20files%2c%20similar%20to%20the%20templates.%0aIn%20addition%2c%20we%20can%20encapsulate%20styles.%20There%20are%20two%20methods%20of%20encapsulation%3a%20Emulated%20and%20ShadowDom.%20This%20article%20describes%20both%20types%20of%20encapsulation%2c%20and%20its%20influence%20on%20the%20performance%20of%20the%20whole%20app.%0aUsing%20styles%20instead%20of%20styleUrls%20is%20good%20for%20performance%20Just%20before%20we%20start%20with%20the%20%26ldquo%3bcomplicated%26rdquo%3b%20stuff%2c%20I%20want%20to%20mention%20one%20of%20the%20myths%20connected%20to%20the%20place%20where%20you%20can%20put%20your%20style." aria-label=Tumblr><i class="fab fa-tumblr" aria-hidden=true></i></a></li><li><a class=icon href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fstyles%2f&t=Myth%3a%20Component%20styles" aria-label="Hacker News"><i class="fab fa-hacker-news" aria-hidden=true></i></a></li></ul></div><div id=toc><nav id=TableOfContents><ul><li><a href=#using-styles-instead-of-styleurls-is-good-for-performance>Using <code>styles</code> instead of <code>styleUrls</code> is good for performance</a></li><li><a href=#encapsulation>Encapsulation</a><ul><li><a href=#emulatedencapsulationdomrenderer2><code>EmulatedEncapsulationDomRenderer2</code></a></li><li><a href=#shadowdomrenderer><code>ShadowDomRenderer</code></a></li></ul></li><li><a href=#how-styles-are-added-in-the-runtime>How styles are added in the runtime</a></li><li><a href=#performance>Performance</a><ul><li><a href=#the-test>The test</a></li><li><a href=#my-results>My results</a></li></ul></li><li><a href=#conclusion>Conclusion</a></li></ul></nav></div></span></div><article class=post itemscope itemtype=http://schema.org/BlogPosting><header><h1 class=posttitle itemprop="name headline">Myth: Component styles</h1><div class=meta><div class=postdate><time datetime="2022-03-10 00:00:00 +0000 UTC" itemprop=datePublished>2022-03-10</time></div></div></header><div class=content itemprop=articleBody><p>This is a very short and interesting subject to me.
+In Angular every component can have its own attached styles.
+Styles can be in the same file or in separated files, similar to the templates.</p><p>In addition, we can encapsulate styles.
+There are two methods of encapsulation: <code>Emulated</code> and <code>ShadowDom</code>.
+This article describes both types of encapsulation, and its influence on the performance of the whole app.</p><h2 id=using-styles-instead-of-styleurls-is-good-for-performance>Using <code>styles</code> instead of <code>styleUrls</code> is good for performance</h2><p>Just before we start with the &ldquo;complicated&rdquo; stuff,
+I want to mention one of the myths connected to the place where you can put your style.</p><p>A Few times, I head that keeping styles in the file with logic and the template.
+It&rsquo;s easy to check and verify this myth.</p><p>First, I created two components with code like bellow.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>import</span> { Component, OnInit } <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;@angular/core&#39;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>@Component</span>({
+</span></span><span style=display:flex><span>  selector<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;app-styles&#39;</span>,
+</span></span><span style=display:flex><span>  template<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>`&lt;p&gt;styles works!&lt;/p&gt;`</span>,
+</span></span><span style=display:flex><span>  styles<span style=color:#ff79c6>:</span> [<span style=color:#f1fa8c>`
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>    .app-styles {
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>      display: flex;
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>    }
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>  `</span>]
+</span></span><span style=display:flex><span>})
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> StylesComponent <span style=color:#ff79c6>implements</span> OnInit {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>constructor</span>() { }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ngOnInit()<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>I see no reason to paste here the content of the <code>./style-urls.component.css</code> file.
+Believe me that it looks almost the same <code>.app-styles</code> css class like in the code above.
+It&rsquo;s not that important in our investigation.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>import</span> { Component, OnInit } <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;@angular/core&#39;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>@Component</span>({
+</span></span><span style=display:flex><span>  selector<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;app-style-urls&#39;</span>,
+</span></span><span style=display:flex><span>  template<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>`&lt;p&gt;style-urls works!&lt;/p&gt;`</span>,
+</span></span><span style=display:flex><span>  styleUrls<span style=color:#ff79c6>:</span> [<span style=color:#f1fa8c>&#39;./style-urls.component.css&#39;</span>]
+</span></span><span style=display:flex><span>})
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> StyleUrlsComponent <span style=color:#ff79c6>implements</span> OnInit {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>constructor</span>() { }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ngOnInit()<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>Nothing special, right&mldr;?
+So, after that I have disabled minification of the artifacts in <code>angular.json</code> file and run <code>ng build</code>.
+This command should produce javascript code in <code>/dist</code> directory, and for us the most interesting file is <code>main.js</code>.</p><p>Using your IDE, you can search for lines with <code>StylesComponent</code> and <code>StyleUrlsComponent</code> words.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-javascript data-lang=javascript><span style=display:flex><span>StylesComponent.ɵcmp <span style=color:#ff79c6>=</span> <span style=color:#6272a4>/*@__PURE__*/</span> _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵdefineComponent&#34;</span>]({ type<span style=color:#ff79c6>:</span> StylesComponent, selectors<span style=color:#ff79c6>:</span> [[<span style=color:#f1fa8c>&#34;app-styles&#34;</span>]], decls<span style=color:#ff79c6>:</span> <span style=color:#bd93f9>2</span>, vars<span style=color:#ff79c6>:</span> <span style=color:#bd93f9>0</span>, template<span style=color:#ff79c6>:</span> <span style=color:#8be9fd;font-style:italic>function</span> StylesComponent_Template(rf, ctx) { <span style=color:#ff79c6>if</span> (rf <span style=color:#ff79c6>&amp;</span> <span style=color:#bd93f9>1</span>) {
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵelementStart&#34;</span>](<span style=color:#bd93f9>0</span>, <span style=color:#f1fa8c>&#34;p&#34;</span>);
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵtext&#34;</span>](<span style=color:#bd93f9>1</span>, <span style=color:#f1fa8c>&#34; styles works! &#34;</span>);
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵelementEnd&#34;</span>]();
+</span></span><span style=display:flex><span>    } }, styles<span style=color:#ff79c6>:</span> [<span style=color:#f1fa8c>&#34;.app-styles[_ngcontent-%COMP%] {\n      display: flex;\n    }&#34;</span>] });
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#6272a4>// ...
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>
+</span></span><span style=display:flex><span>StyleUrlsComponent.ɵcmp <span style=color:#ff79c6>=</span> <span style=color:#6272a4>/*@__PURE__*/</span> _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵdefineComponent&#34;</span>]({ type<span style=color:#ff79c6>:</span> StyleUrlsComponent, selectors<span style=color:#ff79c6>:</span> [[<span style=color:#f1fa8c>&#34;app-style-urls&#34;</span>]], decls<span style=color:#ff79c6>:</span> <span style=color:#bd93f9>2</span>, vars<span style=color:#ff79c6>:</span> <span style=color:#bd93f9>0</span>, template<span style=color:#ff79c6>:</span> <span style=color:#8be9fd;font-style:italic>function</span> StyleUrlsComponent_Template(rf, ctx) { <span style=color:#ff79c6>if</span> (rf <span style=color:#ff79c6>&amp;</span> <span style=color:#bd93f9>1</span>) {
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵelementStart&#34;</span>](<span style=color:#bd93f9>0</span>, <span style=color:#f1fa8c>&#34;p&#34;</span>);
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵtext&#34;</span>](<span style=color:#bd93f9>1</span>, <span style=color:#f1fa8c>&#34; style-urls works! &#34;</span>);
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵelementEnd&#34;</span>]();
+</span></span><span style=display:flex><span>    } }, styles<span style=color:#ff79c6>:</span> [<span style=color:#f1fa8c>&#34;.app-style-urls[_ngcontent-%COMP%] {\n  display: flex;\n}&#34;</span>] });
+</span></span></code></pre></td></tr></table></div></div><p>Yup, the same result for <code>styles</code> and <code>styleUrls</code>.
+Do we need better proof that it&rsquo;s a myth and <code>styles</code> is not faster than <code>styleUrls</code>&mldr;?</p><p>Now we can dig deeper into an encapsulation subject.</p><h2 id=encapsulation>Encapsulation</h2><p>To check the differences between the encapsulation types, I&rsquo;m using the same method as in the previous chapter of this article.
+I&rsquo;ve generated three components, one for each possible value from <code>ViewEncapsulation</code> enum, I&rsquo;ve changed setting in the <code>angular.json</code> and I checked the result.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">6
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>enum</span> ViewEncapsulation {
+</span></span><span style=display:flex><span>  Emulated <span style=color:#ff79c6>=</span> <span style=color:#bd93f9>0</span>,
+</span></span><span style=display:flex><span>  <span style=color:#6272a4>// Historically the 1 value was for `Native` encapsulation which has been removed as of v11.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>  None <span style=color:#ff79c6>=</span> <span style=color:#bd93f9>2</span>,
+</span></span><span style=display:flex><span>  ShadowDom <span style=color:#ff79c6>=</span> <span style=color:#bd93f9>3</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>After the building, javascript should look like in the code snippet bellow.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-javascript data-lang=javascript><span style=display:flex><span>NoEncapsulationComponent.ɵcmp <span style=color:#ff79c6>=</span> <span style=color:#6272a4>/*@__PURE__*/</span> _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵdefineComponent&#34;</span>]({ type<span style=color:#ff79c6>:</span> NoEncapsulationComponent, selectors<span style=color:#ff79c6>:</span> [[<span style=color:#f1fa8c>&#34;app-no-encapsulation&#34;</span>]], decls<span style=color:#ff79c6>:</span> <span style=color:#bd93f9>2</span>, vars<span style=color:#ff79c6>:</span> <span style=color:#bd93f9>0</span>, template<span style=color:#ff79c6>:</span> <span style=color:#8be9fd;font-style:italic>function</span> NoEncapsulationComponent_Template(rf, ctx) { <span style=color:#ff79c6>if</span> (rf <span style=color:#ff79c6>&amp;</span> <span style=color:#bd93f9>1</span>) {
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵelementStart&#34;</span>](<span style=color:#bd93f9>0</span>, <span style=color:#f1fa8c>&#34;p&#34;</span>);
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵtext&#34;</span>](<span style=color:#bd93f9>1</span>, <span style=color:#f1fa8c>&#34; no-encapsulation works! &#34;</span>);
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵelementEnd&#34;</span>]();
+</span></span><span style=display:flex><span>    } }, styles<span style=color:#ff79c6>:</span> [<span style=color:#f1fa8c>&#34;\n    .app-no-encapsulation {\n      display: flex;\n    }\n  &#34;</span>], encapsulation<span style=color:#ff79c6>:</span> <span style=color:#bd93f9>2</span> });
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#6272a4>// ...
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>
+</span></span><span style=display:flex><span>EmulatedComponent.ɵcmp <span style=color:#ff79c6>=</span> <span style=color:#6272a4>/*@__PURE__*/</span> _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵdefineComponent&#34;</span>]({ type<span style=color:#ff79c6>:</span> EmulatedComponent, selectors<span style=color:#ff79c6>:</span> [[<span style=color:#f1fa8c>&#34;app-emulated&#34;</span>]], decls<span style=color:#ff79c6>:</span> <span style=color:#bd93f9>2</span>, vars<span style=color:#ff79c6>:</span> <span style=color:#bd93f9>0</span>, template<span style=color:#ff79c6>:</span> <span style=color:#8be9fd;font-style:italic>function</span> EmulatedComponent_Template(rf, ctx) { <span style=color:#ff79c6>if</span> (rf <span style=color:#ff79c6>&amp;</span> <span style=color:#bd93f9>1</span>) {
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵelementStart&#34;</span>](<span style=color:#bd93f9>0</span>, <span style=color:#f1fa8c>&#34;p&#34;</span>);
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵtext&#34;</span>](<span style=color:#bd93f9>1</span>, <span style=color:#f1fa8c>&#34; emulated works! &#34;</span>);
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵelementEnd&#34;</span>]();
+</span></span><span style=display:flex><span>    } }, styles<span style=color:#ff79c6>:</span> [<span style=color:#f1fa8c>&#34;.app-emulated[_ngcontent-%COMP%] {\n      display: flex;\n    }&#34;</span>] });
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#6272a4>// ...
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>
+</span></span><span style=display:flex><span>ShadowComponent.ɵcmp <span style=color:#ff79c6>=</span> <span style=color:#6272a4>/*@__PURE__*/</span> _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵdefineComponent&#34;</span>]({ type<span style=color:#ff79c6>:</span> ShadowComponent, selectors<span style=color:#ff79c6>:</span> [[<span style=color:#f1fa8c>&#34;app-shadow&#34;</span>]], decls<span style=color:#ff79c6>:</span> <span style=color:#bd93f9>2</span>, vars<span style=color:#ff79c6>:</span> <span style=color:#bd93f9>0</span>, template<span style=color:#ff79c6>:</span> <span style=color:#8be9fd;font-style:italic>function</span> ShadowComponent_Template(rf, ctx) { <span style=color:#ff79c6>if</span> (rf <span style=color:#ff79c6>&amp;</span> <span style=color:#bd93f9>1</span>) {
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵelementStart&#34;</span>](<span style=color:#bd93f9>0</span>, <span style=color:#f1fa8c>&#34;p&#34;</span>);
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵtext&#34;</span>](<span style=color:#bd93f9>1</span>, <span style=color:#f1fa8c>&#34; shadow works! &#34;</span>);
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵelementEnd&#34;</span>]();
+</span></span><span style=display:flex><span>    } }, styles<span style=color:#ff79c6>:</span> [<span style=color:#f1fa8c>&#34;\n    .app-shadow {\n      display: flex;\n    }\n  &#34;</span>], encapsulation<span style=color:#ff79c6>:</span> <span style=color:#bd93f9>3</span> });
+</span></span></code></pre></td></tr></table></div></div><p>The most visible difference is of course <code>[_ngcontent-%COMP%]</code> part.
+It was generated by the compiler, but why&mldr;?</p><p>To check this, we again have to go back to the <code>Renderer2</code> class. If you&rsquo;re new, check my previous post about it.</p><p>For each component, I&rsquo;ve checked the <code>Renderer2</code> implementation. The results were:</p><ul><li><code>ViewEncapsulation.Emulated</code> = <code>EmulatedEncapsulationDomRenderer2</code></li><li><code>ViewEncapsulation.None</code> = <code>DefaultDomRenderer2</code></li><li><code>ViewEncapsulation.ShadowDom</code> = <code>ShadowDomRenderer</code></li></ul><h3 id=emulatedencapsulationdomrenderer2><code>EmulatedEncapsulationDomRenderer2</code></h3><p>OK.
+We know that for every component with encapsulation set to <code>Emulated</code> Angular generates something that was not the in source code.
+From CSS, we know that added part makes that elements with class <code>app-emulated</code> and attribute will use this style.
+It looks suspicious, but it&rsquo;s nothing more than HTML attributed with a strange name.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-css data-lang=css><span style=display:flex><span>.<span style=color:#50fa7b>app-emulated</span><span style=color:#ff79c6>[</span><span style=color:#ff79c6>_ngcontent-</span><span style=color:#ff79c6>%</span><span style=color:#ff79c6>COMP</span><span style=color:#ff79c6>%]</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>display</span>: <span style=color:#ff79c6>flex</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>Knowing that we may expect that Angular adds that attribute in runtime. In fact, it does.
+Check out the code of <code>EmulatedEncapsulationDomRenderer2</code> which is used by framework for emulated encapsulation components.</p><p>Two parts of that code are important.
+First, in constructor, class is generating property <code>contentAttr</code>.
+This field is used later in overridden method <code>createElement</code>,
+every element created by this implementation of <code>Renderer2</code> will add this special attribute by default.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>class</span> EmulatedEncapsulationDomRenderer2 <span style=color:#ff79c6>extends</span> DefaultDomRenderer2 {
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> contentAttr: <span style=color:#8be9fd>string</span>;
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> hostAttr: <span style=color:#8be9fd>string</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>constructor</span>(
+</span></span><span style=display:flex><span>      eventManager: <span style=color:#8be9fd>EventManager</span>, sharedStylesHost: <span style=color:#8be9fd>DomSharedStylesHost</span>,
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>private</span> component: <span style=color:#8be9fd>RendererType2</span>, appId: <span style=color:#8be9fd>string</span>) {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>super</span>(eventManager);
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> styles <span style=color:#ff79c6>=</span> flattenStyles(appId <span style=color:#ff79c6>+</span> <span style=color:#f1fa8c>&#39;-&#39;</span> <span style=color:#ff79c6>+</span> component.id, component.styles, []);
+</span></span><span style=display:flex><span>    sharedStylesHost.addStyles(styles);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>.contentAttr <span style=color:#ff79c6>=</span> shimContentAttribute(appId <span style=color:#ff79c6>+</span> <span style=color:#f1fa8c>&#39;-&#39;</span> <span style=color:#ff79c6>+</span> component.id);
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>.hostAttr <span style=color:#ff79c6>=</span> shimHostAttribute(appId <span style=color:#ff79c6>+</span> <span style=color:#f1fa8c>&#39;-&#39;</span> <span style=color:#ff79c6>+</span> component.id);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  applyToHost(element: <span style=color:#8be9fd>any</span>) {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>super</span>.setAttribute(element, <span style=color:#ff79c6>this</span>.hostAttr, <span style=color:#f1fa8c>&#39;&#39;</span>);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  override createElement(parent: <span style=color:#8be9fd>any</span>, name: <span style=color:#8be9fd>string</span>)<span style=color:#ff79c6>:</span> Element {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> el <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>super</span>.createElement(parent, name);
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>super</span>.setAttribute(el, <span style=color:#ff79c6>this</span>.contentAttr, <span style=color:#f1fa8c>&#39;&#39;</span>);
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> el;
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>I answered where is the code responsible for adding that attribute, but still we have one important question: WHY?</p><p>Basically, it&rsquo;s very simple.
+Angular is adding this attribute to CSS code and in runtime to the components,
+it is a very smart and native way
+to make sure that added style will be applied only to elements from Angular app scope.
+You simply aren&rsquo;t able to use it somewhere outside app, for example,
+directly in <code>index.html</code> file, because you cannot know the name of the attribute before build.</p><p>As I said, a very smart way of encapsulating styles.</p><h3 id=shadowdomrenderer><code>ShadowDomRenderer</code></h3><p>A different approach to encapsulation is to use Shadow DOM.
+To be honest, maybe I live in a very monotonic environment,
+or it&rsquo;s very rarely used, because I saw usages of this strategy only a few times yet.
+The whole idea consumes the Shadow DOM API of the browser,
+right now; according to <a href=https://caniuse.com/>caniuse.com</a> almost all modern browsers are supporting it.</p><p><code>ShadowDomRenderer</code> in constructor is attaching shadow to the host, and later it appends styles to created shadow root. There is no need to create weird named attributes or something, just some javascript code.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">36
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">37
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">38
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>class</span> ShadowDomRenderer <span style=color:#ff79c6>extends</span> DefaultDomRenderer2 {
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> shadowRoot: <span style=color:#8be9fd>any</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>constructor</span>(
+</span></span><span style=display:flex><span>      eventManager: <span style=color:#8be9fd>EventManager</span>, <span style=color:#ff79c6>private</span> sharedStylesHost: <span style=color:#8be9fd>DomSharedStylesHost</span>,
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>private</span> hostEl: <span style=color:#8be9fd>any</span>, component: <span style=color:#8be9fd>RendererType2</span>) {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>super</span>(eventManager);
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>.shadowRoot <span style=color:#ff79c6>=</span> (hostEl <span style=color:#ff79c6>as</span> <span style=color:#8be9fd>any</span>).attachShadow({mode<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;open&#39;</span>});
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>.sharedStylesHost.addHost(<span style=color:#ff79c6>this</span>.shadowRoot);
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> styles <span style=color:#ff79c6>=</span> flattenStyles(component.id, component.styles, []);
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>for</span> (<span style=color:#8be9fd;font-style:italic>let</span> i <span style=color:#ff79c6>=</span> <span style=color:#bd93f9>0</span>; i <span style=color:#ff79c6>&lt;</span> styles.length; i<span style=color:#ff79c6>++</span>) {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>const</span> styleEl <span style=color:#ff79c6>=</span> <span style=color:#8be9fd;font-style:italic>document</span>.createElement(<span style=color:#f1fa8c>&#39;style&#39;</span>);
+</span></span><span style=display:flex><span>      styleEl.textContent <span style=color:#ff79c6>=</span> styles[i];
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>this</span>.shadowRoot.appendChild(styleEl);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> nodeOrShadowRoot(node: <span style=color:#8be9fd>any</span>)<span style=color:#ff79c6>:</span> <span style=color:#8be9fd>any</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> node <span style=color:#ff79c6>===</span> <span style=color:#ff79c6>this</span>.hostEl <span style=color:#ff79c6>?</span> <span style=color:#ff79c6>this</span>.shadowRoot : <span style=color:#8be9fd>node</span>;
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  override destroy() {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>.sharedStylesHost.removeHost(<span style=color:#ff79c6>this</span>.shadowRoot);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  override appendChild(parent: <span style=color:#8be9fd>any</span>, newChild: <span style=color:#8be9fd>any</span>)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> <span style=color:#ff79c6>super</span>.appendChild(<span style=color:#ff79c6>this</span>.nodeOrShadowRoot(parent), newChild);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>  override insertBefore(parent: <span style=color:#8be9fd>any</span>, newChild: <span style=color:#8be9fd>any</span>, refChild: <span style=color:#8be9fd>any</span>)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> <span style=color:#ff79c6>super</span>.insertBefore(<span style=color:#ff79c6>this</span>.nodeOrShadowRoot(parent), newChild, refChild);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>  override removeChild(parent: <span style=color:#8be9fd>any</span>, oldChild: <span style=color:#8be9fd>any</span>)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> <span style=color:#ff79c6>super</span>.removeChild(<span style=color:#ff79c6>this</span>.nodeOrShadowRoot(parent), oldChild);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>  override parentNode(node: <span style=color:#8be9fd>any</span>)<span style=color:#ff79c6>:</span> <span style=color:#8be9fd>any</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> <span style=color:#ff79c6>this</span>.nodeOrShadowRoot(<span style=color:#ff79c6>super</span>.parentNode(<span style=color:#ff79c6>this</span>.nodeOrShadowRoot(node)));
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>I decided not to focus on this strategy a lot, because as I mentioned earlier, I&rsquo;m not sure if it&rsquo;s very popular.</p><p>If you want to invest some time in learning how Shadow DOM is working, here you have a very good article from MDN; <a href=https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_shadow_DOM>developer.mozilla.org/en-US/docs/Web/Web_Components/Using_shadow_DOM</a>.</p><h2 id=how-styles-are-added-in-the-runtime>How styles are added in the runtime</h2><p>Another interesting part of styling that is worth knowing is part of adding styles to the page by the framework.
+Did you ever wonder how Angular is doing that?
+Are the styles loaded eagerly using HTML <code>link</code> tag?
+Maybe some kind of dynamic/lazy loading?</p><p>To calm you, of course, component styles are not loading eagerly. It would be potentially easy to break the performance.</p><p>Once again, I&rsquo;m going to paste some code from Angular sources :) Please forgive me that,
+but I still think that you should not trust me.
+Remember: &ldquo;Trust the code&rdquo;.</p><p>This time we start again with <code>EmulatedEncapsulationDomRenderer2</code>.
+In the constructor we have very few things injected and,
+one of the arguments is an instance of class <code>DomSharedStylesHost</code>.
+In the third line of the constructor method <code>addStyles</code> is called.
+This is our investigation entry point.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>class</span> EmulatedEncapsulationDomRenderer2 <span style=color:#ff79c6>extends</span> DefaultDomRenderer2 {
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> contentAttr: <span style=color:#8be9fd>string</span>;
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> hostAttr: <span style=color:#8be9fd>string</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>constructor</span>(
+</span></span><span style=display:flex><span>      eventManager: <span style=color:#8be9fd>EventManager</span>, sharedStylesHost: <span style=color:#8be9fd>DomSharedStylesHost</span>,
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>private</span> component: <span style=color:#8be9fd>RendererType2</span>, appId: <span style=color:#8be9fd>string</span>) {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>super</span>(eventManager);
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> styles <span style=color:#ff79c6>=</span> flattenStyles(appId <span style=color:#ff79c6>+</span> <span style=color:#f1fa8c>&#39;-&#39;</span> <span style=color:#ff79c6>+</span> component.id, component.styles, []);
+</span></span><span style=display:flex><span>    sharedStylesHost.addStyles(styles);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>.contentAttr <span style=color:#ff79c6>=</span> shimContentAttribute(appId <span style=color:#ff79c6>+</span> <span style=color:#f1fa8c>&#39;-&#39;</span> <span style=color:#ff79c6>+</span> component.id);
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>.hostAttr <span style=color:#ff79c6>=</span> shimHostAttribute(appId <span style=color:#ff79c6>+</span> <span style=color:#f1fa8c>&#39;-&#39;</span> <span style=color:#ff79c6>+</span> component.id);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  <span style=color:#6272a4>// ...
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>}
+</span></span></code></pre></td></tr></table></div></div><p>And of course, code for it can be found in the sources.
+It&rsquo;s important to know that <code>DomSharedStylesHost</code> extends the class <code>SharedStylesHost</code>,
+there is another class that extends it <code>ServerStylesHost</code>.
+We can assume that this operation is implemented differently for server side rendering configuration.</p><p>As always I want to encourage you to check it,
+but for now I&rsquo;ll focus on the browser version, because it&rsquo;s probably the most commonly used implementation.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">36
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">37
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">38
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">39
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">40
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">41
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">42
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>@Injectable</span>()
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> DomSharedStylesHost <span style=color:#ff79c6>extends</span> SharedStylesHost <span style=color:#ff79c6>implements</span> OnDestroy {
+</span></span><span style=display:flex><span>  <span style=color:#6272a4>// Maps all registered host nodes to a list of style nodes that have been added to the host node.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>  <span style=color:#ff79c6>private</span> _hostNodes <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> Map&lt;<span style=color:#ff79c6>Node</span>, <span style=color:#50fa7b>Node</span>[]&gt;();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>constructor</span>(<span style=color:#8be9fd;font-style:italic>@Inject</span>(DOCUMENT) <span style=color:#ff79c6>private</span> _doc: <span style=color:#8be9fd>any</span>) {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>super</span>();
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>._hostNodes.<span style=color:#ff79c6>set</span>(_doc.head, []);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> _addStylesToHost(styles: <span style=color:#8be9fd>Set</span>&lt;<span style=color:#ff79c6>string</span>&gt;, host: <span style=color:#8be9fd>Node</span>, styleNodes: <span style=color:#8be9fd>Node</span>[])<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    styles.forEach((style: <span style=color:#8be9fd>string</span>) <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>const</span> styleEl <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>this</span>._doc.createElement(<span style=color:#f1fa8c>&#39;style&#39;</span>);
+</span></span><span style=display:flex><span>      styleEl.textContent <span style=color:#ff79c6>=</span> style;
+</span></span><span style=display:flex><span>      styleNodes.push(host.appendChild(styleEl));
+</span></span><span style=display:flex><span>    });
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  addHost(hostNode: <span style=color:#8be9fd>Node</span>)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> styleNodes: <span style=color:#8be9fd>Node</span>[] <span style=color:#ff79c6>=</span> [];
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>._addStylesToHost(<span style=color:#ff79c6>this</span>._stylesSet, hostNode, styleNodes);
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>._hostNodes.<span style=color:#ff79c6>set</span>(hostNode, styleNodes);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  removeHost(hostNode: <span style=color:#8be9fd>Node</span>)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> styleNodes <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>this</span>._hostNodes.<span style=color:#ff79c6>get</span>(hostNode);
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (styleNodes) {
+</span></span><span style=display:flex><span>      styleNodes.forEach(removeStyle);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>._hostNodes.<span style=color:#ff79c6>delete</span>(hostNode);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  override onStylesAdded(additions: <span style=color:#8be9fd>Set</span>&lt;<span style=color:#ff79c6>string</span>&gt;)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>._hostNodes.forEach((styleNodes, hostNode) <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>this</span>._addStylesToHost(additions, hostNode, styleNodes);
+</span></span><span style=display:flex><span>    });
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ngOnDestroy()<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>._hostNodes.forEach(styleNodes <span style=color:#ff79c6>=&gt;</span> styleNodes.forEach(removeStyle));
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>Ok, let&rsquo;s start with the constructor. There is only one object injected.
+It&rsquo;s the <code>document</code> global object.
+Why it&rsquo;s typed as any&mldr;?
+Probably there is a reason, but I don&rsquo;t know it, and I don&rsquo;t want to create a new myth about it</p><p>In <code>DomSharedStylesHost</code> class methods <code>_addStylesToHost</code> and <code>onStylesAdded</code> are used
+to add new <code>&lt;style></code> element with the styles contend when it&rsquo;s necessary.</p><p>But when it&rsquo;s necessary&mldr;? Great question!</p><p>Angular has to add style when <code>addStyles</code> method has been called
+(look back to the constructor of the <code>EmulatedEncapsulationDomRenderer2</code>).
+This method is implemented in the <code>SharedStylesHost</code> base class.</p><p>Check out the code bellow.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>@Injectable</span>()
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> SharedStylesHost {
+</span></span><span style=display:flex><span>  <span style=color:#6272a4>/** @internal */</span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>protected</span> _stylesSet <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> Set&lt;<span style=color:#ff79c6>string</span>&gt;();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  addStyles(styles: <span style=color:#8be9fd>string</span>[])<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> additions <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> Set&lt;<span style=color:#ff79c6>string</span>&gt;();
+</span></span><span style=display:flex><span>    styles.forEach(style <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>if</span> (<span style=color:#ff79c6>!</span><span style=color:#ff79c6>this</span>._stylesSet.has(style)) {
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>this</span>._stylesSet.add(style);
+</span></span><span style=display:flex><span>        additions.add(style);
+</span></span><span style=display:flex><span>      }
+</span></span><span style=display:flex><span>    });
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>.onStylesAdded(additions);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  onStylesAdded(additions: <span style=color:#8be9fd>Set</span>&lt;<span style=color:#ff79c6>string</span>&gt;)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  getAllStyles()<span style=color:#ff79c6>:</span> <span style=color:#8be9fd>string</span>[] {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> <span style=color:#8be9fd;font-style:italic>Array</span>.<span style=color:#ff79c6>from</span>(<span style=color:#ff79c6>this</span>._stylesSet);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>From the implementation of the method whe know few things:</p><ul><li>There is a global set object that keeps all the styles added to the application.</li><li>Styles are always filtered using this set, so <strong>Angular will never add the same style twice.</strong></li><li>At the end of the method <code>onStylesAdded</code> is called, and it will call one of the &ldquo;browser&rdquo; or &ldquo;server&rdquo; implementations.</li></ul><p>Unfortunately, you cannot use SharedStylesHost by yourself to add styles &ldquo;manually&rdquo;.
+This class is not a part of Angular public API, and it&rsquo;s not exported.</p><p>At the end, the code is very simple, and you can implement it in your project.
+Why&mldr;? A good use case it when you want to load the styles dynamically with the code and webpack dynamic imports.</p><h2 id=performance>Performance</h2><p>I described all the encapsulation styles provided by the Angular framework.
+After reading tons of the code, it&rsquo;s time to compare the performance of each method.</p><p>As always, I create a repository with stupid simple application that can be used for testing purposes.
+You can find it here <a href=https://github.com/galczo5/experiment-angular-encapsulation>github.com/galczo5/experiment-angular-encapsulation</a>.</p><div style="height:400px;width:1300px;border:1px solid #d3d3d3"><iframe style=border:0;width:100%;height:100% src=https://galczo5.github.io/experiment-angular-encapsulation/></iframe></div><h3 id=the-test>The test</h3><p>To understand the test, it&rsquo;s necessary to understand the components.
+Below I pasted the code of the <code>AppComponent</code> and its template.</p><p>To test it well, I decided to run it in the loop with 100 iterations;
+each iteration is rendering 10 000 components.
+It looks like it&rsquo;s enough to get satisfying results.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">36
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>import</span> {ChangeDetectionStrategy, ChangeDetectorRef, Component} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;@angular/core&#39;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>@Component</span>({
+</span></span><span style=display:flex><span>  selector<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;app-root&#39;</span>,
+</span></span><span style=display:flex><span>  templateUrl<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;./app.component.html&#39;</span>,
+</span></span><span style=display:flex><span>  changeDetection: <span style=color:#8be9fd>ChangeDetectionStrategy.OnPush</span>
+</span></span><span style=display:flex><span>})
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> AppComponent {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>type</span><span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;clear&#39;</span> <span style=color:#ff79c6>|</span> <span style=color:#f1fa8c>&#39;emulated&#39;</span> <span style=color:#ff79c6>|</span> <span style=color:#f1fa8c>&#39;shadow&#39;</span> <span style=color:#ff79c6>|</span> <span style=color:#f1fa8c>&#39;none&#39;</span> <span style=color:#ff79c6>=</span> <span style=color:#f1fa8c>&#39;clear&#39;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  array <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> <span style=color:#8be9fd;font-style:italic>Array</span>(<span style=color:#bd93f9>10000</span>).fill(<span style=color:#bd93f9>0</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>constructor</span>(
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>private</span> <span style=color:#ff79c6>readonly</span> changeDetectorRef: <span style=color:#8be9fd>ChangeDetectorRef</span>
+</span></span><span style=display:flex><span>  ) {
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  render(<span style=color:#ff79c6>type</span><span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;clear&#39;</span> <span style=color:#ff79c6>|</span> <span style=color:#f1fa8c>&#39;emulated&#39;</span> <span style=color:#ff79c6>|</span> <span style=color:#f1fa8c>&#39;shadow&#39;</span> <span style=color:#ff79c6>|</span> <span style=color:#f1fa8c>&#39;none&#39;</span>)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#8be9fd;font-style:italic>let</span> testTime <span style=color:#ff79c6>=</span> <span style=color:#bd93f9>0</span>;
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>for</span> (<span style=color:#8be9fd;font-style:italic>let</span> i <span style=color:#ff79c6>=</span> <span style=color:#bd93f9>0</span>; i <span style=color:#ff79c6>&lt;</span> <span style=color:#bd93f9>100</span>; i<span style=color:#ff79c6>++</span>) {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>const</span> start <span style=color:#ff79c6>=</span> performance.now();
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>this</span>.<span style=color:#ff79c6>type</span> <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>type</span>;
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>this</span>.changeDetectorRef.detectChanges();
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>const</span> end <span style=color:#ff79c6>=</span> performance.now();
+</span></span><span style=display:flex><span>      testTime <span style=color:#ff79c6>+=</span> (end <span style=color:#ff79c6>-</span> start);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>this</span>.<span style=color:#ff79c6>type</span> <span style=color:#ff79c6>=</span> <span style=color:#f1fa8c>&#39;clear&#39;</span>;
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>this</span>.changeDetectorRef.detectChanges();
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    console.log(<span style=color:#f1fa8c>&#39;TOTAL&#39;</span>, testTime);
+</span></span><span style=display:flex><span>    console.log(<span style=color:#f1fa8c>&#39;AVG&#39;</span>, testTime <span style=color:#ff79c6>/</span> <span style=color:#bd93f9>100</span>);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>And of course, the template:</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">36
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-html data-lang=html><span style=display:flex><span>&lt;<span style=color:#ff79c6>h1</span>&gt;Styles encapsulation&lt;/<span style=color:#ff79c6>h1</span>&gt;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>&lt;<span style=color:#ff79c6>div</span>&gt;
+</span></span><span style=display:flex><span>  &lt;<span style=color:#ff79c6>h2</span>&gt;Emulated&lt;/<span style=color:#ff79c6>h2</span>&gt;
+</span></span><span style=display:flex><span>  &lt;<span style=color:#ff79c6>app-emulated</span>&gt;&lt;/<span style=color:#ff79c6>app-emulated</span>&gt;
+</span></span><span style=display:flex><span>&lt;/<span style=color:#ff79c6>div</span>&gt;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>&lt;<span style=color:#ff79c6>div</span>&gt;
+</span></span><span style=display:flex><span>  &lt;<span style=color:#ff79c6>h2</span>&gt;None&lt;/<span style=color:#ff79c6>h2</span>&gt;
+</span></span><span style=display:flex><span>  &lt;<span style=color:#ff79c6>app-no-encapsulation</span>&gt;&lt;/<span style=color:#ff79c6>app-no-encapsulation</span>&gt;
+</span></span><span style=display:flex><span>&lt;/<span style=color:#ff79c6>div</span>&gt;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>&lt;<span style=color:#ff79c6>div</span>&gt;
+</span></span><span style=display:flex><span>  &lt;<span style=color:#ff79c6>h2</span>&gt;ShadowDom&lt;/<span style=color:#ff79c6>h2</span>&gt;
+</span></span><span style=display:flex><span>  &lt;<span style=color:#ff79c6>app-shadow</span>&gt;&lt;/<span style=color:#ff79c6>app-shadow</span>&gt;
+</span></span><span style=display:flex><span>&lt;/<span style=color:#ff79c6>div</span>&gt;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>&lt;<span style=color:#ff79c6>div</span>&gt;
+</span></span><span style=display:flex><span>  &lt;<span style=color:#ff79c6>h2</span>&gt;Test - 100 * Create 10000 components&lt;/<span style=color:#ff79c6>h2</span>&gt;
+</span></span><span style=display:flex><span>  &lt;<span style=color:#ff79c6>button</span> (<span style=color:#50fa7b>click</span>)=&#34;<span style=color:#50fa7b>render</span>(&#39;<span style=color:#50fa7b>clear</span>&#39;)&#34;&gt;Clear&lt;/<span style=color:#ff79c6>button</span>&gt;
+</span></span><span style=display:flex><span>  &lt;<span style=color:#ff79c6>button</span> (<span style=color:#50fa7b>click</span>)=&#34;<span style=color:#50fa7b>render</span>(&#39;<span style=color:#50fa7b>emulated</span>&#39;)&#34;&gt;Emulated&lt;/<span style=color:#ff79c6>button</span>&gt;
+</span></span><span style=display:flex><span>  &lt;<span style=color:#ff79c6>button</span> (<span style=color:#50fa7b>click</span>)=&#34;<span style=color:#50fa7b>render</span>(&#39;<span style=color:#50fa7b>none</span>&#39;)&#34;&gt;None&lt;/<span style=color:#ff79c6>button</span>&gt;
+</span></span><span style=display:flex><span>  &lt;<span style=color:#ff79c6>button</span> (<span style=color:#50fa7b>click</span>)=&#34;<span style=color:#50fa7b>render</span>(&#39;<span style=color:#50fa7b>shadow</span>&#39;)&#34;&gt;ShadowDom&lt;/<span style=color:#ff79c6>button</span>&gt;
+</span></span><span style=display:flex><span>&lt;/<span style=color:#ff79c6>div</span>&gt;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>&lt;<span style=color:#ff79c6>div</span> *<span style=color:#50fa7b>ngIf</span><span style=color:#ff79c6>=</span><span style=color:#f1fa8c>&#34;type === &#39;emulated&#39;&#34;</span>&gt;
+</span></span><span style=display:flex><span>  &lt;<span style=color:#ff79c6>app-emulated</span> *<span style=color:#50fa7b>ngFor</span><span style=color:#ff79c6>=</span><span style=color:#f1fa8c>&#34;let x of array&#34;</span>&gt;&lt;/<span style=color:#ff79c6>app-emulated</span>&gt;
+</span></span><span style=display:flex><span>&lt;/<span style=color:#ff79c6>div</span>&gt;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>&lt;<span style=color:#ff79c6>div</span> *<span style=color:#50fa7b>ngIf</span><span style=color:#ff79c6>=</span><span style=color:#f1fa8c>&#34;type === &#39;shadow&#39;&#34;</span>&gt;
+</span></span><span style=display:flex><span>  &lt;<span style=color:#ff79c6>app-shadow</span> *<span style=color:#50fa7b>ngFor</span><span style=color:#ff79c6>=</span><span style=color:#f1fa8c>&#34;let x of array&#34;</span>&gt;&lt;/<span style=color:#ff79c6>app-shadow</span>&gt;
+</span></span><span style=display:flex><span>&lt;/<span style=color:#ff79c6>div</span>&gt;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>&lt;<span style=color:#ff79c6>div</span> *<span style=color:#50fa7b>ngIf</span><span style=color:#ff79c6>=</span><span style=color:#f1fa8c>&#34;type === &#39;none&#39;&#34;</span>&gt;
+</span></span><span style=display:flex><span>  &lt;<span style=color:#ff79c6>app-no-encapsulation</span> *<span style=color:#50fa7b>ngFor</span><span style=color:#ff79c6>=</span><span style=color:#f1fa8c>&#34;let x of array&#34;</span>&gt;&lt;/<span style=color:#ff79c6>app-no-encapsulation</span>&gt;
+</span></span><span style=display:flex><span>&lt;/<span style=color:#ff79c6>div</span>&gt;
+</span></span></code></pre></td></tr></table></div></div><h3 id=my-results>My results</h3><p>If you don&rsquo;t want to do the tests on your computer, here are my results.</p><table><thead><tr><th>Encapsulation type</th><th>Total</th><th>Avg iteration time</th></tr></thead><tbody><tr><td>None</td><td>12496ms</td><td>124,9 ms</td></tr><tr><td>Emulated</td><td>13027ms</td><td>130,2ms</td></tr><tr><td>ShadowDom</td><td>21352ms</td><td>213,5ms</td></tr></tbody></table><p>There is almost no difference between the <code>Emulated</code> and disabled encapsulation.
+The difference between <code>ShadowDom</code> and the rest of the encapsulation types is huge.</p><h2 id=conclusion>Conclusion</h2><p>It scares me a little that I wrote an article about encapsulation
+and its performance where the test is a very small part of the whole text.
+I just wanted to describe differences well :D</p><p>To sum up, the default <code>Emulated</code> encapsulation is as fast as no encapsulation at all.
+It looks that this can be explained by the implementation.
+At the end, it&rsquo;s only a smart way of using native css attribute selectors.
+The <code>ShadowDom</code> way is significantly slower,
+maybe it&rsquo;s the reason why it&rsquo;s not very popular in my environment.</p></div></article><div id=footer-post-container><div id=footer-post><div id=nav-footer style=display:none><ul><li><a href=/mythical-angular/>Home</a></li><li><a href=/mythical-angular/posts>All posts</a></li><li><a href=/mythical-angular/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></div><div id=toc-footer style=display:none><nav id=TableOfContents><ul><li><a href=#using-styles-instead-of-styleurls-is-good-for-performance>Using <code>styles</code> instead of <code>styleUrls</code> is good for performance</a></li><li><a href=#encapsulation>Encapsulation</a><ul><li><a href=#emulatedencapsulationdomrenderer2><code>EmulatedEncapsulationDomRenderer2</code></a></li><li><a href=#shadowdomrenderer><code>ShadowDomRenderer</code></a></li></ul></li><li><a href=#how-styles-are-added-in-the-runtime>How styles are added in the runtime</a></li><li><a href=#performance>Performance</a><ul><li><a href=#the-test>The test</a></li><li><a href=#my-results>My results</a></li></ul></li><li><a href=#conclusion>Conclusion</a></li></ul></nav></div><div id=share-footer style=display:none><ul><li><a class=icon href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fstyles%2f" aria-label=Facebook><i class="fab fa-facebook fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://twitter.com/share?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fstyles%2f&text=Myth%3a%20Component%20styles" aria-label=Twitter><i class="fab fa-twitter fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fstyles%2f&title=Myth%3a%20Component%20styles" aria-label=Linkedin><i class="fab fa-linkedin fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fstyles%2f&is_video=false&description=Myth%3a%20Component%20styles" aria-label=Pinterest><i class="fab fa-pinterest fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="mailto:?subject=Myth%3a%20Component%20styles&body=Check out this article: https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fstyles%2f" aria-label=Email><i class="fas fa-envelope fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://getpocket.com/save?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fstyles%2f&title=Myth%3a%20Component%20styles" aria-label=Pocket><i class="fab fa-get-pocket fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="http://reddit.com/submit?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fstyles%2f&title=Myth%3a%20Component%20styles" aria-label=reddit><i class="fab fa-reddit fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="http://www.tumblr.com/share/link?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fstyles%2f&name=Myth%3a%20Component%20styles&description=This%20is%20a%20very%20short%20and%20interesting%20subject%20to%20me.%20In%20Angular%20every%20component%20can%20have%20its%20own%20attached%20styles.%20Styles%20can%20be%20in%20the%20same%20file%20or%20in%20separated%20files%2c%20similar%20to%20the%20templates.%0aIn%20addition%2c%20we%20can%20encapsulate%20styles.%20There%20are%20two%20methods%20of%20encapsulation%3a%20Emulated%20and%20ShadowDom.%20This%20article%20describes%20both%20types%20of%20encapsulation%2c%20and%20its%20influence%20on%20the%20performance%20of%20the%20whole%20app.%0aUsing%20styles%20instead%20of%20styleUrls%20is%20good%20for%20performance%20Just%20before%20we%20start%20with%20the%20%26ldquo%3bcomplicated%26rdquo%3b%20stuff%2c%20I%20want%20to%20mention%20one%20of%20the%20myths%20connected%20to%20the%20place%20where%20you%20can%20put%20your%20style." aria-label=Tumblr><i class="fab fa-tumblr fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fstyles%2f&t=Myth%3a%20Component%20styles" aria-label="Hacker News"><i class="fab fa-hacker-news fa-lg" aria-hidden=true></i></a></li></ul></div><div id=actions-footer><a id=menu-toggle class=icon href=# onclick='return $("#nav-footer").toggle(),!1' aria-label=Menu><i class="fas fa-bars fa-lg" aria-hidden=true></i> Menu</a>
+<a id=toc-toggle class=icon href=# onclick='return $("#toc-footer").toggle(),!1' aria-label=TOC><i class="fas fa-list fa-lg" aria-hidden=true></i> TOC</a>
+<a id=share-toggle class=icon href=# onclick='return $("#share-footer").toggle(),!1' aria-label=Share><i class="fas fa-share-alt fa-lg" aria-hidden=true></i> share</a>
+<a id=top style=display:none class=icon href=# onclick='$("html, body").animate({scrollTop:0},"fast")' aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg" aria-hidden=true></i> Top</a></div></div></div><footer id=footer><div class=footer-left>Copyright &copy; 2022 Kamil Gałek</div><div class=footer-right><nav><ul><li><a href=/mythical-angular/>Home</a></li><li><a href=/mythical-angular/posts>All posts</a></li><li><a href=/mythical-angular/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></nav></div></footer></div></body><link rel=stylesheet href=/mythical-angular/lib/font-awesome/css/all.min.css><script src=/mythical-angular/lib/jquery/jquery.min.js></script>
+<script src=/mythical-angular/js/main.js></script>
+<script src=/mythical-angular/js/code-copy.js></script></html>
