@@ -1,7 +1,7 @@
 ---
 title: "Myth: Component styles"
-date: 2022-03-07T18:47:35+01:00
-draft: true
+date: 2022-03-10
+draft: false
 ---
 
 This is a very short and interesting subject to me.
@@ -43,6 +43,10 @@ export class StylesComponent implements OnInit {
 
 }
 ```
+
+I see no reason to paste here the content of the `./style-urls.component.css` file.
+Believe me that it looks almost the same `.app-styles` css class like in the code above.
+It's not that important in our investigation.
 
 ```typescript
 import { Component, OnInit } from '@angular/core';
@@ -196,8 +200,6 @@ it is a very smart and native way
 to make sure that added style will be applied only to elements from Angular app scope.
 You simply aren't able to use it somewhere outside app, for example,
 directly in `index.html` file, because you cannot know the name of the attribute before build.
-
-// img
 
 As I said, a very smart way of encapsulating styles.
 
@@ -408,11 +410,122 @@ After reading tons of the code, it's time to compare the performance of each met
 As always, I create a repository with stupid simple application that can be used for testing purposes.
 You can find it here [github.com/galczo5/experiment-angular-encapsulation](https://github.com/galczo5/experiment-angular-encapsulation).
 
+{{< rawhtml >}}
+<div style="height: 400px; width: 1300px; border: 1px solid lightgray;">
+    <iframe style="border: 0; width: 100%; height: 100%;" src="https://galczo5.github.io/experiment-angular-encapsulation/"></iframe>
+</div>
+{{< /rawhtml >}}
+
 ### The test
-    
+
+To understand the test, it's necessary to understand the components.
+Below I pasted the code of the `AppComponent` and its template.
+
+To test it well, I decided to run it in the loop with 100 iterations;
+each iteration is rendering 10 000 components.
+It looks like it's enough to get satisfying results.
+
+```typescript
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component} from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class AppComponent {
+
+  type: 'clear' | 'emulated' | 'shadow' | 'none' = 'clear';
+
+  array = new Array(10000).fill(0);
+
+  constructor(
+    private readonly changeDetectorRef: ChangeDetectorRef
+  ) {
+  }
+
+  render(type: 'clear' | 'emulated' | 'shadow' | 'none'): void {
+    let testTime = 0;
+    for (let i = 0; i < 100; i++) {
+      const start = performance.now();
+      this.type = type;
+      this.changeDetectorRef.detectChanges();
+      const end = performance.now();
+      testTime += (end - start);
+
+      this.type = 'clear';
+      this.changeDetectorRef.detectChanges();
+    }
+
+    console.log('TOTAL', testTime);
+    console.log('AVG', testTime / 100);
+  }
+
+}
+```
+
+And of course, the template:
+
+```html
+<h1>Styles encapsulation</h1>
+
+<div>
+  <h2>Emulated</h2>
+  <app-emulated></app-emulated>
+</div>
+
+<div>
+  <h2>None</h2>
+  <app-no-encapsulation></app-no-encapsulation>
+</div>
+
+<div>
+  <h2>ShadowDom</h2>
+  <app-shadow></app-shadow>
+</div>
+
+<div>
+  <h2>Test - 100 * Create 10000 components</h2>
+  <button (click)="render('clear')">Clear</button>
+  <button (click)="render('emulated')">Emulated</button>
+  <button (click)="render('none')">None</button>
+  <button (click)="render('shadow')">ShadowDom</button>
+</div>
+
+<div *ngIf="type === 'emulated'">
+  <app-emulated *ngFor="let x of array"></app-emulated>
+</div>
+
+<div *ngIf="type === 'shadow'">
+  <app-shadow *ngFor="let x of array"></app-shadow>
+</div>
+
+<div *ngIf="type === 'none'">
+  <app-no-encapsulation *ngFor="let x of array"></app-no-encapsulation>
+</div>
+```
 
 ### My results 
 
+If you don't want to do the tests on your computer, here are my results. 
+
+| Encapsulation type | Total | Avg iteration time |
+|--------------------| --- |--------------------|
+| None               | 12496ms | 124,9 ms           |
+| Emulated           | 13027ms | 130,2ms            |
+| ShadowDom          | 21352ms | 213,5ms            |
+
+There is almost no difference between the `Emulated` and disabled encapsulation.
+The difference between `ShadowDom` and the rest of the encapsulation types is huge.
 
 ## Conclusion
 
+It scares me a little that I wrote an article about encapsulation
+and its performance where the test is a very small part of the whole text.
+I just wanted to describe differences well :D 
+
+To sum up, the default `Emulated` encapsulation is as fast as no encapsulation at all.
+It looks that this can be explained by the implementation.
+At the end, it's only a smart way of using native css attribute selectors.
+The `ShadowDom` way is significantly slower,
+maybe it's the reason why it's not very popular in my environment.
