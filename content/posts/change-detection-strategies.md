@@ -85,7 +85,7 @@ In addition, I've added a button to disable/enable NgZones. NgZones is not a par
 
 ### Fact 1. `Default` strategy checks a lot more than `OnPush`
 
-It's easy to test it. Just click on `set value` button or follow the instructions bellow"
+It's easy to test it. Just click on `set value` button or follow the instructions bellow:
 
 1. Click on the button "set value" in Default Strategy parent
 2. Value should be displayed below Child 1 in Default Strategy

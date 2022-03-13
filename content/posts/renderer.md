@@ -5,10 +5,10 @@ draft: false
 ---
 
 Today I'm going to show you how to test different methods of html styling in Angular.
-You're going to learn what is `Renderer`, how and when to it and of course how it's implemented in the framework. I'm going to compare different approaches of adding styles to find the best one. You'll see that it's not that simple.
+You're going to learn what is `Renderer2`, how and when to it and of course how it's implemented in the framework. I'm going to compare different approaches of adding styles to find the best one. You'll see that it's not that simple.
 
 ## Angular build-in directives
-At the very beginning, when you learn about Angular styling. It's very simple in the framework to add style or class dynamically to an html element.
+At the very beginning, when you learn about Angular styling. It's very simple in the framework to add style or class dynamically to a html element.
 
 For example. If I want to add background to my div, and value is not static, I can do it like in the code below.
 
@@ -32,7 +32,7 @@ export class ListItemDirectiveComponent {
 
 This way works with classes, attributes and so on. But how it is working under the hood...?
 Let's start with analysis of `main.js` located in dist directory after the `ng build` has ended.
-It looks very hard to understand, so i decided to make it easier.
+It looks very hard to understand, so I decided to make it easier.
 Search for function `ListItemDirectiveComponent_Template`.
 Basically, every template you define in Angular is transformed into a function in the javascript code.
 Our background styles are added using something called `ɵɵstyleProp`;
@@ -236,7 +236,7 @@ ShadowDomRenderer
 
 I encourage you to check how every one of these works, but in my case `DefaultDomRenderer2` was used, I'm going to focus on that one. 
 
-Implementation is quite easy and I decided to place it in the code snippet below.
+Implementation is quite easy, and I decided to place it in the code snippet below.
 
 ```typescript
 class DefaultDomRenderer2 implements Renderer2 {
@@ -449,7 +449,7 @@ For your convenience, I hosted it and placed an instance in the iframe bellow.
 
 In the app I created three columns with the thousands of the elements. Each column is styled with a different method. You can click on three buttons.
 
-First one is toggling the background style in all of the elements in that column.
+First one is toggling the background style in all the elements in that column.
 
 Second one is toggling the background style in half of the elements.
 
@@ -465,11 +465,11 @@ Do the tests with the dev tools open. There are logs with a precise time measure
 
 With my setup, I had results like in the table below.
 
-|                 | Directive | Renderer | Native |
-|-----------------|-----------|--------|--------|
-| **Change all**  | 277ms     | 5155ms | 5485ms |
-| **Change half** | 164ms     | 2597ms | 2835ms | 
-| **Change one**  | 54ms      | 11ms   | 11ms   |
+|                 | Directive | Renderer2 | Native |
+|-----------------|-----------|-----------|--------|
+| **Change all**  | 277ms     | 5155ms    | 5485ms |
+| **Change half** | 164ms     | 2597ms    | 2835ms | 
+| **Change one**  | 54ms      | 11ms      | 11ms   |
 
 ## Conclusion
 
