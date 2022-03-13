@@ -484,3 +484,5 @@ We can generalize the rule to:
 - When you want to change a lot of styles at the same moment, use build-in Angular directive/properties.
 - When you want to change only one style, it's better to use `Renderer2` service.
 
+![docs](/mythical-angular/images/renderer.png)
+

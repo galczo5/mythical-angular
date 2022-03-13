@@ -12,6 +12,8 @@ In addition, we can encapsulate styles.
 There are two methods of encapsulation: `Emulated` and `ShadowDom`.
 This article describes both types of encapsulation, and its influence on the performance of the whole app.
 
+![docs](/mythical-angular/images/styles.png)
+
 ## Using `styles` instead of `styleUrls` is good for performance
 
 Just before we start with the "complicated" stuff,
@@ -525,6 +527,9 @@ The difference between `ShadowDom` and the rest of the encapsulation types is hu
 It scares me a little that I wrote an article about encapsulation
 and its performance where the test is a very small part of the whole text.
 I just wanted to describe differences well :D 
+
+![docs](/mythical-angular/images/encapsulation.png)
+
 
 To sum up, the default `Emulated` encapsulation is as fast as no encapsulation at all.
 It looks that this can be explained by the implementation.
