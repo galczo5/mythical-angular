@@ -60,7 +60,7 @@ Our background styles are added using something called <code>ɵɵstyleProp</code
 </span></span><span style=display:flex><span>    } }, encapsulation<span style=color:#ff79c6>:</span> <span style=color:#bd93f9>2</span>, changeDetection<span style=color:#ff79c6>:</span> <span style=color:#bd93f9>0</span> });
 </span></span></code></pre></td></tr></table></div></div><p>To check it further, you have a few options.
 You can try to mess with the Angular sources and follow the usages of <code>ɵɵstyleProp</code>.
-Second one, that I used in ths case is to put <code>debugger</code> and above line contains <code>_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵstyleProp"]("background", ctx.color);</code>.
+Second one, that I used in this case is to put <code>debugger</code> and above line contains <code>_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵstyleProp"]("background", ctx.color);</code>.
 After few round of step over and step into actions in the dev tools I found <code>applyStyling</code> function.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
 </span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
 </span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
