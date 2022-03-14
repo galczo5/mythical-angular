@@ -49,7 +49,7 @@ ListItemDirectiveComponent.ɵcmp = /*@__PURE__*/ _angular_core__WEBPACK_IMPORTED
 
 To check it further, you have a few options. 
 You can try to mess with the Angular sources and follow the usages of `ɵɵstyleProp`. 
-Second one, that I used in ths case is to put `debugger` and above line contains `_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵstyleProp"]("background", ctx.color);`. 
+Second one, that I used in this case is to put `debugger` and above line contains `_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵstyleProp"]("background", ctx.color);`. 
 After few round of step over and step into actions in the dev tools I found `applyStyling` function.
 
 ```typescript
