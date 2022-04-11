@@ -15,7 +15,7 @@ console.info(result);
 
 Hi all!
 
-My Name is Kamil Gałek, and I'm frontend developer. My daily work is based mostly on the Angular framework. I had that opportunity to learn a lot from my more experienced colleagues, and I think it's time to share what I know.
+My name is Kamil Gałek, and I'm a frontend developer. My daily work is based mostly on the Angular framework. I had that opportunity to learn a lot from my more experienced colleagues, and I think it's time to share what I know.
 
 I'm a technical recruiter too. I decided to create this page because I found that there are some myths about Angular and its internals. I'm trying my best to explain how it works and why it works in that way during technical interviews, but it's not enough. We have to clarify some concepts and implementations. Without that, it's hard to work and develop Angular. Yes, develop the framework. The community is one of the most influential reasons why Angular is changing. **If we want to be a part of that community, we have to know what and why we want.**
 
