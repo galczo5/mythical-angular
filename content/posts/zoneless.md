@@ -6,9 +6,9 @@ draft: false
 
 Well, hello again!
 
-This time I decided to do something else that usually.
+This time I decided to do something else than usual.
 Today I will not try to describe and demystify any Angular-related myth,
-because today I will show you a simple tutorial how to start a new Angular app without NgZones.
+today I will show you a simple tutorial on how to start a new Angular app without NgZones.
 
 ## Generating new app
 
@@ -26,7 +26,7 @@ Second of all, there is one trick necessary to use router in zone-less mode, and
 ## Disabling NgZones
 
 First thing you probably want to do is disabling `zone.js`.
-It's very easy to do, find the file where you obtain `PlatfromRef` object, and you bootstrap your first module.
+It's very easy to do, find the file where you obtain `PlatformRef` object, and you bootstrap your first module.
 By default, it's the `main.ts` file.
 
 The Code should look similar to the snippet bellow.
@@ -83,7 +83,7 @@ let _runModeLocked: boolean = false;
 
 
 /**
- * Returns whether Angular is in development mode. After called once,
+ * Returns whether Angular is in development mode. After being called once,
  * the value is locked and won't change any more.
  *
  * By default, this is true, unless a user calls `enableProdMode` before calling this.
@@ -99,7 +99,7 @@ export function isDevMode(): boolean {
  * Disable Angular's development mode, which turns off assertions and other
  * checks within the framework.
  *
- * One important assertion this disables verifies that a change detection pass
+ * This disables one important assertion that verifies a change detection pass
  * does not result in additional changes to any bindings (also known as
  * unidirectional data flow).
  *
@@ -136,7 +136,7 @@ It does two things:
 // TODO(jteplitz602): Load WorkerGlobalScope from lib.webworker.d.ts file #3492
 declare var WorkerGlobalScope: any /** TODO #9100 */;
 // CommonJS / Node have global context exposed as "global" variable.
-// We don't want to include the whole node.d.ts this this compilation unit so we'll just fake
+// We don't want to include the whole node.d.ts to this compilation unit so we'll just fake
 // the global "global" var for now.
 declare var global: any /** TODO #9100 */;
 
@@ -167,7 +167,7 @@ so you may expect it to create some very high level providers.
 You can treat it as something **above** root.
 Services provided in the platform are available for every module bootstrapped with this `PlatformRef`.
 
-I wanted to hide some lines in code bellow, but at the end, all of these lines are important.
+I wanted to hide some lines in code below, but at the end, all of these lines are important.
 
 ```typescript
 /**
@@ -328,7 +328,7 @@ export class PlatformRef {
 
 You should ask me here "So there are other options that I can set globally for my app?".
 Yup, as you see the type `CompilerOptions & BootstrapOptions` describes what you can set.
-In code bellow I prepared a short description of what could be set there.
+In code below I prepared a short description of what could be set there.
 
 ```typescript
 {
@@ -364,7 +364,7 @@ In code bellow I prepared a short description of what could be set there.
      *
      * When button is clicked, because of the event bubbling, both
      * event handlers will be called and 2 change detections will be
-     * triggered. We can colesce such kind of events to only trigger
+     * triggered. We can coalesce such kind of events to only trigger
      * change detection only once.
      *
      * By default, this option will be false. So the events will not be
@@ -433,6 +433,8 @@ const ngZoneInjector = Injector.create(
     {providers: providers, parent: this.injector, name: moduleFactory.moduleType.name});
 ```
 
+//TODO tutaj nie za bardzo wiem o co chodzi \/
+
 Few lines down we've got a lot of important lines, but the most important is the call of `_moduleDoBootstrap` method.
 
 ```typescript
@@ -464,7 +466,7 @@ I know that this code is not very easy to understand, but as you see, it's not m
 
 ## Router case
 
-I promise you, from this point no more source code from the Angular :P We are focusing on the tutorial again.
+I promise you, from this point we will not see any source code from Angular :P We are focusing on the tutorial again.
 
 Zone-less applications have one very well-known issue that has to be handled.
 The router has some troubles with starting.
@@ -526,8 +528,8 @@ Basing on my personal experience,
 I think that it's better to start without zones than converting when app is almost ready,
 and I recommend doing it even for small apps.
 
-I will publish the comparison of the performance very soon, for today it's all. 
+I will publish the comparison of the performance very soon, for today that's all. 
 
 Thanks for reading!
 
-PS. I know that posted Angular code may be complicated, but still I think that it's worth exploring it.
+PS. I know that posted Angular code may be complicated, but I still think that it's worth exploring it.
