@@ -1,0 +1,822 @@
+<!doctype html><html lang=en-us><head><link rel=preload href=/mythical-angular/lib/font-awesome/webfonts/fa-brands-400.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=preload href=/mythical-angular/lib/font-awesome/webfonts/fa-regular-400.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=preload href=/mythical-angular/lib/font-awesome/webfonts/fa-solid-900.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=preload href=/mythical-angular/lib/JetBrainsMono/web/woff2/JetBrainsMono-Regular.woff2 as=font type=font/woff2 crossorigin=anonymous><script type=text/javascript src=https://latest.cactus.chat/cactus.js></script>
+<link rel=stylesheet href=https://latest.cactus.chat/style.css type=text/css><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><title>Tutorial: How to start zone-less Angular app | Mythical Angular</title><link rel=canonical href=https://galczo5.github.io/mythical-angular/posts/zoneless/><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="all,follow"><meta name=googlebot content="index,follow,snippet,archive"><meta property="og:title" content="Tutorial: How to start zone-less Angular app"><meta property="og:description" content="Well, hello again!
+This time I decided to do something else that usually. Today I will not try to describe and demystify any Angular-related myth, because today I will show you a simple tutorial how to start a new Angular app without NgZones.
+Generating new app There is no reason to describe it very deeply. It&rsquo;s just a standard ng new command. In my example, I&rsquo;m using routing. First, you probably use router too, and I want to make this example as simple as possible, but still pretty close to real-life apps."><meta property="og:type" content="article"><meta property="og:url" content="https://galczo5.github.io/mythical-angular/posts/zoneless/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-04-11T00:00:00+00:00"><meta property="article:modified_time" content="2022-04-11T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Tutorial: How to start zone-less Angular app"><meta name=twitter:description content="Well, hello again!
+This time I decided to do something else that usually. Today I will not try to describe and demystify any Angular-related myth, because today I will show you a simple tutorial how to start a new Angular app without NgZones.
+Generating new app There is no reason to describe it very deeply. It&rsquo;s just a standard ng new command. In my example, I&rsquo;m using routing. First, you probably use router too, and I want to make this example as simple as possible, but still pretty close to real-life apps."><link rel=stylesheet href=https://galczo5.github.io/mythical-angular/css/styles.94f653e9e151e28067a7c5dbbc4600cbd5a3c721e79faaf971e523c40f3b249b8e4f20bb57810dfffa8d559ca5c140fd56eb4cd9c0853113ad08e66afdb08bdd.css integrity="sha512-lPZT6eFR4oBnp8XbvEYAy9WjxyHnn6r5ceUjxA87JJuOTyC7V4EN//qNVZylwUD9VutM2cCFMROtCOZq/bCL3Q=="><link rel=stylesheet href=https://galczo5.github.io/mythical-angular/css/custom.css><!--[if lt IE 9]><script src=https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js></script>
+<script src=https://oss.maxcdn.com/respond/1.4.2/respond.min.js></script><![endif]--><link rel=icon type=image/png href=https://galczo5.github.io/mythical-angular/images/favicon.ico></head><body class="max-width mx-auto px3 ltr"><div class="content index py4"><div id=header-post><a id=menu-icon href=#><i class="fas fa-bars fa-lg"></i></a>
+<a id=menu-icon-tablet href=#><i class="fas fa-bars fa-lg"></i></a>
+<a id=top-icon-tablet href=# onclick='$("html, body").animate({scrollTop:0},"fast")' style=display:none aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg"></i></a>
+<span id=menu><span id=nav><ul><li><a href=/mythical-angular/>Home</a></li><li><a href=/mythical-angular/posts>All posts</a></li><li><a href=/mythical-angular/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></span><br><span id=actions><ul><li><a class=icon href=https://galczo5.github.io/mythical-angular/posts/styles/ aria-label=Previous><i class="fas fa-chevron-left" aria-hidden=true onmouseover='$("#i-prev").toggle()' onmouseout='$("#i-prev").toggle()'></i></a></li><li><a class=icon href=# onclick='$("html, body").animate({scrollTop:0},"fast")' aria-label="Top of Page"><i class="fas fa-chevron-up" aria-hidden=true onmouseover='$("#i-top").toggle()' onmouseout='$("#i-top").toggle()'></i></a></li><li><a class=icon href=# aria-label=Share><i class="fas fa-share-alt" aria-hidden=true onmouseover='$("#i-share").toggle()' onmouseout='$("#i-share").toggle()' onclick='return $("#share").toggle(),!1'></i></a></li></ul><span id=i-prev class=info style=display:none>Previous post</span>
+<span id=i-next class=info style=display:none>Next post</span>
+<span id=i-top class=info style=display:none>Back to top</span>
+<span id=i-share class=info style=display:none>Share post</span></span><br><div id=share style=display:none><ul><li><a class=icon href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fzoneless%2f" aria-label=Facebook><i class="fab fa-facebook" aria-hidden=true></i></a></li><li><a class=icon href="https://twitter.com/share?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fzoneless%2f&text=Tutorial%3a%20How%20to%20start%20zone-less%20Angular%20app" aria-label=Twitter><i class="fab fa-twitter" aria-hidden=true></i></a></li><li><a class=icon href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fzoneless%2f&title=Tutorial%3a%20How%20to%20start%20zone-less%20Angular%20app" aria-label=Linkedin><i class="fab fa-linkedin" aria-hidden=true></i></a></li><li><a class=icon href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fzoneless%2f&is_video=false&description=Tutorial%3a%20How%20to%20start%20zone-less%20Angular%20app" aria-label=Pinterest><i class="fab fa-pinterest" aria-hidden=true></i></a></li><li><a class=icon href="mailto:?subject=Tutorial%3a%20How%20to%20start%20zone-less%20Angular%20app&body=Check out this article: https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fzoneless%2f" aria-label=Email><i class="fas fa-envelope" aria-hidden=true></i></a></li><li><a class=icon href="https://getpocket.com/save?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fzoneless%2f&title=Tutorial%3a%20How%20to%20start%20zone-less%20Angular%20app" aria-label=Pocket><i class="fab fa-get-pocket" aria-hidden=true></i></a></li><li><a class=icon href="http://reddit.com/submit?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fzoneless%2f&title=Tutorial%3a%20How%20to%20start%20zone-less%20Angular%20app" aria-label=reddit><i class="fab fa-reddit" aria-hidden=true></i></a></li><li><a class=icon href="http://www.tumblr.com/share/link?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fzoneless%2f&name=Tutorial%3a%20How%20to%20start%20zone-less%20Angular%20app&description=Well%2c%20hello%20again%21%0aThis%20time%20I%20decided%20to%20do%20something%20else%20that%20usually.%20Today%20I%20will%20not%20try%20to%20describe%20and%20demystify%20any%20Angular-related%20myth%2c%20because%20today%20I%20will%20show%20you%20a%20simple%20tutorial%20how%20to%20start%20a%20new%20Angular%20app%20without%20NgZones.%0aGenerating%20new%20app%20There%20is%20no%20reason%20to%20describe%20it%20very%20deeply.%20It%26rsquo%3bs%20just%20a%20standard%20ng%20new%20command.%20In%20my%20example%2c%20I%26rsquo%3bm%20using%20routing.%20First%2c%20you%20probably%20use%20router%20too%2c%20and%20I%20want%20to%20make%20this%20example%20as%20simple%20as%20possible%2c%20but%20still%20pretty%20close%20to%20real-life%20apps." aria-label=Tumblr><i class="fab fa-tumblr" aria-hidden=true></i></a></li><li><a class=icon href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fzoneless%2f&t=Tutorial%3a%20How%20to%20start%20zone-less%20Angular%20app" aria-label="Hacker News"><i class="fab fa-hacker-news" aria-hidden=true></i></a></li></ul></div><div id=toc><nav id=TableOfContents><ul><li><a href=#generating-new-app>Generating new app</a></li><li><a href=#app-demo>App demo</a></li><li><a href=#disabling-ngzones>Disabling NgZones</a><ul><li><a href=#production-mode>Production mode</a></li><li><a href=#platformref>PlatformRef</a></li></ul></li><li><a href=#router-case>Router case</a></li><li><a href=#what-is-not-working>What is not working&mldr;?</a></li><li><a href=#summary>Summary</a></li></ul></nav></div></span></div><article class=post itemscope itemtype=http://schema.org/BlogPosting><header><h1 class=posttitle itemprop="name headline">Tutorial: How to start zone-less Angular app</h1><div class=meta><div class=postdate><time datetime="2022-04-11 00:00:00 +0000 UTC" itemprop=datePublished>2022-04-11</time></div></div></header><div class=content itemprop=articleBody><p>Well, hello again!</p><p>This time I decided to do something else that usually.
+Today I will not try to describe and demystify any Angular-related myth,
+because today I will show you a simple tutorial how to start a new Angular app without NgZones.</p><h2 id=generating-new-app>Generating new app</h2><p>There is no reason to describe it very deeply.
+It&rsquo;s just a standard <code>ng new</code> command.
+In my example, I&rsquo;m using routing.
+First, you probably use router too,
+and I want to make this example as simple as possible, but still pretty close to real-life apps.
+Second of all, there is one trick necessary to use router in zone-less mode, and I want to show and describe it.</p><h2 id=app-demo>App demo</h2><h2 id=disabling-ngzones>Disabling NgZones</h2><p>First thing you probably want to do is disabling <code>zone.js</code>.
+It&rsquo;s very easy to do, find the file where you obtain <code>PlatfromRef</code> object, and you bootstrap your first module.
+By default, it&rsquo;s the <code>main.ts</code> file.</p><p>The Code should look similar to the snippet bellow.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>import</span> {enableProdMode} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;@angular/core&#39;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {platformBrowserDynamic} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;@angular/platform-browser-dynamic&#39;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {AppModule} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;./app/app.module&#39;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {environment} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;./environments/environment&#39;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>if</span> (environment.production) {
+</span></span><span style=display:flex><span>  enableProdMode();
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>const</span> compilerOptions <span style=color:#ff79c6>=</span> {
+</span></span><span style=display:flex><span>  ngZone<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;noop&#39;</span> <span style=color:#ff79c6>as</span> <span style=color:#f1fa8c>&#39;noop&#39;</span>
+</span></span><span style=display:flex><span>};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>platformBrowserDynamic().bootstrapModule(AppModule, compilerOptions)
+</span></span><span style=display:flex><span>  .<span style=color:#ff79c6>catch</span>(err <span style=color:#ff79c6>=&gt;</span> console.error(err));
+</span></span></code></pre></td></tr></table></div></div><p>And that is it. It&rsquo;s so simple, isn&rsquo;t it?</p><p>Sooooo&mldr;
+because it was so easy,
+I want to describe a little implementation of the first things executed by Angular when we start any Angular app.</p><h3 id=production-mode>Production mode</h3><p>First, on production we call function <code>enableProdMode</code>. It would be good to check it&rsquo;s implementation.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">36
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">37
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">38
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">39
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">40
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">41
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">42
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">43
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">44
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">45
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">46
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">47
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">48
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">49
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">50
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">51
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">52
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">53
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">54
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">55
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">56
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">57
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#6272a4>/**
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * @license
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * Copyright Google LLC All Rights Reserved.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * Use of this source code is governed by an MIT-style license that can be
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * found in the LICENSE file at https://angular.io/license
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> */</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {<span style=color:#ff79c6>global</span>} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;./global&#39;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#6272a4>/**
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * This file is used to control if the default rendering pipeline should be `ViewEngine` or `Ivy`.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * For more information on how to run and debug tests with either Ivy or View Engine (legacy),
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * please see [BAZEL.md](./docs/BAZEL.md).
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> */</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>let</span> _devMode: <span style=color:#8be9fd>boolean</span> <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>true</span>;
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>let</span> _runModeLocked: <span style=color:#8be9fd>boolean</span> <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>false</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#6272a4>/**
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * Returns whether Angular is in development mode. After called once,
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * the value is locked and won&#39;t change any more.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * By default, this is true, unless a user calls `enableProdMode` before calling this.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * @publicApi
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> */</span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#8be9fd;font-style:italic>function</span> isDevMode()<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>boolean</span> {
+</span></span><span style=display:flex><span>    _runModeLocked <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>true</span>;
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> _devMode;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#6272a4>/**
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * Disable Angular&#39;s development mode, which turns off assertions and other
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * checks within the framework.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * One important assertion this disables verifies that a change detection pass
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * does not result in additional changes to any bindings (also known as
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * unidirectional data flow).
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * @publicApi
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> */</span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#8be9fd;font-style:italic>function</span> enableProdMode()<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (_runModeLocked) {
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>throw</span> <span style=color:#ff79c6>new</span> <span style=color:#8be9fd;font-style:italic>Error</span>(<span style=color:#f1fa8c>&#39;Cannot enable prod mode after platform setup.&#39;</span>);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>// The below check is there so when ngDevMode is set via terser
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>    <span style=color:#6272a4>// `global[&#39;ngDevMode&#39;] = false;` is also dropped.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>    <span style=color:#ff79c6>if</span> (<span style=color:#ff79c6>typeof</span> ngDevMode <span style=color:#ff79c6>===</span> <span style=color:#ff79c6>undefined</span> <span style=color:#ff79c6>||</span> <span style=color:#ff79c6>!!</span>ngDevMode) {
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>global</span>[<span style=color:#f1fa8c>&#39;ngDevMode&#39;</span>] <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>false</span>;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    _devMode <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>false</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>It does two things:</p><ul><li>Changes the state of <code>_devMode</code> variable to false. Which means that every assertion made with <code>isDevMode</code> function will be resolved as false.</li><li>Sets <code>global['ngDevMode']</code> to false, and global is just a globally accessible variable where you can set anything you want. In fact sometimes it&rsquo;s set to <code>window</code> value.</li></ul><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#6272a4>/**
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * @license
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * Copyright Google LLC All Rights Reserved.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * Use of this source code is governed by an MIT-style license that can be
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * found in the LICENSE file at https://angular.io/license
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> */</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#6272a4>// TODO(jteplitz602): Load WorkerGlobalScope from lib.webworker.d.ts file #3492
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span><span style=color:#ff79c6>declare</span> <span style=color:#8be9fd;font-style:italic>var</span> WorkerGlobalScope: <span style=color:#8be9fd>any</span> <span style=color:#6272a4>/** TODO #9100 */</span>;
+</span></span><span style=display:flex><span><span style=color:#6272a4>// CommonJS / Node have global context exposed as &#34;global&#34; variable.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>// We don&#39;t want to include the whole node.d.ts this this compilation unit so we&#39;ll just fake
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>// the global &#34;global&#34; var for now.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span><span style=color:#ff79c6>declare</span> <span style=color:#8be9fd;font-style:italic>var</span> <span style=color:#ff79c6>global</span><span style=color:#ff79c6>:</span> <span style=color:#8be9fd>any</span> <span style=color:#6272a4>/** TODO #9100 */</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>const</span> __globalThis <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>typeof</span> globalThis <span style=color:#ff79c6>!==</span> <span style=color:#f1fa8c>&#39;undefined&#39;</span> <span style=color:#ff79c6>&amp;&amp;</span> globalThis;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>const</span> __window <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>typeof</span> <span style=color:#8be9fd;font-style:italic>window</span> <span style=color:#ff79c6>!==</span> <span style=color:#f1fa8c>&#39;undefined&#39;</span> <span style=color:#ff79c6>&amp;&amp;</span> <span style=color:#8be9fd;font-style:italic>window</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>const</span> __self <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>typeof</span> self <span style=color:#ff79c6>!==</span> <span style=color:#f1fa8c>&#39;undefined&#39;</span> <span style=color:#ff79c6>&amp;&amp;</span> <span style=color:#ff79c6>typeof</span> WorkerGlobalScope <span style=color:#ff79c6>!==</span> <span style=color:#f1fa8c>&#39;undefined&#39;</span> <span style=color:#ff79c6>&amp;&amp;</span>
+</span></span><span style=display:flex><span>    self <span style=color:#ff79c6>instanceof</span> WorkerGlobalScope <span style=color:#ff79c6>&amp;&amp;</span> self;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>const</span> __global <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>typeof</span> <span style=color:#ff79c6>global</span> <span style=color:#ff79c6>!==</span> <span style=color:#f1fa8c>&#39;undefined&#39;</span> <span style=color:#ff79c6>&amp;&amp;</span> <span style=color:#ff79c6>global</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#6272a4>// Always use __globalThis if available, which is the spec-defined global variable across all
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>// environments, then fallback to __global first, because in Node tests both __global and
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>// __window may be defined and _global should be __global in that case.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span><span style=color:#ff79c6>const</span> _global <span style=color:#ff79c6>=</span> __globalThis <span style=color:#ff79c6>||</span> __global <span style=color:#ff79c6>||</span> __window <span style=color:#ff79c6>||</span> __self;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#6272a4>/**
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * Attention: whenever providing a new value, be sure to add an
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * entry into the corresponding `....externs.js` file,
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * so that closure won&#39;t use that global for its purposes.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> */</span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> {_global <span style=color:#ff79c6>as</span> <span style=color:#ff79c6>global</span>};
+</span></span></code></pre></td></tr></table></div></div><h3 id=platformref>PlatformRef</h3><p>After setting the production or the development mode <code>PlatformRef</code> object is created.
+Function <code>platformBrowserDynamic</code> has a type of <code>(extraProviders?: StaticProvider[]) => PlatformRef</code>,
+so you may expect it to create some very high level providers.
+You can treat it as something <strong>above</strong> root.
+Services provided in the platform are available for every module bootstrapped with this <code>PlatformRef</code>.</p><p>I wanted to hide some lines in code bellow, but at the end, all of these lines are important.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 36
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 37
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 38
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 39
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 40
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 41
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 42
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 43
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 44
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 45
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 46
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 47
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 48
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 49
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 50
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 51
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 52
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 53
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 54
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 55
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 56
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 57
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 58
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 59
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 60
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 61
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 62
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 63
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 64
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 65
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 66
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 67
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 68
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 69
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 70
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 71
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 72
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 73
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 74
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 75
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 76
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 77
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 78
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 79
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 80
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 81
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 82
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 83
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 84
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 85
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 86
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 87
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 88
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 89
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 90
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 91
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 92
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 93
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 94
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 95
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 96
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 97
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 98
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 99
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">100
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">101
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">102
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">103
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">104
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">105
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">106
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">107
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">108
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">109
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">110
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">111
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">112
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">113
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">114
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">115
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">116
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">117
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">118
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">119
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">120
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">121
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">122
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">123
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">124
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">125
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">126
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">127
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">128
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">129
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">130
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">131
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">132
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">133
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">134
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">135
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">136
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">137
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">138
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">139
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">140
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">141
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">142
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">143
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">144
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">145
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">146
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">147
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">148
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">149
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">150
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">151
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">152
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#6272a4>/**
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * The Angular platform is the entry point for Angular on a web page.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * Each page has exactly one platform. Services (such as reflection) which are common
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * to every Angular application running on the page are bound in its scope.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * A page&#39;s platform is initialized implicitly when a platform is created using a platform
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * factory such as `PlatformBrowser`, or explicitly by calling the `createPlatform()` function.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * @publicApi
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> */</span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>@Injectable</span>()
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> PlatformRef {
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> _modules: <span style=color:#8be9fd>NgModuleRef</span>&lt;<span style=color:#ff79c6>any</span>&gt;[] <span style=color:#ff79c6>=</span> [];
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> _destroyListeners: <span style=color:#8be9fd>Function</span>[] <span style=color:#ff79c6>=</span> [];
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> _destroyed: <span style=color:#8be9fd>boolean</span> <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>false</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#6272a4>/** @internal */</span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>constructor</span>(<span style=color:#ff79c6>private</span> _injector: <span style=color:#8be9fd>Injector</span>) {}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#6272a4>/**
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   * Creates an instance of an `@NgModule` for the given platform.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   * @deprecated Passing NgModule factories as the `PlatformRef.bootstrapModuleFactory` function
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   *     argument is deprecated. Use the `PlatformRef.bootstrapModule` API instead.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   */</span>
+</span></span><span style=display:flex><span>  bootstrapModuleFactory&lt;<span style=color:#ff79c6>M</span>&gt;(<span style=color:#ff79c6>module</span>Factory<span style=color:#ff79c6>:</span> NgModuleFactory&lt;<span style=color:#ff79c6>M</span>&gt;, options?: <span style=color:#8be9fd>BootstrapOptions</span>)<span style=color:#ff79c6>:</span>
+</span></span><span style=display:flex><span>      Promise&lt;<span style=color:#ff79c6>NgModuleRef</span>&lt;<span style=color:#50fa7b>M</span>&gt;<span style=color:#ff79c6>&gt;</span> {
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>// Note: We need to create the NgZone _before_ we instantiate the module,
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>    <span style=color:#6272a4>// as instantiating the module creates some providers eagerly.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>    <span style=color:#6272a4>// So we create a mini parent injector that just contains the new NgZone and
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>    <span style=color:#6272a4>// pass that as parent to the NgModuleFactory.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>    <span style=color:#ff79c6>const</span> ngZoneOption <span style=color:#ff79c6>=</span> options <span style=color:#ff79c6>?</span> options.ngZone : <span style=color:#8be9fd>undefined</span>;
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> ngZoneEventCoalescing <span style=color:#ff79c6>=</span> (options <span style=color:#ff79c6>&amp;&amp;</span> options.ngZoneEventCoalescing) <span style=color:#ff79c6>||</span> <span style=color:#ff79c6>false</span>;
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> ngZoneRunCoalescing <span style=color:#ff79c6>=</span> (options <span style=color:#ff79c6>&amp;&amp;</span> options.ngZoneRunCoalescing) <span style=color:#ff79c6>||</span> <span style=color:#ff79c6>false</span>;
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> ngZone <span style=color:#ff79c6>=</span> getNgZone(ngZoneOption, {ngZoneEventCoalescing, ngZoneRunCoalescing});
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> providers: <span style=color:#8be9fd>StaticProvider</span>[] <span style=color:#ff79c6>=</span> [{provide: <span style=color:#8be9fd>NgZone</span>, useValue: <span style=color:#8be9fd>ngZone</span>}];
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>// Note: Create ngZoneInjector within ngZone.run so that all of the instantiated services are
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>    <span style=color:#6272a4>// created within the Angular zone
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>    <span style=color:#6272a4>// Do not try to replace ngZone.run with ApplicationRef#run because ApplicationRef would then be
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>    <span style=color:#6272a4>// created outside of the Angular zone.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>    <span style=color:#ff79c6>return</span> ngZone.run(() <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>const</span> ngZoneInjector <span style=color:#ff79c6>=</span> Injector.create(
+</span></span><span style=display:flex><span>          {providers: <span style=color:#8be9fd>providers</span>, parent: <span style=color:#8be9fd>this.injector</span>, name: <span style=color:#8be9fd>moduleFactory.moduleType.name</span>});
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>const</span> <span style=color:#ff79c6>module</span>Ref <span style=color:#ff79c6>=</span> &lt;<span style=color:#ff79c6>InternalNgModuleRef</span>&lt;<span style=color:#50fa7b>M</span>&gt;<span style=color:#ff79c6>&gt;</span><span style=color:#ff79c6>module</span>Factory.create(ngZoneInjector);
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>const</span> exceptionHandler: <span style=color:#8be9fd>ErrorHandler</span><span style=color:#ff79c6>|</span><span style=color:#ff79c6>null</span> <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>module</span>Ref.injector.get(ErrorHandler, <span style=color:#ff79c6>null</span>);
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>if</span> (<span style=color:#ff79c6>!</span>exceptionHandler) {
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>const</span> errorMessage <span style=color:#ff79c6>=</span> (<span style=color:#ff79c6>typeof</span> ngDevMode <span style=color:#ff79c6>===</span> <span style=color:#f1fa8c>&#39;undefined&#39;</span> <span style=color:#ff79c6>||</span> ngDevMode) <span style=color:#ff79c6>?</span>
+</span></span><span style=display:flex><span>            <span style=color:#f1fa8c>&#39;No ErrorHandler. Is platform module (BrowserModule) included?&#39;</span> <span style=color:#ff79c6>:</span>
+</span></span><span style=display:flex><span>            <span style=color:#f1fa8c>&#39;&#39;</span>;
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>throw</span> <span style=color:#ff79c6>new</span> RuntimeError(RuntimeErrorCode.ERROR_HANDLER_NOT_FOUND, errorMessage);
+</span></span><span style=display:flex><span>      }
+</span></span><span style=display:flex><span>      ngZone<span style=color:#ff79c6>!</span>.runOutsideAngular(() <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>const</span> subscription <span style=color:#ff79c6>=</span> ngZone<span style=color:#ff79c6>!</span>.onError.subscribe({
+</span></span><span style=display:flex><span>          next<span style=color:#ff79c6>:</span> (error: <span style=color:#8be9fd>any</span>) <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>            exceptionHandler.handleError(error);
+</span></span><span style=display:flex><span>          }
+</span></span><span style=display:flex><span>        });
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>module</span>Ref.onDestroy(() <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>          remove(<span style=color:#ff79c6>this</span>._modules, <span style=color:#ff79c6>module</span>Ref);
+</span></span><span style=display:flex><span>          subscription.unsubscribe();
+</span></span><span style=display:flex><span>        });
+</span></span><span style=display:flex><span>      });
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>return</span> _callAndReportToErrorHandler(exceptionHandler, ngZone<span style=color:#ff79c6>!</span>, () <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>const</span> initStatus: <span style=color:#8be9fd>ApplicationInitStatus</span> <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>module</span>Ref.injector.get(ApplicationInitStatus);
+</span></span><span style=display:flex><span>        initStatus.runInitializers();
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>return</span> initStatus.donePromise.then(() <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>          <span style=color:#6272a4>// If the `LOCALE_ID` provider is defined at bootstrap then we set the value for ivy
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>          <span style=color:#ff79c6>const</span> localeId <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>module</span>Ref.injector.get(LOCALE_ID, DEFAULT_LOCALE_ID);
+</span></span><span style=display:flex><span>          setLocaleId(localeId <span style=color:#ff79c6>||</span> DEFAULT_LOCALE_ID);
+</span></span><span style=display:flex><span>          <span style=color:#ff79c6>this</span>._moduleDoBootstrap(<span style=color:#ff79c6>module</span>Ref);
+</span></span><span style=display:flex><span>          <span style=color:#ff79c6>return</span> <span style=color:#ff79c6>module</span>Ref;
+</span></span><span style=display:flex><span>        });
+</span></span><span style=display:flex><span>      });
+</span></span><span style=display:flex><span>    });
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#6272a4>/**
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   * Creates an instance of an `@NgModule` for a given platform.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   * @usageNotes
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   * ### Simple Example
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   * typescript
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   * @NgModule({
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   *   imports: [BrowserModule]
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   * })
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   * class MyModule {}
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   * let moduleRef = platformBrowser().bootstrapModule(MyModule);
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   * 
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   */</span>
+</span></span><span style=display:flex><span>  bootstrapModule&lt;<span style=color:#ff79c6>M</span>&gt;(
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>module</span>Type<span style=color:#ff79c6>:</span> Type&lt;<span style=color:#ff79c6>M</span>&gt;,
+</span></span><span style=display:flex><span>      compilerOptions<span style=color:#ff79c6>:</span> (CompilerOptions<span style=color:#ff79c6>&amp;</span>BootstrapOptions)<span style=color:#ff79c6>|</span>
+</span></span><span style=display:flex><span>      <span style=color:#8be9fd;font-style:italic>Array</span>&lt;<span style=color:#ff79c6>CompilerOptions</span>&amp;<span style=color:#50fa7b>BootstrapOptions</span>&gt; <span style=color:#ff79c6>=</span> [])<span style=color:#ff79c6>:</span> Promise&lt;<span style=color:#ff79c6>NgModuleRef</span>&lt;<span style=color:#50fa7b>M</span>&gt;<span style=color:#ff79c6>&gt;</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> options <span style=color:#ff79c6>=</span> optionsReducer({}, compilerOptions);
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> compileNgModuleFactory(<span style=color:#ff79c6>this</span>.injector, options, <span style=color:#ff79c6>module</span>Type)
+</span></span><span style=display:flex><span>        .then(<span style=color:#ff79c6>module</span>Factory <span style=color:#ff79c6>=&gt;</span> <span style=color:#ff79c6>this</span>.bootstrapModuleFactory(<span style=color:#ff79c6>module</span>Factory, options));
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> _moduleDoBootstrap(<span style=color:#ff79c6>module</span>Ref<span style=color:#ff79c6>:</span> InternalNgModuleRef&lt;<span style=color:#ff79c6>any</span>&gt;)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> appRef <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>module</span>Ref.injector.get(ApplicationRef) <span style=color:#ff79c6>as</span> ApplicationRef;
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (<span style=color:#ff79c6>module</span>Ref._bootstrapComponents.length <span style=color:#ff79c6>&gt;</span> <span style=color:#bd93f9>0</span>) {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>module</span>Ref._bootstrapComponents.forEach(f <span style=color:#ff79c6>=&gt;</span> appRef.bootstrap(f));
+</span></span><span style=display:flex><span>    } <span style=color:#ff79c6>else</span> <span style=color:#ff79c6>if</span> (<span style=color:#ff79c6>module</span>Ref.instance.ngDoBootstrap) {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>module</span>Ref.instance.ngDoBootstrap(appRef);
+</span></span><span style=display:flex><span>    } <span style=color:#ff79c6>else</span> {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>const</span> errorMessage <span style=color:#ff79c6>=</span> (<span style=color:#ff79c6>typeof</span> ngDevMode <span style=color:#ff79c6>===</span> <span style=color:#f1fa8c>&#39;undefined&#39;</span> <span style=color:#ff79c6>||</span> ngDevMode) <span style=color:#ff79c6>?</span>
+</span></span><span style=display:flex><span>          <span style=color:#f1fa8c>`The module </span><span style=color:#f1fa8c>${</span>stringify(<span style=color:#ff79c6>module</span>Ref.instance.constructor)<span style=color:#f1fa8c>}</span><span style=color:#f1fa8c> was bootstrapped, `</span> <span style=color:#ff79c6>+</span>
+</span></span><span style=display:flex><span>              <span style=color:#f1fa8c>`but it does not declare &#34;@NgModule.bootstrap&#34; components nor a &#34;ngDoBootstrap&#34; method. `</span> <span style=color:#ff79c6>+</span>
+</span></span><span style=display:flex><span>              <span style=color:#f1fa8c>`Please define one of these.`</span> <span style=color:#ff79c6>:</span>
+</span></span><span style=display:flex><span>          <span style=color:#f1fa8c>&#39;&#39;</span>;
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>throw</span> <span style=color:#ff79c6>new</span> RuntimeError(RuntimeErrorCode.BOOTSTRAP_COMPONENTS_NOT_FOUND, errorMessage);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>._modules.push(<span style=color:#ff79c6>module</span>Ref);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#6272a4>/**
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   * Registers a listener to be called when the platform is destroyed.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   */</span>
+</span></span><span style=display:flex><span>  onDestroy(callback<span style=color:#ff79c6>:</span> () <span style=color:#ff79c6>=&gt;</span> <span style=color:#ff79c6>void</span>)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>._destroyListeners.push(callback);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#6272a4>/**
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   * Retrieves the platform {@link Injector}, which is the parent injector for
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   * every Angular application on the page and provides singleton providers.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   */</span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>get</span> injector()<span style=color:#ff79c6>:</span> Injector {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> <span style=color:#ff79c6>this</span>._injector;
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#6272a4>/**
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   * Destroys the current Angular platform and all Angular applications on the page.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   * Destroys all modules and listeners registered with the platform.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   */</span>
+</span></span><span style=display:flex><span>  destroy() {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (<span style=color:#ff79c6>this</span>._destroyed) {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>const</span> errorMessage <span style=color:#ff79c6>=</span> (<span style=color:#ff79c6>typeof</span> ngDevMode <span style=color:#ff79c6>===</span> <span style=color:#f1fa8c>&#39;undefined&#39;</span> <span style=color:#ff79c6>||</span> ngDevMode) <span style=color:#ff79c6>?</span>
+</span></span><span style=display:flex><span>          <span style=color:#f1fa8c>&#39;The platform has already been destroyed!&#39;</span> <span style=color:#ff79c6>:</span>
+</span></span><span style=display:flex><span>          <span style=color:#f1fa8c>&#39;&#39;</span>;
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>throw</span> <span style=color:#ff79c6>new</span> RuntimeError(RuntimeErrorCode.ALREADY_DESTROYED_PLATFORM, errorMessage);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>._modules.slice().forEach(module <span style=color:#ff79c6>=&gt;</span> <span style=color:#ff79c6>module</span>.destroy());
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>._destroyListeners.forEach(listener <span style=color:#ff79c6>=&gt;</span> listener());
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>._destroyed <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>true</span>;
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>get</span> destroyed() {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> <span style=color:#ff79c6>this</span>._destroyed;
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p><code>PlatformRef</code> has two public methods, <code>bootstrapModule</code> and <code>bootstrapModuleFactory</code>. I&rsquo;ll start with the first one, because we all call it in our <code>main.ts</code> files. It gets two arguments, the first one is the module to bootstrap, and the second one is some kinds of options. One of them in our <code>ngZone</code> which allows us to provide <code>noop</code> zone.</p><p>You should ask me here &ldquo;So there are other options that I can set globally for my app?&rdquo;.
+Yup, as you see the type <code>CompilerOptions & BootstrapOptions</code> describes what you can set.
+In code bellow I prepared a short description of what could be set there.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">36
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">37
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">38
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">39
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">40
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">41
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">42
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">43
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">44
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">45
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">46
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">47
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">48
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">49
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">50
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">51
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">52
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">53
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">54
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">55
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">56
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">57
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">58
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">59
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">60
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">61
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">62
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">63
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>/**
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     * @deprecated not used at all in Ivy, providing this config option has no effect.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     */</span>
+</span></span><span style=display:flex><span>    useJit?: <span style=color:#8be9fd>boolean</span>;
+</span></span><span style=display:flex><span>    defaultEncapsulation?: <span style=color:#8be9fd>ViewEncapsulation</span>;
+</span></span><span style=display:flex><span>    providers?: <span style=color:#8be9fd>StaticProvider</span>[];
+</span></span><span style=display:flex><span>   
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>/**
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     * @deprecated not used at all in Ivy, providing this config option has no effect.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     */</span>
+</span></span><span style=display:flex><span>    missingTranslation?: <span style=color:#8be9fd>MissingTranslationStrategy</span>;
+</span></span><span style=display:flex><span>    preserveWhitespaces?: <span style=color:#8be9fd>boolean</span>;
+</span></span><span style=display:flex><span>   
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>/**
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     * Optionally specify which `NgZone` should be used.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     * - Provide your own `NgZone` instance.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     * - `zone.js` - Use default `NgZone` which requires `Zone.js`.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     * - `noop` - Use `NoopNgZone` which does nothing.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     */</span>
+</span></span><span style=display:flex><span>    ngZone?: <span style=color:#8be9fd>NgZone</span><span style=color:#ff79c6>|</span><span style=color:#f1fa8c>&#39;zone.js&#39;</span><span style=color:#ff79c6>|</span><span style=color:#f1fa8c>&#39;noop&#39;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>/**
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     * Optionally specify coalescing event change detections or not.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     * Consider the following case.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     * &lt;div (click)=&#34;doSomething()&#34;&gt;
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     *   &lt;button (click)=&#34;doSomethingElse()&#34;&gt;&lt;/button&gt;
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     * &lt;/div&gt;
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     * When button is clicked, because of the event bubbling, both
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     * event handlers will be called and 2 change detections will be
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     * triggered. We can colesce such kind of events to only trigger
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     * change detection only once.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     * By default, this option will be false. So the events will not be
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     * coalesced and the change detection will be triggered multiple times.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     * And if this option be set to true, the change detection will be
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     * triggered async by scheduling a animation frame. So in the case above,
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     * the change detection will only be triggered once.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     */</span>
+</span></span><span style=display:flex><span>    ngZoneEventCoalescing?: <span style=color:#8be9fd>boolean</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>/**
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     * Optionally specify if `NgZone#run()` method invocations should be coalesced
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     * into a single change detection.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     * Consider the following case.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     * for (let i = 0; i &lt; 10; i ++) {
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     *   ngZone.run(() =&gt; {
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     *     // do something
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     *   });
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     * }
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     * This case triggers the change detection multiple times.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     * With ngZoneRunCoalescing options, all change detections in an event loop trigger only once.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     * In addition, the change detection executes in requestAnimation.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>     */</span>
+</span></span><span style=display:flex><span>    ngZoneRunCoalescing?: <span style=color:#8be9fd>boolean</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>Method <code>bootstrapModule</code> checks provided options and then calls the second method <code>bootstrapModuleFactory</code>. Here the fun begins.</p><p>The first lines of the method are figuring out the right <code>NgZone</code> provider.
+The call of function <code>getNgZone</code> determines the object that should be used as NgZones implementation,
+it&rsquo;s a simple condition that will create objects of class <code>NgZone</code> or <code>NoopNgZone</code>.
+I think that it&rsquo;s a subject for the whole new article,
+and I will cover differences and implementation of these two types in the future.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>function</span> getNgZone(
+</span></span><span style=display:flex><span>    ngZoneOption: <span style=color:#8be9fd>NgZone</span><span style=color:#ff79c6>|</span><span style=color:#f1fa8c>&#39;zone.js&#39;</span><span style=color:#ff79c6>|</span><span style=color:#f1fa8c>&#39;noop&#39;</span><span style=color:#ff79c6>|</span><span style=color:#ff79c6>undefined</span>,
+</span></span><span style=display:flex><span>    extra<span style=color:#ff79c6>?:</span> {ngZoneEventCoalescing: <span style=color:#8be9fd>boolean</span>, ngZoneRunCoalescing: <span style=color:#8be9fd>boolean</span>})<span style=color:#ff79c6>:</span> NgZone {
+</span></span><span style=display:flex><span>    <span style=color:#8be9fd;font-style:italic>let</span> ngZone: <span style=color:#8be9fd>NgZone</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (ngZoneOption <span style=color:#ff79c6>===</span> <span style=color:#f1fa8c>&#39;noop&#39;</span>) {
+</span></span><span style=display:flex><span>        ngZone <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> NoopNgZone();
+</span></span><span style=display:flex><span>    } <span style=color:#ff79c6>else</span> {
+</span></span><span style=display:flex><span>        ngZone <span style=color:#ff79c6>=</span> (ngZoneOption <span style=color:#ff79c6>===</span> <span style=color:#f1fa8c>&#39;zone.js&#39;</span> <span style=color:#ff79c6>?</span> <span style=color:#ff79c6>undefined</span> <span style=color:#ff79c6>:</span> ngZoneOption) <span style=color:#ff79c6>||</span> <span style=color:#ff79c6>new</span> NgZone({
+</span></span><span style=display:flex><span>            enableLongStackTrace: <span style=color:#8be9fd>typeof</span> ngDevMode <span style=color:#ff79c6>===</span> <span style=color:#f1fa8c>&#39;undefined&#39;</span> <span style=color:#ff79c6>?</span> <span style=color:#ff79c6>false</span> <span style=color:#ff79c6>:</span> <span style=color:#ff79c6>!!</span>ngDevMode,
+</span></span><span style=display:flex><span>            shouldCoalesceEventChangeDetection<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>!!</span>extra<span style=color:#ff79c6>?</span>.ngZoneEventCoalescing,
+</span></span><span style=display:flex><span>            shouldCoalesceRunChangeDetection<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>!!</span>extra<span style=color:#ff79c6>?</span>.ngZoneRunCoalescing
+</span></span><span style=display:flex><span>        });
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> ngZone;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>Back to the bootstrapping methods.
+After creation of the providers for NgZones there are some additional actions on it and moduleRef
+is created using a new injector which is chained to platform injector.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>const</span> <span style=color:#ff79c6>module</span>Ref <span style=color:#ff79c6>=</span> &lt;<span style=color:#ff79c6>InternalNgModuleRef</span>&lt;<span style=color:#50fa7b>M</span>&gt;<span style=color:#ff79c6>&gt;</span><span style=color:#ff79c6>module</span>Factory.create(ngZoneInjector);
+</span></span><span style=display:flex><span><span style=color:#ff79c6>const</span> ngZoneInjector <span style=color:#ff79c6>=</span> Injector.create(
+</span></span><span style=display:flex><span>    {providers: <span style=color:#8be9fd>providers</span>, parent: <span style=color:#8be9fd>this.injector</span>, name: <span style=color:#8be9fd>moduleFactory.moduleType.name</span>});
+</span></span></code></pre></td></tr></table></div></div><p>Few lines down we&rsquo;ve got a lot of important lines, but the most important is the call of <code>_moduleDoBootstrap</code> method.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#6272a4>// ...
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>  <span style=color:#ff79c6>private</span> _moduleDoBootstrap(<span style=color:#ff79c6>module</span>Ref<span style=color:#ff79c6>:</span> InternalNgModuleRef&lt;<span style=color:#ff79c6>any</span>&gt;)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> appRef <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>module</span>Ref.injector.get(ApplicationRef) <span style=color:#ff79c6>as</span> ApplicationRef;
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (<span style=color:#ff79c6>module</span>Ref._bootstrapComponents.length <span style=color:#ff79c6>&gt;</span> <span style=color:#bd93f9>0</span>) {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>module</span>Ref._bootstrapComponents.forEach(f <span style=color:#ff79c6>=&gt;</span> appRef.bootstrap(f));
+</span></span><span style=display:flex><span>    } <span style=color:#ff79c6>else</span> <span style=color:#ff79c6>if</span> (<span style=color:#ff79c6>module</span>Ref.instance.ngDoBootstrap) {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>module</span>Ref.instance.ngDoBootstrap(appRef);
+</span></span><span style=display:flex><span>    } <span style=color:#ff79c6>else</span> {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>const</span> errorMessage <span style=color:#ff79c6>=</span> (<span style=color:#ff79c6>typeof</span> ngDevMode <span style=color:#ff79c6>===</span> <span style=color:#f1fa8c>&#39;undefined&#39;</span> <span style=color:#ff79c6>||</span> ngDevMode) <span style=color:#ff79c6>?</span>
+</span></span><span style=display:flex><span>          <span style=color:#f1fa8c>`The module </span><span style=color:#f1fa8c>${</span>stringify(<span style=color:#ff79c6>module</span>Ref.instance.constructor)<span style=color:#f1fa8c>}</span><span style=color:#f1fa8c> was bootstrapped, `</span> <span style=color:#ff79c6>+</span>
+</span></span><span style=display:flex><span>              <span style=color:#f1fa8c>`but it does not declare &#34;@NgModule.bootstrap&#34; components nor a &#34;ngDoBootstrap&#34; method. `</span> <span style=color:#ff79c6>+</span>
+</span></span><span style=display:flex><span>              <span style=color:#f1fa8c>`Please define one of these.`</span> <span style=color:#ff79c6>:</span>
+</span></span><span style=display:flex><span>          <span style=color:#f1fa8c>&#39;&#39;</span>;
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>throw</span> <span style=color:#ff79c6>new</span> RuntimeError(RuntimeErrorCode.BOOTSTRAP_COMPONENTS_NOT_FOUND, errorMessage);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>._modules.push(<span style=color:#ff79c6>module</span>Ref);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span><span style=color:#6272a4>// ...
+</span></span></span></code></pre></td></tr></table></div></div><p>This method does one of two scenarios:</p><ul><li>If module has <code>bootstrap</code> file in <code>NgModule</code> decorator, it starts the components using <code>ApplicationRef.bootstrap</code> method. This is the default and most common approach that we use in Angular.</li><li>If module implements the <code>DoBootstrap</code> interface (<a href=https://angular.io/api/core/DoBootstrap>angular.io/api/core/DoBootstrap</a>), it calls the <code>ngDoBootstrap</code> method. This one method is not very well known. Personally, I think that it&rsquo;s very interesting because it allows you to add some logic from the very beginning of the lifecycle. You can execute some additional business logic, you can call your backend and conditionally bootstrap one of the components. A lot of cool stuff can be created using the <code>DoBootstrap</code> interface.</li></ul><p>I know that this code is not very easy to understand, but as you see, it&rsquo;s not magic.</p><h2 id=router-case>Router case</h2><p>I promise you, from this point no more source code from the Angular :P We are focusing on the tutorial again.</p><p>Zone-less applications have one very well-known issue that has to be handled.
+The router has some troubles with starting.
+The fix is very easy, after <code>NavigationEnd</code> event it&rsquo;s necessary to trigger the change detection cycle.
+I&rsquo;ve done it in my <code>AppComponent</code>.</p><p>It&rsquo;s not complicated, but it&rsquo;s one thing that has to be done, and it&rsquo;s worth remembering.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> AppComponent <span style=color:#ff79c6>implements</span> OnDestroy {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> <span style=color:#ff79c6>readonly</span> onDestroy$: <span style=color:#8be9fd>Subject</span>&lt;<span style=color:#ff79c6>void</span>&gt; <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> Subject&lt;<span style=color:#ff79c6>void</span>&gt;();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>constructor</span>(
+</span></span><span style=display:flex><span>    router: <span style=color:#8be9fd>Router</span>,
+</span></span><span style=display:flex><span>    applicationRef: <span style=color:#8be9fd>ApplicationRef</span>
+</span></span><span style=display:flex><span>  ) {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>.zonelessRouterStarter(router, applicationRef);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ngOnDestroy() {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>.onDestroy$.next();
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>.onDestroy$.complete();
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> zonelessRouterStarter(router: <span style=color:#8be9fd>Router</span>, applicationRef: <span style=color:#8be9fd>ApplicationRef</span>)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    router.events
+</span></span><span style=display:flex><span>      .pipe(
+</span></span><span style=display:flex><span>        filter(event <span style=color:#ff79c6>=&gt;</span> event <span style=color:#ff79c6>instanceof</span> NavigationEnd),
+</span></span><span style=display:flex><span>        takeUntil(<span style=color:#ff79c6>this</span>.onDestroy$)
+</span></span><span style=display:flex><span>      )
+</span></span><span style=display:flex><span>      .subscribe(() <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>        applicationRef.tick();
+</span></span><span style=display:flex><span>      });
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><h2 id=what-is-not-working>What is not working&mldr;?</h2><p>When you have a zone-less application, some build-in things will not work.
+We handled the problems with the router.</p><p>I work without zones almost all the time in the last few years and to be honest,
+I found only one thing that is problematic.
+<strong>Async pipe is not working without zone.js</strong>.</p><p>Why&mldr;? Because of the implementation.
+If you want to read more about it,
+please check out my first post <a href=https://galczo5.github.io/mythical-angular/posts/async-pipe/>Myth: Async pipes are good for performance</a>.
+After all, I consider this pipe as harmful to the performance, so for me, it&rsquo;s not a problem.</p><h2 id=summary>Summary</h2><p>Switching from the default cli app to zone-less one is fairly easy.</p><p>Basing on my personal experience,
+I think that it&rsquo;s better to start without zones than converting when app is almost ready,
+and I recommend doing it even for small apps.</p><p>I will publish the comparison of the performance very soon, for today it&rsquo;s all.</p><p>Thanks for reading!</p><p>PS. I know that posted Angular code may be complicated, but still I think that it&rsquo;s worth exploring it.</p></div></article><div id=footer-post-container><div id=footer-post><div id=nav-footer style=display:none><ul><li><a href=/mythical-angular/>Home</a></li><li><a href=/mythical-angular/posts>All posts</a></li><li><a href=/mythical-angular/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></div><div id=toc-footer style=display:none><nav id=TableOfContents><ul><li><a href=#generating-new-app>Generating new app</a></li><li><a href=#app-demo>App demo</a></li><li><a href=#disabling-ngzones>Disabling NgZones</a><ul><li><a href=#production-mode>Production mode</a></li><li><a href=#platformref>PlatformRef</a></li></ul></li><li><a href=#router-case>Router case</a></li><li><a href=#what-is-not-working>What is not working&mldr;?</a></li><li><a href=#summary>Summary</a></li></ul></nav></div><div id=share-footer style=display:none><ul><li><a class=icon href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fzoneless%2f" aria-label=Facebook><i class="fab fa-facebook fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://twitter.com/share?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fzoneless%2f&text=Tutorial%3a%20How%20to%20start%20zone-less%20Angular%20app" aria-label=Twitter><i class="fab fa-twitter fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fzoneless%2f&title=Tutorial%3a%20How%20to%20start%20zone-less%20Angular%20app" aria-label=Linkedin><i class="fab fa-linkedin fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fzoneless%2f&is_video=false&description=Tutorial%3a%20How%20to%20start%20zone-less%20Angular%20app" aria-label=Pinterest><i class="fab fa-pinterest fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="mailto:?subject=Tutorial%3a%20How%20to%20start%20zone-less%20Angular%20app&body=Check out this article: https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fzoneless%2f" aria-label=Email><i class="fas fa-envelope fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://getpocket.com/save?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fzoneless%2f&title=Tutorial%3a%20How%20to%20start%20zone-less%20Angular%20app" aria-label=Pocket><i class="fab fa-get-pocket fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="http://reddit.com/submit?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fzoneless%2f&title=Tutorial%3a%20How%20to%20start%20zone-less%20Angular%20app" aria-label=reddit><i class="fab fa-reddit fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="http://www.tumblr.com/share/link?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fzoneless%2f&name=Tutorial%3a%20How%20to%20start%20zone-less%20Angular%20app&description=Well%2c%20hello%20again%21%0aThis%20time%20I%20decided%20to%20do%20something%20else%20that%20usually.%20Today%20I%20will%20not%20try%20to%20describe%20and%20demystify%20any%20Angular-related%20myth%2c%20because%20today%20I%20will%20show%20you%20a%20simple%20tutorial%20how%20to%20start%20a%20new%20Angular%20app%20without%20NgZones.%0aGenerating%20new%20app%20There%20is%20no%20reason%20to%20describe%20it%20very%20deeply.%20It%26rsquo%3bs%20just%20a%20standard%20ng%20new%20command.%20In%20my%20example%2c%20I%26rsquo%3bm%20using%20routing.%20First%2c%20you%20probably%20use%20router%20too%2c%20and%20I%20want%20to%20make%20this%20example%20as%20simple%20as%20possible%2c%20but%20still%20pretty%20close%20to%20real-life%20apps." aria-label=Tumblr><i class="fab fa-tumblr fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fzoneless%2f&t=Tutorial%3a%20How%20to%20start%20zone-less%20Angular%20app" aria-label="Hacker News"><i class="fab fa-hacker-news fa-lg" aria-hidden=true></i></a></li></ul></div><div id=actions-footer><a id=menu-toggle class=icon href=# onclick='return $("#nav-footer").toggle(),!1' aria-label=Menu><i class="fas fa-bars fa-lg" aria-hidden=true></i> Menu</a>
+<a id=toc-toggle class=icon href=# onclick='return $("#toc-footer").toggle(),!1' aria-label=TOC><i class="fas fa-list fa-lg" aria-hidden=true></i> TOC</a>
+<a id=share-toggle class=icon href=# onclick='return $("#share-footer").toggle(),!1' aria-label=Share><i class="fas fa-share-alt fa-lg" aria-hidden=true></i> share</a>
+<a id=top style=display:none class=icon href=# onclick='$("html, body").animate({scrollTop:0},"fast")' aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg" aria-hidden=true></i> Top</a></div></div></div><footer id=footer><div class=footer-left>Copyright &copy; 2022 Kamil Gałek</div><div class=footer-right><nav><ul><li><a href=/mythical-angular/>Home</a></li><li><a href=/mythical-angular/posts>All posts</a></li><li><a href=/mythical-angular/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></nav></div></footer></div></body><link rel=stylesheet href=/mythical-angular/lib/font-awesome/css/all.min.css><script src=/mythical-angular/lib/jquery/jquery.min.js></script>
+<script src=/mythical-angular/js/main.js></script>
+<script src=/mythical-angular/js/code-copy.js></script></html>
