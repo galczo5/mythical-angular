@@ -6,7 +6,7 @@ draft: false
 
 Well, hello again!
 
-This time I decided to do something else that usually.
+This time I decided to do something else that usual.
 Today I will not try to describe and demystify any Angular-related myth,
 because today I will show you a simple tutorial how to start a new Angular app without NgZones.
 
@@ -26,10 +26,10 @@ Second of all, there is one trick necessary to use router in zone-less mode, and
 ## Disabling NgZones
 
 First thing you probably want to do is disabling `zone.js`.
-It's very easy to do, find the file where you obtain `PlatfromRef` object, and you bootstrap your first module.
+It's very easy to do, find the file where you obtain `PlatformRef` object, and you bootstrap your first module.
 By default, it's the `main.ts` file.
 
-The Code should look similar to the snippet bellow.
+The Code should look similar to the snippet below.
 
 ```typescript
 import {enableProdMode} from '@angular/core';
@@ -167,7 +167,7 @@ so you may expect it to create some very high level providers.
 You can treat it as something **above** root.
 Services provided in the platform are available for every module bootstrapped with this `PlatformRef`.
 
-I wanted to hide some lines in code bellow, but at the end, all of these lines are important.
+I wanted to hide some lines in code below, but at the end, all of these lines are important.
 
 ```typescript
 /**
@@ -328,7 +328,7 @@ export class PlatformRef {
 
 You should ask me here "So there are other options that I can set globally for my app?".
 Yup, as you see the type `CompilerOptions & BootstrapOptions` describes what you can set.
-In code bellow I prepared a short description of what could be set there.
+In code below I prepared a short description of what could be set there.
 
 ```typescript
 {
@@ -398,9 +398,9 @@ In code bellow I prepared a short description of what could be set there.
 
 Method `bootstrapModule` checks provided options and then calls the second method `bootstrapModuleFactory`. Here the fun begins.
 
-The first lines of the method are figuring out the right `NgZone` provider.
-The call of function `getNgZone` determines the object that should be used as NgZones implementation,
-it's a simple condition that will create objects of class `NgZone` or `NoopNgZone`.
+The call of function `getNgZone` determines the object that should be used as NgZones implementation.
+It's a simple code that will create objects of class `NgZone` or `NoopNgZone`.
+
 I think that it's a subject for the whole new article,
 and I will cover differences and implementation of these two types in the future.
 
@@ -464,7 +464,7 @@ I know that this code is not very easy to understand, but as you see, it's not m
 
 ## Router case
 
-I promise you, from this point no more source code from the Angular :P We are focusing on the tutorial again.
+I promise you, from this point, we will not see any source code from Angular :P We are focusing on the tutorial again.
 
 Zone-less applications have one very well-known issue that has to be handled.
 The router has some troubles with starting.
@@ -526,8 +526,8 @@ Basing on my personal experience,
 I think that it's better to start without zones than converting when app is almost ready,
 and I recommend doing it even for small apps.
 
-I will publish the comparison of the performance very soon, for today it's all. 
+I will publish the comparison of the performance very soon, for today that's all.
 
 Thanks for reading!
 
-PS. I know that posted Angular code may be complicated, but still I think that it's worth exploring it.
+PS. I know that posted Angular code may be complicated, but I still think that it's worth exploring it.
