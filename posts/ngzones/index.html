@@ -1,0 +1,540 @@
+<!doctype html><html lang=en-us><head><link rel=preload href=/mythical-angular/lib/font-awesome/webfonts/fa-brands-400.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=preload href=/mythical-angular/lib/font-awesome/webfonts/fa-regular-400.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=preload href=/mythical-angular/lib/font-awesome/webfonts/fa-solid-900.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=preload href=/mythical-angular/lib/JetBrainsMono/web/woff2/JetBrainsMono-Regular.woff2 as=font type=font/woff2 crossorigin=anonymous><script type=text/javascript src=https://latest.cactus.chat/cactus.js></script>
+<link rel=stylesheet href=https://latest.cactus.chat/style.css type=text/css><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><title>Code analysis: NgZone vs NoopNgZone | Mythical Angular</title><link rel=canonical href=https://galczo5.github.io/mythical-angular/posts/ngzones/><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="all,follow"><meta name=googlebot content="index,follow,snippet,archive"><meta property="og:title" content="Code analysis: NgZone vs NoopNgZone"><meta property="og:description" content="In previous articles I described how to start creating Angular apps using noop zone instead NgZone. The text below describes the technical difference in implementation between NgZone and NoopNgZone. In my opinion, it&rsquo;s quite important to know that difference because it helps to understand how change detections work.
+NgZone I decided to remove some comments from the code, so it should be easier to read. Check out the packages/core/src/zone/ng_zone.ts file in Angular repository for the full version."><meta property="og:type" content="article"><meta property="og:url" content="https://galczo5.github.io/mythical-angular/posts/ngzones/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-05-09T00:00:00+00:00"><meta property="article:modified_time" content="2022-05-09T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Code analysis: NgZone vs NoopNgZone"><meta name=twitter:description content="In previous articles I described how to start creating Angular apps using noop zone instead NgZone. The text below describes the technical difference in implementation between NgZone and NoopNgZone. In my opinion, it&rsquo;s quite important to know that difference because it helps to understand how change detections work.
+NgZone I decided to remove some comments from the code, so it should be easier to read. Check out the packages/core/src/zone/ng_zone.ts file in Angular repository for the full version."><link rel=stylesheet href=https://galczo5.github.io/mythical-angular/css/styles.94f653e9e151e28067a7c5dbbc4600cbd5a3c721e79faaf971e523c40f3b249b8e4f20bb57810dfffa8d559ca5c140fd56eb4cd9c0853113ad08e66afdb08bdd.css integrity="sha512-lPZT6eFR4oBnp8XbvEYAy9WjxyHnn6r5ceUjxA87JJuOTyC7V4EN//qNVZylwUD9VutM2cCFMROtCOZq/bCL3Q=="><link rel=stylesheet href=https://galczo5.github.io/mythical-angular/css/custom.css><!--[if lt IE 9]><script src=https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js></script>
+<script src=https://oss.maxcdn.com/respond/1.4.2/respond.min.js></script><![endif]--><link rel=icon type=image/png href=https://galczo5.github.io/mythical-angular/images/favicon.ico></head><body class="max-width mx-auto px3 ltr"><div class="content index py4"><div id=header-post><a id=menu-icon href=#><i class="fas fa-bars fa-lg"></i></a>
+<a id=menu-icon-tablet href=#><i class="fas fa-bars fa-lg"></i></a>
+<a id=top-icon-tablet href=# onclick='$("html, body").animate({scrollTop:0},"fast")' style=display:none aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg"></i></a>
+<span id=menu><span id=nav><ul><li><a href=/mythical-angular/>Home</a></li><li><a href=/mythical-angular/posts>All posts</a></li><li><a href=/mythical-angular/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></span><br><span id=actions><ul><li><a class=icon href=https://galczo5.github.io/mythical-angular/posts/zoneless/ aria-label=Previous><i class="fas fa-chevron-left" aria-hidden=true onmouseover='$("#i-prev").toggle()' onmouseout='$("#i-prev").toggle()'></i></a></li><li><a class=icon href=# onclick='$("html, body").animate({scrollTop:0},"fast")' aria-label="Top of Page"><i class="fas fa-chevron-up" aria-hidden=true onmouseover='$("#i-top").toggle()' onmouseout='$("#i-top").toggle()'></i></a></li><li><a class=icon href=# aria-label=Share><i class="fas fa-share-alt" aria-hidden=true onmouseover='$("#i-share").toggle()' onmouseout='$("#i-share").toggle()' onclick='return $("#share").toggle(),!1'></i></a></li></ul><span id=i-prev class=info style=display:none>Previous post</span>
+<span id=i-next class=info style=display:none>Next post</span>
+<span id=i-top class=info style=display:none>Back to top</span>
+<span id=i-share class=info style=display:none>Share post</span></span><br><div id=share style=display:none><ul><li><a class=icon href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fngzones%2f" aria-label=Facebook><i class="fab fa-facebook" aria-hidden=true></i></a></li><li><a class=icon href="https://twitter.com/share?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fngzones%2f&text=Code%20analysis%3a%20NgZone%20vs%20NoopNgZone" aria-label=Twitter><i class="fab fa-twitter" aria-hidden=true></i></a></li><li><a class=icon href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fngzones%2f&title=Code%20analysis%3a%20NgZone%20vs%20NoopNgZone" aria-label=Linkedin><i class="fab fa-linkedin" aria-hidden=true></i></a></li><li><a class=icon href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fngzones%2f&is_video=false&description=Code%20analysis%3a%20NgZone%20vs%20NoopNgZone" aria-label=Pinterest><i class="fab fa-pinterest" aria-hidden=true></i></a></li><li><a class=icon href="mailto:?subject=Code%20analysis%3a%20NgZone%20vs%20NoopNgZone&body=Check out this article: https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fngzones%2f" aria-label=Email><i class="fas fa-envelope" aria-hidden=true></i></a></li><li><a class=icon href="https://getpocket.com/save?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fngzones%2f&title=Code%20analysis%3a%20NgZone%20vs%20NoopNgZone" aria-label=Pocket><i class="fab fa-get-pocket" aria-hidden=true></i></a></li><li><a class=icon href="http://reddit.com/submit?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fngzones%2f&title=Code%20analysis%3a%20NgZone%20vs%20NoopNgZone" aria-label=reddit><i class="fab fa-reddit" aria-hidden=true></i></a></li><li><a class=icon href="http://www.tumblr.com/share/link?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fngzones%2f&name=Code%20analysis%3a%20NgZone%20vs%20NoopNgZone&description=In%20previous%20articles%20I%20described%20how%20to%20start%20creating%20Angular%20apps%20using%20noop%20zone%20instead%20NgZone.%20The%20text%20below%20describes%20the%20technical%20difference%20in%20implementation%20between%20NgZone%20and%20NoopNgZone.%20In%20my%20opinion%2c%20it%26rsquo%3bs%20quite%20important%20to%20know%20that%20difference%20because%20it%20helps%20to%20understand%20how%20change%20detections%20work.%0aNgZone%20I%20decided%20to%20remove%20some%20comments%20from%20the%20code%2c%20so%20it%20should%20be%20easier%20to%20read.%20Check%20out%20the%20packages%2fcore%2fsrc%2fzone%2fng_zone.ts%20file%20in%20Angular%20repository%20for%20the%20full%20version." aria-label=Tumblr><i class="fab fa-tumblr" aria-hidden=true></i></a></li><li><a class=icon href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fngzones%2f&t=Code%20analysis%3a%20NgZone%20vs%20NoopNgZone" aria-label="Hacker News"><i class="fab fa-hacker-news" aria-hidden=true></i></a></li></ul></div><div id=toc><nav id=TableOfContents><ul><li><a href=#ngzone>NgZone</a></li><li><a href=#noopngzone>NoopNgZone</a></li><li><a href=#how-change-detection-is-triggered-by-ngzone>How change detection is triggered by NgZone</a></li><li><a href=#summary>Summary</a></li></ul></nav></div></span></div><article class=post itemscope itemtype=http://schema.org/BlogPosting><header><h1 class=posttitle itemprop="name headline">Code analysis: NgZone vs NoopNgZone</h1><div class=meta><div class=postdate><time datetime="2022-05-09 00:00:00 +0000 UTC" itemprop=datePublished>2022-05-09</time></div></div></header><div class=content itemprop=articleBody><p>In previous articles I described how to start creating Angular apps using <code>noop</code> zone instead <code>NgZone</code>.
+The text below describes the technical difference in implementation between <code>NgZone</code> and <code>NoopNgZone</code>.
+In my opinion,
+it&rsquo;s quite important to know that difference because it helps to understand how change detections work.</p><h2 id=ngzone>NgZone</h2><p>I decided to remove some comments from the code, so it should be easier to read.
+Check out the <code>packages/core/src/zone/ng_zone.ts</code> file in Angular repository for the full version.
+It&rsquo;s really well commented there.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">36
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">37
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">38
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">39
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">40
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">41
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">42
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">43
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">44
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">45
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">46
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">47
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">48
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">49
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">50
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">51
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">52
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">53
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">54
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">55
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">56
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">57
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">58
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">59
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">60
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">61
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">62
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">63
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">64
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">65
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">66
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">67
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">68
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">69
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">70
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">71
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">72
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">73
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">74
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">75
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">76
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">77
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">78
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">79
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">80
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">81
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">82
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">83
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">84
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">85
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">86
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">87
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">88
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> NgZone {
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>readonly</span> hasPendingMacrotasks: <span style=color:#8be9fd>boolean</span> <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>false</span>;
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>readonly</span> hasPendingMicrotasks: <span style=color:#8be9fd>boolean</span> <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>false</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>readonly</span> isStable: <span style=color:#8be9fd>boolean</span> <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>true</span>;
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>readonly</span> onUnstable: <span style=color:#8be9fd>EventEmitter</span>&lt;<span style=color:#ff79c6>any</span>&gt; <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> EventEmitter(<span style=color:#ff79c6>false</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#6272a4>/**
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   * Notifies when there is no more microtasks enqueued in the current VM Turn.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   * This is a hint for Angular to do change detection, which may enqueue more microtasks.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   * For this reason this event can fire multiple times per VM Turn.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>   */</span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>readonly</span> onMicrotaskEmpty: <span style=color:#8be9fd>EventEmitter</span>&lt;<span style=color:#ff79c6>any</span>&gt; <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> EventEmitter(<span style=color:#ff79c6>false</span>);
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>readonly</span> onStable: <span style=color:#8be9fd>EventEmitter</span>&lt;<span style=color:#ff79c6>any</span>&gt; <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> EventEmitter(<span style=color:#ff79c6>false</span>);
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>readonly</span> onError: <span style=color:#8be9fd>EventEmitter</span>&lt;<span style=color:#ff79c6>any</span>&gt; <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> EventEmitter(<span style=color:#ff79c6>false</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>constructor</span>({
+</span></span><span style=display:flex><span>    enableLongStackTrace <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>false</span>,
+</span></span><span style=display:flex><span>    shouldCoalesceEventChangeDetection <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>false</span>,
+</span></span><span style=display:flex><span>    shouldCoalesceRunChangeDetection <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>false</span>
+</span></span><span style=display:flex><span>  }) {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (<span style=color:#ff79c6>typeof</span> Zone <span style=color:#ff79c6>==</span> <span style=color:#f1fa8c>&#39;undefined&#39;</span>) {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>throw</span> <span style=color:#ff79c6>new</span> <span style=color:#8be9fd;font-style:italic>Error</span>(<span style=color:#f1fa8c>`In this configuration Angular requires Zone.js`</span>);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    Zone.assertZonePatched();
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> self <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>this</span> <span style=color:#ff79c6>as</span> <span style=color:#8be9fd>any</span> <span style=color:#ff79c6>as</span> NgZonePrivate;
+</span></span><span style=display:flex><span>    self._nesting <span style=color:#ff79c6>=</span> <span style=color:#bd93f9>0</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    self._outer <span style=color:#ff79c6>=</span> self._inner <span style=color:#ff79c6>=</span> Zone.current;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> ((Zone <span style=color:#ff79c6>as</span> <span style=color:#8be9fd>any</span>)[<span style=color:#f1fa8c>&#39;TaskTrackingZoneSpec&#39;</span>]) {
+</span></span><span style=display:flex><span>      self._inner <span style=color:#ff79c6>=</span> self._inner.fork(<span style=color:#ff79c6>new</span> ((Zone <span style=color:#ff79c6>as</span> <span style=color:#8be9fd>any</span>)[<span style=color:#f1fa8c>&#39;TaskTrackingZoneSpec&#39;</span>] <span style=color:#ff79c6>as</span> <span style=color:#8be9fd>any</span>));
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (enableLongStackTrace <span style=color:#ff79c6>&amp;&amp;</span> (Zone <span style=color:#ff79c6>as</span> <span style=color:#8be9fd>any</span>)[<span style=color:#f1fa8c>&#39;longStackTraceZoneSpec&#39;</span>]) {
+</span></span><span style=display:flex><span>      self._inner <span style=color:#ff79c6>=</span> self._inner.fork((Zone <span style=color:#ff79c6>as</span> <span style=color:#8be9fd>any</span>)[<span style=color:#f1fa8c>&#39;longStackTraceZoneSpec&#39;</span>]);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>// if shouldCoalesceRunChangeDetection is true, all tasks including event tasks will be
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>    <span style=color:#6272a4>// coalesced, so shouldCoalesceEventChangeDetection option is not necessary and can be skipped.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>    self.shouldCoalesceEventChangeDetection <span style=color:#ff79c6>=</span>
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>!</span>shouldCoalesceRunChangeDetection <span style=color:#ff79c6>&amp;&amp;</span> shouldCoalesceEventChangeDetection;
+</span></span><span style=display:flex><span>    self.shouldCoalesceRunChangeDetection <span style=color:#ff79c6>=</span> shouldCoalesceRunChangeDetection;
+</span></span><span style=display:flex><span>    self.lastRequestAnimationFrameId <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>-</span><span style=color:#bd93f9>1</span>;
+</span></span><span style=display:flex><span>    self.nativeRequestAnimationFrame <span style=color:#ff79c6>=</span> getNativeRequestAnimationFrame().nativeRequestAnimationFrame;
+</span></span><span style=display:flex><span>    forkInnerZoneWithAngularBehavior(self);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>static</span> isInAngularZone()<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>boolean</span> {
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>// Zone needs to be checked, because this method might be called even when NoopNgZone is used.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>    <span style=color:#ff79c6>return</span> <span style=color:#ff79c6>typeof</span> Zone <span style=color:#ff79c6>!==</span> <span style=color:#f1fa8c>&#39;undefined&#39;</span> <span style=color:#ff79c6>&amp;&amp;</span> Zone.current.<span style=color:#ff79c6>get</span>(<span style=color:#f1fa8c>&#39;isAngularZone&#39;</span>) <span style=color:#ff79c6>===</span> <span style=color:#ff79c6>true</span>;
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>static</span> assertInAngularZone()<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (<span style=color:#ff79c6>!</span>NgZone.isInAngularZone()) {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>throw</span> <span style=color:#ff79c6>new</span> <span style=color:#8be9fd;font-style:italic>Error</span>(<span style=color:#f1fa8c>&#39;Expected to be in Angular Zone, but it is not!&#39;</span>);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>static</span> assertNotInAngularZone()<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (NgZone.isInAngularZone()) {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>throw</span> <span style=color:#ff79c6>new</span> <span style=color:#8be9fd;font-style:italic>Error</span>(<span style=color:#f1fa8c>&#39;Expected to not be in Angular Zone, but it is!&#39;</span>);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  run&lt;<span style=color:#ff79c6>T</span>&gt;(fn<span style=color:#ff79c6>:</span> (...args: <span style=color:#8be9fd>any</span>[]) <span style=color:#ff79c6>=&gt;</span> T, applyThis?: <span style=color:#8be9fd>any</span>, applyArgs?: <span style=color:#8be9fd>any</span>[])<span style=color:#ff79c6>:</span> T {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> (<span style=color:#ff79c6>this</span> <span style=color:#ff79c6>as</span> <span style=color:#8be9fd>any</span> <span style=color:#ff79c6>as</span> NgZonePrivate)._inner.run(fn, applyThis, applyArgs);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  runTask&lt;<span style=color:#ff79c6>T</span>&gt;(fn<span style=color:#ff79c6>:</span> (...args: <span style=color:#8be9fd>any</span>[]) <span style=color:#ff79c6>=&gt;</span> T, applyThis?: <span style=color:#8be9fd>any</span>, applyArgs?: <span style=color:#8be9fd>any</span>[], name?: <span style=color:#8be9fd>string</span>)<span style=color:#ff79c6>:</span> T {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> zone <span style=color:#ff79c6>=</span> (<span style=color:#ff79c6>this</span> <span style=color:#ff79c6>as</span> <span style=color:#8be9fd>any</span> <span style=color:#ff79c6>as</span> NgZonePrivate)._inner;
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> task <span style=color:#ff79c6>=</span> zone.scheduleEventTask(<span style=color:#f1fa8c>&#39;NgZoneEvent: &#39;</span> <span style=color:#ff79c6>+</span> name, fn, EMPTY_PAYLOAD, noop, noop);
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>try</span> {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>return</span> zone.runTask(task, applyThis, applyArgs);
+</span></span><span style=display:flex><span>    } <span style=color:#ff79c6>finally</span> {
+</span></span><span style=display:flex><span>      zone.cancelTask(task);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  runGuarded&lt;<span style=color:#ff79c6>T</span>&gt;(fn<span style=color:#ff79c6>:</span> (...args: <span style=color:#8be9fd>any</span>[]) <span style=color:#ff79c6>=&gt;</span> T, applyThis?: <span style=color:#8be9fd>any</span>, applyArgs?: <span style=color:#8be9fd>any</span>[])<span style=color:#ff79c6>:</span> T {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> (<span style=color:#ff79c6>this</span> <span style=color:#ff79c6>as</span> <span style=color:#8be9fd>any</span> <span style=color:#ff79c6>as</span> NgZonePrivate)._inner.runGuarded(fn, applyThis, applyArgs);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  runOutsideAngular&lt;<span style=color:#ff79c6>T</span>&gt;(fn<span style=color:#ff79c6>:</span> (...args: <span style=color:#8be9fd>any</span>[]) <span style=color:#ff79c6>=&gt;</span> T)<span style=color:#ff79c6>:</span> T {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> (<span style=color:#ff79c6>this</span> <span style=color:#ff79c6>as</span> <span style=color:#8be9fd>any</span> <span style=color:#ff79c6>as</span> NgZonePrivate)._outer.run(fn);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>As always, analysis of the class we start with the constructor.
+It looks complicated, but it&rsquo;s not.
+The first part of the code is just the process of zone forking
+and setting necessary properties provided by the configuration from the platform.</p><p>The last line of the constructor hides the most important stuff.
+The call of the <code>forkInnerZoneWithAngularBehavior</code> function,
+contains logic of the behaviour that has logic important for Angular.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">36
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">37
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">38
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">39
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">40
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">41
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">42
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">43
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">44
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">45
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">46
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">47
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">48
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">49
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">50
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">51
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">52
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">53
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">54
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">55
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">56
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">57
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">58
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">59
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>function</span> forkInnerZoneWithAngularBehavior(zone: <span style=color:#8be9fd>NgZonePrivate</span>) {
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>const</span> delayChangeDetectionForEventsDelegate <span style=color:#ff79c6>=</span> () <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>    delayChangeDetectionForEvents(zone);
+</span></span><span style=display:flex><span>  };
+</span></span><span style=display:flex><span>  zone._inner <span style=color:#ff79c6>=</span> zone._inner.fork({
+</span></span><span style=display:flex><span>    name<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;angular&#39;</span>,
+</span></span><span style=display:flex><span>    properties<span style=color:#ff79c6>:</span> &lt;<span style=color:#ff79c6>any</span>&gt;{<span style=color:#f1fa8c>&#39;isAngularZone&#39;</span><span style=color:#ff79c6>:</span> <span style=color:#ff79c6>true</span>},
+</span></span><span style=display:flex><span>    onInvokeTask<span style=color:#ff79c6>:</span>
+</span></span><span style=display:flex><span>        (delegate: <span style=color:#8be9fd>ZoneDelegate</span>, current: <span style=color:#8be9fd>Zone</span>, target: <span style=color:#8be9fd>Zone</span>, task: <span style=color:#8be9fd>Task</span>, applyThis: <span style=color:#8be9fd>any</span>,
+</span></span><span style=display:flex><span>         applyArgs: <span style=color:#8be9fd>any</span>)<span style=color:#ff79c6>:</span> <span style=color:#8be9fd>any</span> <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>          <span style=color:#ff79c6>try</span> {
+</span></span><span style=display:flex><span>            onEnter(zone);
+</span></span><span style=display:flex><span>            <span style=color:#ff79c6>return</span> delegate.invokeTask(target, task, applyThis, applyArgs);
+</span></span><span style=display:flex><span>          } <span style=color:#ff79c6>finally</span> {
+</span></span><span style=display:flex><span>            <span style=color:#ff79c6>if</span> ((zone.shouldCoalesceEventChangeDetection <span style=color:#ff79c6>&amp;&amp;</span> task.<span style=color:#ff79c6>type</span> <span style=color:#ff79c6>===</span> <span style=color:#f1fa8c>&#39;eventTask&#39;</span>) <span style=color:#ff79c6>||</span>
+</span></span><span style=display:flex><span>                zone.shouldCoalesceRunChangeDetection) {
+</span></span><span style=display:flex><span>              delayChangeDetectionForEventsDelegate();
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>            onLeave(zone);
+</span></span><span style=display:flex><span>          }
+</span></span><span style=display:flex><span>        },
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    onInvoke<span style=color:#ff79c6>:</span>
+</span></span><span style=display:flex><span>        (delegate: <span style=color:#8be9fd>ZoneDelegate</span>, current: <span style=color:#8be9fd>Zone</span>, target: <span style=color:#8be9fd>Zone</span>, callback: <span style=color:#8be9fd>Function</span>, applyThis: <span style=color:#8be9fd>any</span>,
+</span></span><span style=display:flex><span>         applyArgs?: <span style=color:#8be9fd>any</span>[], source?: <span style=color:#8be9fd>string</span>)<span style=color:#ff79c6>:</span> <span style=color:#8be9fd>any</span> <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>          <span style=color:#ff79c6>try</span> {
+</span></span><span style=display:flex><span>            onEnter(zone);
+</span></span><span style=display:flex><span>            <span style=color:#ff79c6>return</span> delegate.invoke(target, callback, applyThis, applyArgs, source);
+</span></span><span style=display:flex><span>          } <span style=color:#ff79c6>finally</span> {
+</span></span><span style=display:flex><span>            <span style=color:#ff79c6>if</span> (zone.shouldCoalesceRunChangeDetection) {
+</span></span><span style=display:flex><span>              delayChangeDetectionForEventsDelegate();
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>            onLeave(zone);
+</span></span><span style=display:flex><span>          }
+</span></span><span style=display:flex><span>        },
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    onHasTask<span style=color:#ff79c6>:</span>
+</span></span><span style=display:flex><span>        (delegate: <span style=color:#8be9fd>ZoneDelegate</span>, current: <span style=color:#8be9fd>Zone</span>, target: <span style=color:#8be9fd>Zone</span>, hasTaskState: <span style=color:#8be9fd>HasTaskState</span>) <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>          delegate.hasTask(target, hasTaskState);
+</span></span><span style=display:flex><span>          <span style=color:#ff79c6>if</span> (current <span style=color:#ff79c6>===</span> target) {
+</span></span><span style=display:flex><span>            <span style=color:#6272a4>// We are only interested in hasTask events which originate from our zone
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>            <span style=color:#6272a4>// (A child hasTask event is not interesting to us)
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>            <span style=color:#ff79c6>if</span> (hasTaskState.change <span style=color:#ff79c6>==</span> <span style=color:#f1fa8c>&#39;microTask&#39;</span>) {
+</span></span><span style=display:flex><span>              zone._hasPendingMicrotasks <span style=color:#ff79c6>=</span> hasTaskState.microTask;
+</span></span><span style=display:flex><span>              updateMicroTaskStatus(zone);
+</span></span><span style=display:flex><span>              checkStable(zone);
+</span></span><span style=display:flex><span>            } <span style=color:#ff79c6>else</span> <span style=color:#ff79c6>if</span> (hasTaskState.change <span style=color:#ff79c6>==</span> <span style=color:#f1fa8c>&#39;macroTask&#39;</span>) {
+</span></span><span style=display:flex><span>              zone.hasPendingMacrotasks <span style=color:#ff79c6>=</span> hasTaskState.macroTask;
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>          }
+</span></span><span style=display:flex><span>        },
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    onHandleError<span style=color:#ff79c6>:</span> (delegate: <span style=color:#8be9fd>ZoneDelegate</span>, current: <span style=color:#8be9fd>Zone</span>, target: <span style=color:#8be9fd>Zone</span>, error: <span style=color:#8be9fd>any</span>)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>boolean</span> <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>      delegate.handleError(target, error);
+</span></span><span style=display:flex><span>      zone.runOutsideAngular(() <span style=color:#ff79c6>=&gt;</span> zone.onError.emit(error));
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>return</span> <span style=color:#ff79c6>false</span>;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  });
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>Again, it looks complicated, but it&rsquo;s not.
+Zone.js implementation works on callbacks,
+so if something happens and zone.js catches an event we
+(the programmers) can provide a callback and execute some kind of side effect.</p><p>In case of <code>NgZone</code> these side effects are described by the functions:
+<code>onEnter(zone)</code>, <code>onLeave(zone)</code>, <code>updateMicroTaskStatus(zone)</code> and <code>checkStable(zone)</code>.</p><p><code>updateMicroTaskStatus</code> changes only the status of the field <code>hasPendingMicrotasks</code>.</p><p><code>onEnter</code> nests new zone and changes the NgZone to unstable state, and emits the information on <code>onUnstable</code> stream.</p><p><code>onLeave</code> reduces nesting of the zones and checks if zone is in stable state.</p><p>At last, <code>checkStable</code>, checks if zone is not nested anymore and
+if there are zero pending micro tasks and zone is not stable.
+If all conditions are fulfilled, two events are emitted.
+First one on <code>onMicrotaskEmpty</code> stream and the second one on <code>onStable</code> stream.
+Please remember this information, we will use it later.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">36
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">37
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">38
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">39
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">40
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>function</span> updateMicroTaskStatus(zone: <span style=color:#8be9fd>NgZonePrivate</span>) {
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>if</span> (zone._hasPendingMicrotasks <span style=color:#ff79c6>||</span>
+</span></span><span style=display:flex><span>      ((zone.shouldCoalesceEventChangeDetection <span style=color:#ff79c6>||</span> zone.shouldCoalesceRunChangeDetection) <span style=color:#ff79c6>&amp;&amp;</span>
+</span></span><span style=display:flex><span>       zone.lastRequestAnimationFrameId <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>-</span><span style=color:#bd93f9>1</span>)) {
+</span></span><span style=display:flex><span>    zone.hasPendingMicrotasks <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>true</span>;
+</span></span><span style=display:flex><span>  } <span style=color:#ff79c6>else</span> {
+</span></span><span style=display:flex><span>    zone.hasPendingMicrotasks <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>false</span>;
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>function</span> onEnter(zone: <span style=color:#8be9fd>NgZonePrivate</span>) {
+</span></span><span style=display:flex><span>  zone._nesting<span style=color:#ff79c6>++</span>;
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>if</span> (zone.isStable) {
+</span></span><span style=display:flex><span>    zone.isStable <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>false</span>;
+</span></span><span style=display:flex><span>    zone.onUnstable.emit(<span style=color:#ff79c6>null</span>);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>function</span> onLeave(zone: <span style=color:#8be9fd>NgZonePrivate</span>) {
+</span></span><span style=display:flex><span>  zone._nesting<span style=color:#ff79c6>--</span>;
+</span></span><span style=display:flex><span>  checkStable(zone);
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>function</span> checkStable(zone: <span style=color:#8be9fd>NgZonePrivate</span>) {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (zone._nesting <span style=color:#ff79c6>==</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>&amp;&amp;</span> <span style=color:#ff79c6>!</span>zone.hasPendingMicrotasks <span style=color:#ff79c6>&amp;&amp;</span> <span style=color:#ff79c6>!</span>zone.isStable) {
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>try</span> {
+</span></span><span style=display:flex><span>            zone._nesting<span style=color:#ff79c6>++</span>;
+</span></span><span style=display:flex><span>            zone.onMicrotaskEmpty.emit(<span style=color:#ff79c6>null</span>);
+</span></span><span style=display:flex><span>        } <span style=color:#ff79c6>finally</span> {
+</span></span><span style=display:flex><span>            zone._nesting<span style=color:#ff79c6>--</span>;
+</span></span><span style=display:flex><span>            <span style=color:#ff79c6>if</span> (<span style=color:#ff79c6>!</span>zone.hasPendingMicrotasks) {
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>try</span> {
+</span></span><span style=display:flex><span>                    zone.runOutsideAngular(() <span style=color:#ff79c6>=&gt;</span> zone.onStable.emit(<span style=color:#ff79c6>null</span>));
+</span></span><span style=display:flex><span>                } <span style=color:#ff79c6>finally</span> {
+</span></span><span style=display:flex><span>                    zone.isStable <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>true</span>;
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>Basically, that&rsquo;s all. There is nothing complicated in implementation of <code>NgZone</code>.
+All magic is happening inside <code>zone.js</code> library and Angular is adding few callbacks to make it working.</p><p>BTW. Check out interesting way of using typescript in <code>NgZone</code> class.
+internally is using <code>NgZonePrivate</code> interface that extends <code>NgZone</code>.
+Check out the <a href=https://refactoring.guru/design-patterns/decorator>decorator pattern</a>.</p><p>Using this method allows us to declare fields and use all cool features from Typescript, but only when we cast it.
+Looks like a cool way to add &ldquo;secret&rdquo; fields to the class.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>interface</span> NgZonePrivate <span style=color:#ff79c6>extends</span> NgZone {
+</span></span><span style=display:flex><span>  _outer: <span style=color:#8be9fd>Zone</span>;
+</span></span><span style=display:flex><span>  _inner: <span style=color:#8be9fd>Zone</span>;
+</span></span><span style=display:flex><span>  _nesting: <span style=color:#8be9fd>number</span>;
+</span></span><span style=display:flex><span>  _hasPendingMicrotasks: <span style=color:#8be9fd>boolean</span>;
+</span></span><span style=display:flex><span>  hasPendingMacrotasks: <span style=color:#8be9fd>boolean</span>;
+</span></span><span style=display:flex><span>  hasPendingMicrotasks: <span style=color:#8be9fd>boolean</span>;
+</span></span><span style=display:flex><span>  lastRequestAnimationFrameId: <span style=color:#8be9fd>number</span>;
+</span></span><span style=display:flex><span>  isCheckStableRunning: <span style=color:#8be9fd>boolean</span>;
+</span></span><span style=display:flex><span>  isStable: <span style=color:#8be9fd>boolean</span>;
+</span></span><span style=display:flex><span>  shouldCoalesceEventChangeDetection: <span style=color:#8be9fd>boolean</span>;
+</span></span><span style=display:flex><span>  shouldCoalesceRunChangeDetection: <span style=color:#8be9fd>boolean</span>;
+</span></span><span style=display:flex><span>  nativeRequestAnimationFrame<span style=color:#ff79c6>:</span> (callback: <span style=color:#8be9fd>FrameRequestCallback</span>) <span style=color:#ff79c6>=&gt;</span> <span style=color:#8be9fd>number</span>;
+</span></span><span style=display:flex><span>  fakeTopEventTask: <span style=color:#8be9fd>Task</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><h2 id=noopngzone>NoopNgZone</h2><p><code>NoopNgZone</code> is way easier than <code>NgZone</code>.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> NoopNgZone <span style=color:#ff79c6>implements</span> NgZone {
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>readonly</span> hasPendingMicrotasks: <span style=color:#8be9fd>boolean</span> <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>false</span>;
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>readonly</span> hasPendingMacrotasks: <span style=color:#8be9fd>boolean</span> <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>false</span>;
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>readonly</span> isStable: <span style=color:#8be9fd>boolean</span> <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>true</span>;
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>readonly</span> onUnstable: <span style=color:#8be9fd>EventEmitter</span>&lt;<span style=color:#ff79c6>any</span>&gt; <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> EventEmitter();
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>readonly</span> onMicrotaskEmpty: <span style=color:#8be9fd>EventEmitter</span>&lt;<span style=color:#ff79c6>any</span>&gt; <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> EventEmitter();
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>readonly</span> onStable: <span style=color:#8be9fd>EventEmitter</span>&lt;<span style=color:#ff79c6>any</span>&gt; <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> EventEmitter();
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>readonly</span> onError: <span style=color:#8be9fd>EventEmitter</span>&lt;<span style=color:#ff79c6>any</span>&gt; <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> EventEmitter();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  run&lt;<span style=color:#ff79c6>T</span>&gt;(fn<span style=color:#ff79c6>:</span> (...args: <span style=color:#8be9fd>any</span>[]) <span style=color:#ff79c6>=&gt;</span> T, applyThis?: <span style=color:#8be9fd>any</span>, applyArgs?: <span style=color:#8be9fd>any</span>)<span style=color:#ff79c6>:</span> T {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> fn.apply(applyThis, applyArgs);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  runGuarded&lt;<span style=color:#ff79c6>T</span>&gt;(fn<span style=color:#ff79c6>:</span> (...args: <span style=color:#8be9fd>any</span>[]) <span style=color:#ff79c6>=&gt;</span> <span style=color:#8be9fd>any</span>, applyThis?: <span style=color:#8be9fd>any</span>, applyArgs?: <span style=color:#8be9fd>any</span>)<span style=color:#ff79c6>:</span> T {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> fn.apply(applyThis, applyArgs);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  runOutsideAngular&lt;<span style=color:#ff79c6>T</span>&gt;(fn<span style=color:#ff79c6>:</span> (...args: <span style=color:#8be9fd>any</span>[]) <span style=color:#ff79c6>=&gt;</span> T)<span style=color:#ff79c6>:</span> T {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> fn();
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  runTask&lt;<span style=color:#ff79c6>T</span>&gt;(fn<span style=color:#ff79c6>:</span> (...args: <span style=color:#8be9fd>any</span>[]) <span style=color:#ff79c6>=&gt;</span> T, applyThis?: <span style=color:#8be9fd>any</span>, applyArgs?: <span style=color:#8be9fd>any</span>, name?: <span style=color:#8be9fd>string</span>)<span style=color:#ff79c6>:</span> T {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> fn.apply(applyThis, applyArgs);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>Basically, there is nothing there.
+Every action is just called and not passed to the zone.
+In this case <code>zone.js</code> library is needless, you don&rsquo;t have to load it.
+It&rsquo;s not a lot, but still it&rsquo;s something.</p><p><img src=/mythical-angular/images/zone-size.png alt=zone></p><h2 id=how-change-detection-is-triggered-by-ngzone>How change detection is triggered by NgZone</h2><p>We know how <code>NgZone</code> and <code>NoopNgZone</code> is implemented.
+The most important question is how it triggers the change detection process&mldr;?</p><p>To find it, we have to follow <code>onMicrotaskEmpty</code> stream (event emitter if you want).
+Little reminder, value is emitted in this stream, when every micro task is completed.
+So when there is only one micro task at the same moment, there is no problem; value is emitted.
+When Angular is dealing with more than one micro task, it will emit value only <strong>when all micro tasks are completed</strong>.
+It&rsquo;s some kind of optimization.
+The idea is to reduce unnecessary change detection processes.</p><p>So <code>onMicrotaskEmpty</code> has only one subscriber, that is constructor of <code>ApplicationRef</code> service.
+On every value <code>tick</code> method is called, and it&rsquo;s a direct start of change detection.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>@Injectable</span>({providedIn<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;root&#39;</span>})
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> ApplicationRef {
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>/* ... */</span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>constructor</span>(
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>private</span> _zone: <span style=color:#8be9fd>NgZone</span>, <span style=color:#ff79c6>private</span> _injector: <span style=color:#8be9fd>Injector</span>, <span style=color:#ff79c6>private</span> _exceptionHandler: <span style=color:#8be9fd>ErrorHandler</span>,
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>private</span> _componentFactoryResolver: <span style=color:#8be9fd>ComponentFactoryResolver</span>,
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>private</span> _initStatus: <span style=color:#8be9fd>ApplicationInitStatus</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>this</span>._onMicrotaskEmptySubscription <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>this</span>._zone.onMicrotaskEmpty.subscribe({
+</span></span><span style=display:flex><span>            next<span style=color:#ff79c6>:</span> () <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>this</span>._zone.run(() <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>                    <span style=color:#ff79c6>this</span>.tick();
+</span></span><span style=display:flex><span>                });
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        });
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>/* ... */</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><h2 id=summary>Summary</h2><p>That&rsquo;s all for today.
+Next time, I will compare the performance of standard and zone-less Angular application.</p><p>Probably soon I will release the description of all methods of triggering change detection from code,
+I think that it might be interesting.
+Is there a difference between <code>ApplicationRef.tick()</code> and <code>ChangeDetectorRef.detectChanges()</code>&mldr;?
+Of course, there is, but it&rsquo;s a subject for a different article.</p></div></article><div id=footer-post-container><div id=footer-post><div id=nav-footer style=display:none><ul><li><a href=/mythical-angular/>Home</a></li><li><a href=/mythical-angular/posts>All posts</a></li><li><a href=/mythical-angular/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></div><div id=toc-footer style=display:none><nav id=TableOfContents><ul><li><a href=#ngzone>NgZone</a></li><li><a href=#noopngzone>NoopNgZone</a></li><li><a href=#how-change-detection-is-triggered-by-ngzone>How change detection is triggered by NgZone</a></li><li><a href=#summary>Summary</a></li></ul></nav></div><div id=share-footer style=display:none><ul><li><a class=icon href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fngzones%2f" aria-label=Facebook><i class="fab fa-facebook fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://twitter.com/share?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fngzones%2f&text=Code%20analysis%3a%20NgZone%20vs%20NoopNgZone" aria-label=Twitter><i class="fab fa-twitter fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fngzones%2f&title=Code%20analysis%3a%20NgZone%20vs%20NoopNgZone" aria-label=Linkedin><i class="fab fa-linkedin fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fngzones%2f&is_video=false&description=Code%20analysis%3a%20NgZone%20vs%20NoopNgZone" aria-label=Pinterest><i class="fab fa-pinterest fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="mailto:?subject=Code%20analysis%3a%20NgZone%20vs%20NoopNgZone&body=Check out this article: https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fngzones%2f" aria-label=Email><i class="fas fa-envelope fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://getpocket.com/save?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fngzones%2f&title=Code%20analysis%3a%20NgZone%20vs%20NoopNgZone" aria-label=Pocket><i class="fab fa-get-pocket fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="http://reddit.com/submit?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fngzones%2f&title=Code%20analysis%3a%20NgZone%20vs%20NoopNgZone" aria-label=reddit><i class="fab fa-reddit fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="http://www.tumblr.com/share/link?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fngzones%2f&name=Code%20analysis%3a%20NgZone%20vs%20NoopNgZone&description=In%20previous%20articles%20I%20described%20how%20to%20start%20creating%20Angular%20apps%20using%20noop%20zone%20instead%20NgZone.%20The%20text%20below%20describes%20the%20technical%20difference%20in%20implementation%20between%20NgZone%20and%20NoopNgZone.%20In%20my%20opinion%2c%20it%26rsquo%3bs%20quite%20important%20to%20know%20that%20difference%20because%20it%20helps%20to%20understand%20how%20change%20detections%20work.%0aNgZone%20I%20decided%20to%20remove%20some%20comments%20from%20the%20code%2c%20so%20it%20should%20be%20easier%20to%20read.%20Check%20out%20the%20packages%2fcore%2fsrc%2fzone%2fng_zone.ts%20file%20in%20Angular%20repository%20for%20the%20full%20version." aria-label=Tumblr><i class="fab fa-tumblr fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fngzones%2f&t=Code%20analysis%3a%20NgZone%20vs%20NoopNgZone" aria-label="Hacker News"><i class="fab fa-hacker-news fa-lg" aria-hidden=true></i></a></li></ul></div><div id=actions-footer><a id=menu-toggle class=icon href=# onclick='return $("#nav-footer").toggle(),!1' aria-label=Menu><i class="fas fa-bars fa-lg" aria-hidden=true></i> Menu</a>
+<a id=toc-toggle class=icon href=# onclick='return $("#toc-footer").toggle(),!1' aria-label=TOC><i class="fas fa-list fa-lg" aria-hidden=true></i> TOC</a>
+<a id=share-toggle class=icon href=# onclick='return $("#share-footer").toggle(),!1' aria-label=Share><i class="fas fa-share-alt fa-lg" aria-hidden=true></i> share</a>
+<a id=top style=display:none class=icon href=# onclick='$("html, body").animate({scrollTop:0},"fast")' aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg" aria-hidden=true></i> Top</a></div></div></div><footer id=footer><div class=footer-left>Copyright &copy; 2022 Kamil Gałek</div><div class=footer-right><nav><ul><li><a href=/mythical-angular/>Home</a></li><li><a href=/mythical-angular/posts>All posts</a></li><li><a href=/mythical-angular/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></nav></div></footer></div></body><link rel=stylesheet href=/mythical-angular/lib/font-awesome/css/all.min.css><script src=/mythical-angular/lib/jquery/jquery.min.js></script>
+<script src=/mythical-angular/js/main.js></script>
+<script src=/mythical-angular/js/code-copy.js></script></html>
