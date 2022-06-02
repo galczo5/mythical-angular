@@ -1,0 +1,827 @@
+<!doctype html><html lang=en-us><head><link rel=preload href=/mythical-angular/lib/font-awesome/webfonts/fa-brands-400.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=preload href=/mythical-angular/lib/font-awesome/webfonts/fa-regular-400.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=preload href=/mythical-angular/lib/font-awesome/webfonts/fa-solid-900.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=preload href=/mythical-angular/lib/JetBrainsMono/web/woff2/JetBrainsMono-Regular.woff2 as=font type=font/woff2 crossorigin=anonymous><script type=text/javascript src=https://latest.cactus.chat/cactus.js></script>
+<link rel=stylesheet href=https://latest.cactus.chat/style.css type=text/css><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><title>Myth: There is no difference between ApplicationRef.tick() and ChangeDetectorRef.detectChanges() | Mythical Angular</title><link rel=canonical href=https://galczo5.github.io/mythical-angular/posts/tick-vs-detect-changes/><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="all,follow"><meta name=googlebot content="index,follow,snippet,archive"><meta property="og:title" content="Myth: There is no difference between ApplicationRef.tick() and ChangeDetectorRef.detectChanges()"><meta property="og:description" content="&ldquo;I use ApplicationRef.tick() because it works, and after all, there is no difference&rdquo;
+Come on. These kinds of sentences almost always are not true. In this article I will show you how big difference is between ApplicationRef.tick and ChangeDetectorRef.tick.
+Please remember that all my research is focused on using Angular in &ldquo;high-performance&rdquo; mode. For normal usage, simple webpages or small apps, there is a difference, of course, but I doubt that we should care about it."><meta property="og:type" content="article"><meta property="og:url" content="https://galczo5.github.io/mythical-angular/posts/tick-vs-detect-changes/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-05-21T00:00:00+00:00"><meta property="article:modified_time" content="2022-05-21T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Myth: There is no difference between ApplicationRef.tick() and ChangeDetectorRef.detectChanges()"><meta name=twitter:description content="&ldquo;I use ApplicationRef.tick() because it works, and after all, there is no difference&rdquo;
+Come on. These kinds of sentences almost always are not true. In this article I will show you how big difference is between ApplicationRef.tick and ChangeDetectorRef.tick.
+Please remember that all my research is focused on using Angular in &ldquo;high-performance&rdquo; mode. For normal usage, simple webpages or small apps, there is a difference, of course, but I doubt that we should care about it."><link rel=stylesheet href=https://galczo5.github.io/mythical-angular/css/styles.94f653e9e151e28067a7c5dbbc4600cbd5a3c721e79faaf971e523c40f3b249b8e4f20bb57810dfffa8d559ca5c140fd56eb4cd9c0853113ad08e66afdb08bdd.css integrity="sha512-lPZT6eFR4oBnp8XbvEYAy9WjxyHnn6r5ceUjxA87JJuOTyC7V4EN//qNVZylwUD9VutM2cCFMROtCOZq/bCL3Q=="><link rel=stylesheet href=https://galczo5.github.io/mythical-angular/css/custom.css><!--[if lt IE 9]><script src=https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js></script>
+<script src=https://oss.maxcdn.com/respond/1.4.2/respond.min.js></script><![endif]--><link rel=icon type=image/png href=https://galczo5.github.io/mythical-angular/images/favicon.ico></head><body class="max-width mx-auto px3 ltr"><div class="content index py4"><div id=header-post><a id=menu-icon href=#><i class="fas fa-bars fa-lg"></i></a>
+<a id=menu-icon-tablet href=#><i class="fas fa-bars fa-lg"></i></a>
+<a id=top-icon-tablet href=# onclick="$('html, body').animate({scrollTop:0},'fast')" style=display:none aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg"></i></a>
+<span id=menu><span id=nav><ul><li><a href=/mythical-angular/>Home</a></li><li><a href=/mythical-angular/posts>All posts</a></li><li><a href=/mythical-angular/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></span><br><span id=actions><ul><li><a class=icon href=https://galczo5.github.io/mythical-angular/posts/ngzones/ aria-label=Previous><i class="fas fa-chevron-left" aria-hidden=true onmouseover="$('#i-prev').toggle()" onmouseout="$('#i-prev').toggle()"></i></a></li><li><a class=icon href=# onclick="$('html, body').animate({scrollTop:0},'fast')" aria-label="Top of Page"><i class="fas fa-chevron-up" aria-hidden=true onmouseover="$('#i-top').toggle()" onmouseout="$('#i-top').toggle()"></i></a></li><li><a class=icon href=# aria-label=Share><i class="fas fa-share-alt" aria-hidden=true onmouseover="$('#i-share').toggle()" onmouseout="$('#i-share').toggle()" onclick="return $('#share').toggle(),!1"></i></a></li></ul><span id=i-prev class=info style=display:none>Previous post</span>
+<span id=i-next class=info style=display:none>Next post</span>
+<span id=i-top class=info style=display:none>Back to top</span>
+<span id=i-share class=info style=display:none>Share post</span></span><br><div id=share style=display:none><ul><li><a class=icon href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2ftick-vs-detect-changes%2f" aria-label=Facebook><i class="fab fa-facebook" aria-hidden=true></i></a></li><li><a class=icon href="https://twitter.com/share?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2ftick-vs-detect-changes%2f&text=Myth%3a%20There%20is%20no%20difference%20between%20ApplicationRef.tick%28%29%20and%20ChangeDetectorRef.detectChanges%28%29" aria-label=Twitter><i class="fab fa-twitter" aria-hidden=true></i></a></li><li><a class=icon href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2ftick-vs-detect-changes%2f&title=Myth%3a%20There%20is%20no%20difference%20between%20ApplicationRef.tick%28%29%20and%20ChangeDetectorRef.detectChanges%28%29" aria-label=Linkedin><i class="fab fa-linkedin" aria-hidden=true></i></a></li><li><a class=icon href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2ftick-vs-detect-changes%2f&is_video=false&description=Myth%3a%20There%20is%20no%20difference%20between%20ApplicationRef.tick%28%29%20and%20ChangeDetectorRef.detectChanges%28%29" aria-label=Pinterest><i class="fab fa-pinterest" aria-hidden=true></i></a></li><li><a class=icon href="mailto:?subject=Myth%3a%20There%20is%20no%20difference%20between%20ApplicationRef.tick%28%29%20and%20ChangeDetectorRef.detectChanges%28%29&body=Check out this article: https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2ftick-vs-detect-changes%2f" aria-label=Email><i class="fas fa-envelope" aria-hidden=true></i></a></li><li><a class=icon href="https://getpocket.com/save?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2ftick-vs-detect-changes%2f&title=Myth%3a%20There%20is%20no%20difference%20between%20ApplicationRef.tick%28%29%20and%20ChangeDetectorRef.detectChanges%28%29" aria-label=Pocket><i class="fab fa-get-pocket" aria-hidden=true></i></a></li><li><a class=icon href="http://reddit.com/submit?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2ftick-vs-detect-changes%2f&title=Myth%3a%20There%20is%20no%20difference%20between%20ApplicationRef.tick%28%29%20and%20ChangeDetectorRef.detectChanges%28%29" aria-label=reddit><i class="fab fa-reddit" aria-hidden=true></i></a></li><li><a class=icon href="http://www.tumblr.com/share/link?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2ftick-vs-detect-changes%2f&name=Myth%3a%20There%20is%20no%20difference%20between%20ApplicationRef.tick%28%29%20and%20ChangeDetectorRef.detectChanges%28%29&description=%26ldquo%3bI%20use%20ApplicationRef.tick%28%29%20because%20it%20works%2c%20and%20after%20all%2c%20there%20is%20no%20difference%26rdquo%3b%0aCome%20on.%20These%20kinds%20of%20sentences%20almost%20always%20are%20not%20true.%20In%20this%20article%20I%20will%20show%20you%20how%20big%20difference%20is%20between%20ApplicationRef.tick%20and%20ChangeDetectorRef.tick.%0aPlease%20remember%20that%20all%20my%20research%20is%20focused%20on%20using%20Angular%20in%20%26ldquo%3bhigh-performance%26rdquo%3b%20mode.%20For%20normal%20usage%2c%20simple%20webpages%20or%20small%20apps%2c%20there%20is%20a%20difference%2c%20of%20course%2c%20but%20I%20doubt%20that%20we%20should%20care%20about%20it." aria-label=Tumblr><i class="fab fa-tumblr" aria-hidden=true></i></a></li><li><a class=icon href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2ftick-vs-detect-changes%2f&t=Myth%3a%20There%20is%20no%20difference%20between%20ApplicationRef.tick%28%29%20and%20ChangeDetectorRef.detectChanges%28%29" aria-label="Hacker News"><i class="fab fa-hacker-news" aria-hidden=true></i></a></li></ul></div><div id=toc><nav id=TableOfContents><ul><li><a href=#application>Application</a></li><li><a href=#the-test>The test</a></li><li><a href=#changedetectorrefdetectchanges><code>ChangeDetectorRef.detectChanges()</code></a></li><li><a href=#applicationreftick>ApplicationRef.tick()</a></li><li><a href=#summary>Summary</a></li></ul></nav></div></span></div><article class=post itemscope itemtype=http://schema.org/BlogPosting><header><h1 class=posttitle itemprop="name headline">Myth: There is no difference between ApplicationRef.tick() and ChangeDetectorRef.detectChanges()</h1><div class=meta><div class=postdate><time datetime="2022-05-21 00:00:00 +0000 UTC" itemprop=datePublished>2022-05-21</time></div></div></header><div class=content itemprop=articleBody><p>&ldquo;I use ApplicationRef.tick() because it works, and after all, there is no difference&rdquo;</p><p>Come on.
+These kinds of sentences almost always are not true.
+In this article I will show you how big difference is between <code>ApplicationRef.tick</code> and <code>ChangeDetectorRef.tick</code>.</p><p>Please remember that all my research is focused on using Angular in &ldquo;high-performance&rdquo; mode.
+For normal usage, simple webpages or small apps, there is a difference, of course,
+but I doubt that we should care about it.</p><h2 id=application>Application</h2><p>To test this myth, I wrote a simple application.
+The code you will find on my github:
+<a href=https://galczo5.github.io/experiment-angular-tick/>github.com/galczo5/experiment-angular-tick</a>.
+The application has a few components.
+On each component, you can execute two actions:</p><ul><li>tick - which calls <code>ApplicationRef.tick()</code></li><li>detectChanges - call of <code>ChangeDetectorRef.detectChanges()</code> method</li></ul><p>In addition, I&rsquo;ve added timestamp updated in an interval to visualize changes made in a component.
+It&rsquo;s a simple test to prove that change detection works.</p><p><code>noop</code> zone is provided and every component is using <code>OnPush</code> strategy.</p><div style="height:500px;width:1050px;border:1px solid #d3d3d3"><iframe style=border:0;width:100%;height:100% src=https://galczo5.github.io/experiment-angular-tick/></iframe></div><h2 id=the-test>The test</h2><p>To understand the first and the most important test in this article, you should check out the code of <code>ChildComponent</code>.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">36
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">37
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">38
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">39
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">40
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">41
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">42
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">43
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">44
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">45
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">46
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">47
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">48
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">49
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">50
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">51
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">52
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">53
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">54
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">55
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">56
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">57
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">58
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">59
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">60
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">61
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">62
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">63
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">64
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">65
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">66
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">67
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">68
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">69
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">70
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">71
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">72
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">73
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">74
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">75
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">76
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">77
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">78
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">79
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">80
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">81
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>import</span> {
+</span></span><span style=display:flex><span>  ApplicationRef,
+</span></span><span style=display:flex><span>  ChangeDetectionStrategy,
+</span></span><span style=display:flex><span>  ChangeDetectorRef,
+</span></span><span style=display:flex><span>  Component,
+</span></span><span style=display:flex><span>  DoCheck,
+</span></span><span style=display:flex><span>  Input,
+</span></span><span style=display:flex><span>  OnChanges, OnDestroy, OnInit
+</span></span><span style=display:flex><span>} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;@angular/core&#39;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {interval, Subject, takeUntil} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;rxjs&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>@Component</span>({
+</span></span><span style=display:flex><span>  selector<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;app-child&#39;</span>,
+</span></span><span style=display:flex><span>  template<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>`
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>    &lt;div style=&#34;padding: 10px; border: 1px solid;&#34;&gt;
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>      &lt;h1&gt;Child {{id}} [{{timestamp}}]&lt;/h1&gt;
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>      &lt;button (click)=&#34;tick()&#34;&gt;tick()&lt;/button&gt;
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>      &lt;button (click)=&#34;detect()&#34;&gt;detectChanges()&lt;/button&gt;
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>      &lt;hr&gt;
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>      &lt;div style=&#34;display: flex; gap: 10px;&#34;&gt;
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>        &lt;app-child style=&#34;flex-grow: 1&#34; *ngFor=&#34;let childId of childIds&#34; [id]=&#34;childId&#34;&gt;&lt;/app-child&gt;
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>      &lt;/div&gt;
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>    &lt;/div&gt;
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>  `</span>,
+</span></span><span style=display:flex><span>  changeDetection: <span style=color:#8be9fd>ChangeDetectionStrategy.OnPush</span>
+</span></span><span style=display:flex><span>})
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> ChildComponent <span style=color:#ff79c6>implements</span> OnInit, DoCheck, OnChanges, OnDestroy {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#8be9fd;font-style:italic>@Input</span>()
+</span></span><span style=display:flex><span>  id: <span style=color:#8be9fd>string</span> <span style=color:#ff79c6>|</span> <span style=color:#ff79c6>undefined</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#8be9fd;font-style:italic>@Input</span>()
+</span></span><span style=display:flex><span>  childIds: <span style=color:#8be9fd>Array</span>&lt;<span style=color:#ff79c6>string</span>&gt; <span style=color:#ff79c6>=</span> [];
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  timestamp: <span style=color:#8be9fd>number</span> <span style=color:#ff79c6>=</span> <span style=color:#bd93f9>0</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> <span style=color:#ff79c6>readonly</span> destroy$: <span style=color:#8be9fd>Subject</span>&lt;<span style=color:#ff79c6>void</span>&gt; <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> Subject&lt;<span style=color:#ff79c6>void</span>&gt;();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>constructor</span>(
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>private</span> <span style=color:#ff79c6>readonly</span> applicationRef: <span style=color:#8be9fd>ApplicationRef</span>,
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>private</span> <span style=color:#ff79c6>readonly</span> changeDetectorRef: <span style=color:#8be9fd>ChangeDetectorRef</span>
+</span></span><span style=display:flex><span>  ) {
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  tick() {
+</span></span><span style=display:flex><span>    console.log(<span style=color:#f1fa8c>&#39;tick&#39;</span>);
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>.applicationRef.tick();
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  detect() {
+</span></span><span style=display:flex><span>    console.log(<span style=color:#f1fa8c>&#39;detectChanges&#39;</span>);
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>.changeDetectorRef.detectChanges();
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ngOnInit() {
+</span></span><span style=display:flex><span>    console.log(<span style=color:#f1fa8c>&#39;ngOnInit&#39;</span>, <span style=color:#f1fa8c>&#39;ChildComponent&#39;</span>, <span style=color:#ff79c6>this</span>.id);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    interval(<span style=color:#bd93f9>1000</span>)
+</span></span><span style=display:flex><span>      .pipe(
+</span></span><span style=display:flex><span>        takeUntil(<span style=color:#ff79c6>this</span>.destroy$)
+</span></span><span style=display:flex><span>      )
+</span></span><span style=display:flex><span>      .subscribe(() <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>this</span>.timestamp <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> <span style=color:#8be9fd;font-style:italic>Date</span>().getTime();
+</span></span><span style=display:flex><span>      });
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ngOnChanges() {
+</span></span><span style=display:flex><span>    console.log(<span style=color:#f1fa8c>&#39;ngOnChanges&#39;</span>, <span style=color:#f1fa8c>&#39;ChildComponent&#39;</span>, <span style=color:#ff79c6>this</span>.id);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ngOnDestroy() {
+</span></span><span style=display:flex><span>    console.log(<span style=color:#f1fa8c>&#39;ngOnDestroy&#39;</span>, <span style=color:#f1fa8c>&#39;ChildComponent&#39;</span>, <span style=color:#ff79c6>this</span>.id);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>.destroy$.next();
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>.destroy$.complete();
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ngDoCheck() {
+</span></span><span style=display:flex><span>    console.log(<span style=color:#f1fa8c>&#39;ngDoCheck&#39;</span>, <span style=color:#f1fa8c>&#39;ChildComponent&#39;</span>, <span style=color:#ff79c6>this</span>.id);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>My testing component has some hooks implemented to print out information when hooks are executed,
+besides that we have two methods triggered by button click.
+One of them calls <code>ApplicationRef.tick()</code> and the second one calls <code>ChangeDetectorRef.detectChanges()</code>.
+This is a very simple test to verify differences between these two methods of triggering change detection.
+I want to check which one we should use when we care about performance,
+and we want to ensure that we make everything we could to make Angular apps as fast as possible.</p><p>Ok, let&rsquo;s test something.</p><p>Open the dev tools and click button <code>detectChanges</code> in the Child 3 component.
+As a result,
+you should observe a text <code>detectChanges</code> in the console of dev tools and a timestamp
+printed next to header in a component.
+The timestamp proves that the component was rendered by the change detection.
+No unnecessary hook was called.</p><p>Now, refresh the page, and click on <code>tick</code> button.
+Inside the console you should observe:</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">6
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>main.af80531c057bb360.js:1 tick
+</span></span><span style=display:flex><span>main.af80531c057bb360.js:1 ngDoCheck AppComponent
+</span></span><span style=display:flex><span>main.af80531c057bb360.js:1 ngDoCheck ChildComponent 1
+</span></span><span style=display:flex><span>main.af80531c057bb360.js:1 ngDoCheck ChildComponent 2
+</span></span><span style=display:flex><span>main.af80531c057bb360.js:1 ngDoCheck ChildComponent 3
+</span></span><span style=display:flex><span>main.af80531c057bb360.js:1 ngDoCheck ChildComponent 4
+</span></span></code></pre></td></tr></table></div></div><p>What&rsquo;s more important, again next to the header you should be able to observe timestamps again.
+The difference is that not only Child 3 component was re-rendered but also Parent and Child 2 was re-rendered too.</p><p><img src=/mythical-angular/images/tick.png alt=tick></p><p>This simply makes me sad :( I like to avoid any unnecessary functions call as you may notice from my previous posts.</p><p>To sum up, <code>ChangeDetectorRef.detectChanges()</code> is a way better option to refresh view in a single component.
+You can avoid a lot of work on browser thread, but it means that you have to know what and when you want to refresh!</p><p>It&rsquo;s time to dive in code and reveal the differences between these two methods.</p><h2 id=changedetectorrefdetectchanges><code>ChangeDetectorRef.detectChanges()</code></h2><p>My investigation
+I started by setting breakpoint in <code>ChildComponent.detect()</code> method and stepping into <code>detectChanges</code> call.
+It leads me to <code>ViewRef</code> class, it makes sense because it implements <code>ChangeDetectorRef</code>.
+Implementation of <code>detectChanges</code> method is fairly simple:</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">7
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>class</span> ViewRef$1 {
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>// ...
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>    detectChanges() {
+</span></span><span style=display:flex><span>        detectChangesInternal(<span style=color:#ff79c6>this</span>._lView[TVIEW], <span style=color:#ff79c6>this</span>._lView, <span style=color:#ff79c6>this</span>.context);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>// ...
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>}
+</span></span></code></pre></td></tr></table></div></div><p>So Angular passes some arguments related to view (component instance) to the <code>detectChangesInternal</code>,
+which is quite simple too:</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>function</span> detectChangesInternal(tView, lView, context) {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> rendererFactory <span style=color:#ff79c6>=</span> lView[RENDERER_FACTORY];
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (rendererFactory.begin)
+</span></span><span style=display:flex><span>        rendererFactory.begin();
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>try</span> {
+</span></span><span style=display:flex><span>        refreshView(tView, lView, tView.template, context);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>catch</span> (error) {
+</span></span><span style=display:flex><span>        handleError(lView, error);
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>throw</span> error;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>finally</span> {
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>if</span> (rendererFactory.end)
+</span></span><span style=display:flex><span>            rendererFactory.end();
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>Again, we pass some arguments to the next function called <code>refresView</code>.
+BTW, remember that <code>tView.template</code> is not a string containing the HTML markup of the view.
+It&rsquo;s a function that&rsquo;s processing components state, and at the end of the process it will produce the HTML elements.</p><p>In my case, it looks like:</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>function</span> ChildComponent_Template(rf, ctx) {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (rf <span style=color:#ff79c6>&amp;</span> <span style=color:#bd93f9>1</span>) {
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵelementStart&#34;</span>](<span style=color:#bd93f9>0</span>, <span style=color:#f1fa8c>&#34;div&#34;</span>, <span style=color:#bd93f9>0</span>)(<span style=color:#bd93f9>1</span>, <span style=color:#f1fa8c>&#34;h1&#34;</span>);
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵtext&#34;</span>](<span style=color:#bd93f9>2</span>);
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵelementEnd&#34;</span>]();
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵelementStart&#34;</span>](<span style=color:#bd93f9>3</span>, <span style=color:#f1fa8c>&#34;button&#34;</span>, <span style=color:#bd93f9>1</span>);
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵlistener&#34;</span>](<span style=color:#f1fa8c>&#34;click&#34;</span>, <span style=color:#8be9fd;font-style:italic>function</span> ChildComponent_Template_button_click_3_listener() {
+</span></span><span style=display:flex><span>            <span style=color:#ff79c6>return</span> ctx.tick();
+</span></span><span style=display:flex><span>        });
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵtext&#34;</span>](<span style=color:#bd93f9>4</span>, <span style=color:#f1fa8c>&#34;tick()&#34;</span>);
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵelementEnd&#34;</span>]();
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵelementStart&#34;</span>](<span style=color:#bd93f9>5</span>, <span style=color:#f1fa8c>&#34;button&#34;</span>, <span style=color:#bd93f9>1</span>);
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵlistener&#34;</span>](<span style=color:#f1fa8c>&#34;click&#34;</span>, <span style=color:#8be9fd;font-style:italic>function</span> ChildComponent_Template_button_click_5_listener() {
+</span></span><span style=display:flex><span>            <span style=color:#ff79c6>return</span> ctx.detect();
+</span></span><span style=display:flex><span>        });
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵtext&#34;</span>](<span style=color:#bd93f9>6</span>, <span style=color:#f1fa8c>&#34;detectChanges()&#34;</span>);
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵelementEnd&#34;</span>]();
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵelement&#34;</span>](<span style=color:#bd93f9>7</span>, <span style=color:#f1fa8c>&#34;hr&#34;</span>);
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵelementStart&#34;</span>](<span style=color:#bd93f9>8</span>, <span style=color:#f1fa8c>&#34;div&#34;</span>, <span style=color:#bd93f9>2</span>);
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵtemplate&#34;</span>](<span style=color:#bd93f9>9</span>, ChildComponent_app_child_9_Template, <span style=color:#bd93f9>1</span>, <span style=color:#bd93f9>1</span>, <span style=color:#f1fa8c>&#34;app-child&#34;</span>, <span style=color:#bd93f9>3</span>);
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵelementEnd&#34;</span>]()();
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (rf <span style=color:#ff79c6>&amp;</span> <span style=color:#bd93f9>2</span>) {
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵadvance&#34;</span>](<span style=color:#bd93f9>2</span>);
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵtextInterpolate2&#34;</span>](<span style=color:#f1fa8c>&#34;Child &#34;</span>, ctx.id, <span style=color:#f1fa8c>&#34; [&#34;</span>, ctx.timestamp, <span style=color:#f1fa8c>&#34;]&#34;</span>);
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵadvance&#34;</span>](<span style=color:#bd93f9>7</span>);
+</span></span><span style=display:flex><span>        _angular_core__WEBPACK_IMPORTED_MODULE_0__[<span style=color:#f1fa8c>&#34;ɵɵproperty&#34;</span>](<span style=color:#f1fa8c>&#34;ngForOf&#34;</span>, ctx.childIds);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>I wanted to mention that to remind you that there is no magic in the Angular source code,
+and it&rsquo;s not that hard to understand it.</p><p>Ok, back to our <code>refreshView</code>, because fun begins in this function.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 36
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 37
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 38
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 39
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 40
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 41
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 42
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 43
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 44
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 45
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 46
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 47
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 48
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 49
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 50
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 51
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 52
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 53
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 54
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 55
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 56
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 57
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 58
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 59
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 60
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 61
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 62
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 63
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 64
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 65
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 66
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 67
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 68
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 69
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 70
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 71
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 72
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 73
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 74
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 75
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 76
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 77
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 78
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 79
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 80
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 81
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 82
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 83
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 84
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 85
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 86
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 87
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 88
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 89
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 90
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 91
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 92
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 93
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 94
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 95
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 96
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 97
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 98
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 99
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">100
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">101
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">102
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">103
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">104
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">105
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">106
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">107
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">108
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">109
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">110
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">111
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">112
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">113
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">114
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">115
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">116
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">117
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">118
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">119
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">120
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">121
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">122
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">123
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">124
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#6272a4>/**
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * Processes a view in update mode. This includes a number of steps in a specific order:
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * - executing a template function in update mode;
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * - executing hooks;
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * - refreshing queries;
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * - setting host bindings;
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * - refreshing child (embedded and component) views.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> */</span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>function</span> refreshView(tView, lView, templateFn, context) {
+</span></span><span style=display:flex><span>    ngDevMode <span style=color:#ff79c6>&amp;&amp;</span> assertEqual(isCreationMode(lView), <span style=color:#ff79c6>false</span>, <span style=color:#f1fa8c>&#39;Should be run in update mode&#39;</span>);
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> flags <span style=color:#ff79c6>=</span> lView[FLAGS];
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> ((flags <span style=color:#ff79c6>&amp;</span> <span style=color:#bd93f9>256</span> <span style=color:#6272a4>/* Destroyed */</span>) <span style=color:#ff79c6>===</span> <span style=color:#bd93f9>256</span> <span style=color:#6272a4>/* Destroyed */</span>)
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>return</span>;
+</span></span><span style=display:flex><span>    enterView(lView);
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>// Check no changes mode is a dev only mode used to verify that bindings have not changed
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>    <span style=color:#6272a4>// since they were assigned. We do not want to execute lifecycle hooks in that mode.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>    <span style=color:#ff79c6>const</span> isInCheckNoChangesPass <span style=color:#ff79c6>=</span> isInCheckNoChangesMode();
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>try</span> {
+</span></span><span style=display:flex><span>        resetPreOrderHookFlags(lView);
+</span></span><span style=display:flex><span>        setBindingIndex(tView.bindingStartIndex);
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>if</span> (templateFn <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span>) {
+</span></span><span style=display:flex><span>            executeTemplate(tView, lView, templateFn, <span style=color:#bd93f9>2</span> <span style=color:#6272a4>/* Update */</span>, context);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>const</span> hooksInitPhaseCompleted <span style=color:#ff79c6>=</span> (flags <span style=color:#ff79c6>&amp;</span> <span style=color:#bd93f9>3</span> <span style=color:#6272a4>/* InitPhaseStateMask */</span>) <span style=color:#ff79c6>===</span> <span style=color:#bd93f9>3</span> <span style=color:#6272a4>/* InitPhaseCompleted */</span>;
+</span></span><span style=display:flex><span>        <span style=color:#6272a4>// execute pre-order hooks (OnInit, OnChanges, DoCheck)
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>        <span style=color:#6272a4>// PERF WARNING: do NOT extract this to a separate function without running benchmarks
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>        <span style=color:#ff79c6>if</span> (<span style=color:#ff79c6>!</span>isInCheckNoChangesPass) {
+</span></span><span style=display:flex><span>            <span style=color:#ff79c6>if</span> (hooksInitPhaseCompleted) {
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>const</span> preOrderCheckHooks <span style=color:#ff79c6>=</span> tView.preOrderCheckHooks;
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>if</span> (preOrderCheckHooks <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span>) {
+</span></span><span style=display:flex><span>                    executeCheckHooks(lView, preOrderCheckHooks, <span style=color:#ff79c6>null</span>);
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>            <span style=color:#ff79c6>else</span> {
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>const</span> preOrderHooks <span style=color:#ff79c6>=</span> tView.preOrderHooks;
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>if</span> (preOrderHooks <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span>) {
+</span></span><span style=display:flex><span>                    executeInitAndCheckHooks(lView, preOrderHooks, <span style=color:#bd93f9>0</span> <span style=color:#6272a4>/* OnInitHooksToBeRun */</span>, <span style=color:#ff79c6>null</span>);
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>                incrementInitPhaseFlags(lView, <span style=color:#bd93f9>0</span> <span style=color:#6272a4>/* OnInitHooksToBeRun */</span>);
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#6272a4>// First mark transplanted views that are declared in this lView as needing a refresh at their
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>        <span style=color:#6272a4>// insertion points. This is needed to avoid the situation where the template is defined in this
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>        <span style=color:#6272a4>// `LView` but its declaration appears after the insertion component.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>        markTransplantedViewsForRefresh(lView);
+</span></span><span style=display:flex><span>        refreshEmbeddedViews(lView);
+</span></span><span style=display:flex><span>        <span style=color:#6272a4>// Content query results must be refreshed before content hooks are called.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>        <span style=color:#ff79c6>if</span> (tView.contentQueries <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span>) {
+</span></span><span style=display:flex><span>            refreshContentQueries(tView, lView);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#6272a4>// execute content hooks (AfterContentInit, AfterContentChecked)
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>        <span style=color:#6272a4>// PERF WARNING: do NOT extract this to a separate function without running benchmarks
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>        <span style=color:#ff79c6>if</span> (<span style=color:#ff79c6>!</span>isInCheckNoChangesPass) {
+</span></span><span style=display:flex><span>            <span style=color:#ff79c6>if</span> (hooksInitPhaseCompleted) {
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>const</span> contentCheckHooks <span style=color:#ff79c6>=</span> tView.contentCheckHooks;
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>if</span> (contentCheckHooks <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span>) {
+</span></span><span style=display:flex><span>                    executeCheckHooks(lView, contentCheckHooks);
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>            <span style=color:#ff79c6>else</span> {
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>const</span> contentHooks <span style=color:#ff79c6>=</span> tView.contentHooks;
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>if</span> (contentHooks <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span>) {
+</span></span><span style=display:flex><span>                    executeInitAndCheckHooks(lView, contentHooks, <span style=color:#bd93f9>1</span> <span style=color:#6272a4>/* AfterContentInitHooksToBeRun */</span>);
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>                incrementInitPhaseFlags(lView, <span style=color:#bd93f9>1</span> <span style=color:#6272a4>/* AfterContentInitHooksToBeRun */</span>);
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        processHostBindingOpCodes(tView, lView);
+</span></span><span style=display:flex><span>        <span style=color:#6272a4>// Refresh child component views.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>        <span style=color:#ff79c6>const</span> components <span style=color:#ff79c6>=</span> tView.components;
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>if</span> (components <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span>) {
+</span></span><span style=display:flex><span>            refreshChildComponents(lView, components);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#6272a4>// View queries must execute after refreshing child components because a template in this view
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>        <span style=color:#6272a4>// could be inserted in a child component. If the view query executes before child component
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>        <span style=color:#6272a4>// refresh, the template might not yet be inserted.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>        <span style=color:#ff79c6>const</span> viewQuery <span style=color:#ff79c6>=</span> tView.viewQuery;
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>if</span> (viewQuery <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span>) {
+</span></span><span style=display:flex><span>            executeViewQueryFn(<span style=color:#bd93f9>2</span> <span style=color:#6272a4>/* Update */</span>, viewQuery, context);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#6272a4>// execute view hooks (AfterViewInit, AfterViewChecked)
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>        <span style=color:#6272a4>// PERF WARNING: do NOT extract this to a separate function without running benchmarks
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>        <span style=color:#ff79c6>if</span> (<span style=color:#ff79c6>!</span>isInCheckNoChangesPass) {
+</span></span><span style=display:flex><span>            <span style=color:#ff79c6>if</span> (hooksInitPhaseCompleted) {
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>const</span> viewCheckHooks <span style=color:#ff79c6>=</span> tView.viewCheckHooks;
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>if</span> (viewCheckHooks <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span>) {
+</span></span><span style=display:flex><span>                    executeCheckHooks(lView, viewCheckHooks);
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>            <span style=color:#ff79c6>else</span> {
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>const</span> viewHooks <span style=color:#ff79c6>=</span> tView.viewHooks;
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>if</span> (viewHooks <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span>) {
+</span></span><span style=display:flex><span>                    executeInitAndCheckHooks(lView, viewHooks, <span style=color:#bd93f9>2</span> <span style=color:#6272a4>/* AfterViewInitHooksToBeRun */</span>);
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>                incrementInitPhaseFlags(lView, <span style=color:#bd93f9>2</span> <span style=color:#6272a4>/* AfterViewInitHooksToBeRun */</span>);
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>if</span> (tView.firstUpdatePass <span style=color:#ff79c6>===</span> <span style=color:#ff79c6>true</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#6272a4>// We need to make sure that we only flip the flag on successful `refreshView` only
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>            <span style=color:#6272a4>// Don&#39;t do this in `finally` block.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>            <span style=color:#6272a4>// If we did this in `finally` block then an exception could block the execution of styling
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>            <span style=color:#6272a4>// instructions which in turn would be unable to insert themselves into the styling linked
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>            <span style=color:#6272a4>// list. The result of this would be that if the exception would not be throw on subsequent CD
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>            <span style=color:#6272a4>// the styling would be unable to process it data and reflect to the DOM.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>            tView.firstUpdatePass <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>false</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#6272a4>// Do not reset the dirty state when running in check no changes mode. We don&#39;t want components
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>        <span style=color:#6272a4>// to behave differently depending on whether check no changes is enabled or not. For example:
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>        <span style=color:#6272a4>// Marking an OnPush component as dirty from within the `ngAfterViewInit` hook in order to
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>        <span style=color:#6272a4>// refresh a `NgClass` binding should work. If we would reset the dirty state in the check
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>        <span style=color:#6272a4>// no changes cycle, the component would be not be dirty for the next update pass. This would
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>        <span style=color:#6272a4>// be different in production mode where the component dirty state is not reset.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>        <span style=color:#ff79c6>if</span> (<span style=color:#ff79c6>!</span>isInCheckNoChangesPass) {
+</span></span><span style=display:flex><span>            lView[FLAGS] <span style=color:#ff79c6>&amp;=</span> <span style=color:#ff79c6>~</span>(<span style=color:#bd93f9>64</span> <span style=color:#6272a4>/* Dirty */</span> <span style=color:#ff79c6>|</span> <span style=color:#bd93f9>8</span> <span style=color:#6272a4>/* FirstLViewPass */</span>);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>if</span> (lView[FLAGS] <span style=color:#ff79c6>&amp;</span> <span style=color:#bd93f9>1024</span> <span style=color:#6272a4>/* RefreshTransplantedView */</span>) {
+</span></span><span style=display:flex><span>            lView[FLAGS] <span style=color:#ff79c6>&amp;=</span> <span style=color:#ff79c6>~</span><span style=color:#bd93f9>1024</span> <span style=color:#6272a4>/* RefreshTransplantedView */</span>;
+</span></span><span style=display:flex><span>            updateTransplantedViewCount(lView[PARENT], <span style=color:#ff79c6>-</span><span style=color:#bd93f9>1</span>);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>finally</span> {
+</span></span><span style=display:flex><span>        leaveView();
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>I&rsquo;m not going to describe every line of this function, it&rsquo;s quite complicated, but please try to analyze it.
+From point of this article, two things in this function are the most important.
+The first, the actual template refresh:</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>function</span> refreshView(tView, lView, templateFn, context) {
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>// ...
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>    <span style=color:#ff79c6>if</span> (templateFn <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span>) {
+</span></span><span style=display:flex><span>        executeTemplate(tView, lView, templateFn, <span style=color:#bd93f9>2</span> <span style=color:#6272a4>/* Update */</span>, context);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>// ...
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#6272a4>// ...
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>function</span> executeTemplate(tView, lView, templateFn, rf, context) {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> prevSelectedIndex <span style=color:#ff79c6>=</span> getSelectedIndex();
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> isUpdatePhase <span style=color:#ff79c6>=</span> rf <span style=color:#ff79c6>&amp;</span> <span style=color:#bd93f9>2</span> <span style=color:#6272a4>/* Update */</span>;
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>try</span> {
+</span></span><span style=display:flex><span>        setSelectedIndex(<span style=color:#ff79c6>-</span><span style=color:#bd93f9>1</span>);
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>if</span> (isUpdatePhase <span style=color:#ff79c6>&amp;&amp;</span> lView.length <span style=color:#ff79c6>&gt;</span> HEADER_OFFSET) {
+</span></span><span style=display:flex><span>            <span style=color:#6272a4>// When we&#39;re updating, inherently select 0 so we don&#39;t
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>            <span style=color:#6272a4>// have to generate that instruction for most update blocks.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>            selectIndexInternal(tView, lView, HEADER_OFFSET, isInCheckNoChangesMode());
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>const</span> preHookType <span style=color:#ff79c6>=</span> isUpdatePhase <span style=color:#ff79c6>?</span> <span style=color:#bd93f9>2</span> <span style=color:#6272a4>/* TemplateUpdateStart */</span> <span style=color:#ff79c6>:</span> <span style=color:#bd93f9>0</span> <span style=color:#6272a4>/* TemplateCreateStart */</span>;
+</span></span><span style=display:flex><span>        profiler(preHookType, context);
+</span></span><span style=display:flex><span>        templateFn(rf, context);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>finally</span> {
+</span></span><span style=display:flex><span>        setSelectedIndex(prevSelectedIndex);
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>const</span> postHookType <span style=color:#ff79c6>=</span> isUpdatePhase <span style=color:#ff79c6>?</span> <span style=color:#bd93f9>3</span> <span style=color:#6272a4>/* TemplateUpdateEnd */</span> <span style=color:#ff79c6>:</span> <span style=color:#bd93f9>1</span> <span style=color:#6272a4>/* TemplateCreateEnd */</span>;
+</span></span><span style=display:flex><span>        profiler(postHookType, context);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>And, the second one, is refreshing the child views.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>function</span> refreshView(tView, lView, templateFn, context) {
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>// ...
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>    refreshEmbeddedViews(lView);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>// ...
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (components <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span>) {
+</span></span><span style=display:flex><span>        refreshChildComponents(lView, components);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>// ...
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>}
+</span></span></code></pre></td></tr></table></div></div><h2 id=applicationreftick>ApplicationRef.tick()</h2><p>As you may expect, the tick method is a bit different. It has to be, because the result of the test was different, right?</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>class</span> ApplicationRef {
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>// ...
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>    tick() {
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>if</span> (<span style=color:#ff79c6>this</span>._runningTick) {
+</span></span><span style=display:flex><span>            <span style=color:#ff79c6>const</span> errorMessage <span style=color:#ff79c6>=</span> (<span style=color:#ff79c6>typeof</span> ngDevMode <span style=color:#ff79c6>===</span> <span style=color:#f1fa8c>&#39;undefined&#39;</span> <span style=color:#ff79c6>||</span> ngDevMode) <span style=color:#ff79c6>?</span>
+</span></span><span style=display:flex><span>                <span style=color:#f1fa8c>&#39;ApplicationRef.tick is called recursively&#39;</span> <span style=color:#ff79c6>:</span>
+</span></span><span style=display:flex><span>                <span style=color:#f1fa8c>&#39;&#39;</span>;
+</span></span><span style=display:flex><span>            <span style=color:#ff79c6>throw</span> <span style=color:#ff79c6>new</span> RuntimeError(<span style=color:#bd93f9>101</span> <span style=color:#6272a4>/* RECURSIVE_APPLICATION_REF_TICK */</span>, errorMessage);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>try</span> {
+</span></span><span style=display:flex><span>            <span style=color:#ff79c6>this</span>._runningTick <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>true</span>;
+</span></span><span style=display:flex><span>            <span style=color:#ff79c6>for</span> (<span style=color:#8be9fd;font-style:italic>let</span> view <span style=color:#ff79c6>of</span> <span style=color:#ff79c6>this</span>._views) {
+</span></span><span style=display:flex><span>                view.detectChanges();
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>            <span style=color:#ff79c6>if</span> (<span style=color:#ff79c6>typeof</span> ngDevMode <span style=color:#ff79c6>===</span> <span style=color:#f1fa8c>&#39;undefined&#39;</span> <span style=color:#ff79c6>||</span> ngDevMode) {
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>for</span> (<span style=color:#8be9fd;font-style:italic>let</span> view <span style=color:#ff79c6>of</span> <span style=color:#ff79c6>this</span>._views) {
+</span></span><span style=display:flex><span>                    view.checkNoChanges();
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>catch</span> (e) {
+</span></span><span style=display:flex><span>            <span style=color:#6272a4>// Attention: Don&#39;t rethrow as it could cancel subscriptions to Observables!
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>            <span style=color:#ff79c6>this</span>._zone.runOutsideAngular(() <span style=color:#ff79c6>=&gt;</span> <span style=color:#ff79c6>this</span>._exceptionHandler.handleError(e));
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>finally</span> {
+</span></span><span style=display:flex><span>            <span style=color:#ff79c6>this</span>._runningTick <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>false</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>// ...
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>}
+</span></span></code></pre></td></tr></table></div></div><p>Stop&mldr; Wait. Yes, it calls the same <code>detectChanges()</code> method on root views!
+What&rsquo;s important too, these views are implementing <code>RootViewRef</code>, so we have another difference.</p><p><img src=/mythical-angular/images/root-view-ref.png alt=tick></p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>class</span> RootViewRef <span style=color:#ff79c6>extends</span> ViewRef$1 {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>constructor</span>(_view) {
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>super</span>(_view);
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>this</span>._view <span style=color:#ff79c6>=</span> _view;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    detectChanges() {
+</span></span><span style=display:flex><span>        detectChangesInRootView(<span style=color:#ff79c6>this</span>._view);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    checkNoChanges() {
+</span></span><span style=display:flex><span>        checkNoChangesInRootView(<span style=color:#ff79c6>this</span>._view);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>get</span> context() {
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>return</span> <span style=color:#ff79c6>null</span>;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#6272a4>// ...
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>function</span> detectChangesInRootView(lView) {
+</span></span><span style=display:flex><span>    tickRootContext(lView[CONTEXT]);
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#6272a4>// ...
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>function</span> tickRootContext(rootContext) {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>for</span> (<span style=color:#8be9fd;font-style:italic>let</span> i <span style=color:#ff79c6>=</span> <span style=color:#bd93f9>0</span>; i <span style=color:#ff79c6>&lt;</span> rootContext.components.length; i<span style=color:#ff79c6>++</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>const</span> rootComponent <span style=color:#ff79c6>=</span> rootContext.components[i];
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>const</span> lView <span style=color:#ff79c6>=</span> readPatchedLView(rootComponent);
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>const</span> tView <span style=color:#ff79c6>=</span> lView[TVIEW];
+</span></span><span style=display:flex><span>        renderComponentOrTemplate(tView, lView, tView.template, rootComponent);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>So it calls <code>detectChangesInRootView</code>, which calls <code>tickRootContext</code>,
+which leads us to the <code>renderComponentOrTemplate</code> call.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>function</span> renderComponentOrTemplate(tView, lView, templateFn, context) {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> rendererFactory <span style=color:#ff79c6>=</span> lView[RENDERER_FACTORY];
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> normalExecutionPath <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>!</span>isInCheckNoChangesMode();
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> creationModeIsActive <span style=color:#ff79c6>=</span> isCreationMode(lView);
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>try</span> {
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>if</span> (normalExecutionPath <span style=color:#ff79c6>&amp;&amp;</span> <span style=color:#ff79c6>!</span>creationModeIsActive <span style=color:#ff79c6>&amp;&amp;</span> rendererFactory.begin) {
+</span></span><span style=display:flex><span>            rendererFactory.begin();
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>if</span> (creationModeIsActive) {
+</span></span><span style=display:flex><span>            renderView(tView, lView, context);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        refreshView(tView, lView, templateFn, context);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>finally</span> {
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>if</span> (normalExecutionPath <span style=color:#ff79c6>&amp;&amp;</span> <span style=color:#ff79c6>!</span>creationModeIsActive <span style=color:#ff79c6>&amp;&amp;</span> rendererFactory.end) {
+</span></span><span style=display:flex><span>            rendererFactory.end();
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>At the end, Angular calls the same <code>renderView</code> function, which will refresh the root component and its children.</p><h2 id=summary>Summary</h2><p>From this article you should learn about the differences between the <code>ChangeDetectorRef.detectChanges()</code> and <code>ApplicationRef.tick()</code> methods.
+Personally,
+I like the behaviour
+of <code>detectChanges</code> and when I precisely know which component I want to re-render I use it.
+Please remember that I very rarely use the default settings
+and <code>NgZones</code> to avoid execution of javascript code that is unnecessary to get the same result.</p><p>If you wander, yes, I know that again my article contains tons of source code from the Angular repository.
+For me, it&rsquo;s important to show you that there is no magic, that code is not that hard to understand.</p><p><img src=/mythical-angular/images/trust-the-code.png alt=tick></p></div></article><div id=footer-post-container><div id=footer-post><div id=nav-footer style=display:none><ul><li><a href=/mythical-angular/>Home</a></li><li><a href=/mythical-angular/posts>All posts</a></li><li><a href=/mythical-angular/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></div><div id=toc-footer style=display:none><nav id=TableOfContents><ul><li><a href=#application>Application</a></li><li><a href=#the-test>The test</a></li><li><a href=#changedetectorrefdetectchanges><code>ChangeDetectorRef.detectChanges()</code></a></li><li><a href=#applicationreftick>ApplicationRef.tick()</a></li><li><a href=#summary>Summary</a></li></ul></nav></div><div id=share-footer style=display:none><ul><li><a class=icon href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2ftick-vs-detect-changes%2f" aria-label=Facebook><i class="fab fa-facebook fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://twitter.com/share?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2ftick-vs-detect-changes%2f&text=Myth%3a%20There%20is%20no%20difference%20between%20ApplicationRef.tick%28%29%20and%20ChangeDetectorRef.detectChanges%28%29" aria-label=Twitter><i class="fab fa-twitter fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2ftick-vs-detect-changes%2f&title=Myth%3a%20There%20is%20no%20difference%20between%20ApplicationRef.tick%28%29%20and%20ChangeDetectorRef.detectChanges%28%29" aria-label=Linkedin><i class="fab fa-linkedin fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2ftick-vs-detect-changes%2f&is_video=false&description=Myth%3a%20There%20is%20no%20difference%20between%20ApplicationRef.tick%28%29%20and%20ChangeDetectorRef.detectChanges%28%29" aria-label=Pinterest><i class="fab fa-pinterest fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="mailto:?subject=Myth%3a%20There%20is%20no%20difference%20between%20ApplicationRef.tick%28%29%20and%20ChangeDetectorRef.detectChanges%28%29&body=Check out this article: https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2ftick-vs-detect-changes%2f" aria-label=Email><i class="fas fa-envelope fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://getpocket.com/save?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2ftick-vs-detect-changes%2f&title=Myth%3a%20There%20is%20no%20difference%20between%20ApplicationRef.tick%28%29%20and%20ChangeDetectorRef.detectChanges%28%29" aria-label=Pocket><i class="fab fa-get-pocket fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="http://reddit.com/submit?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2ftick-vs-detect-changes%2f&title=Myth%3a%20There%20is%20no%20difference%20between%20ApplicationRef.tick%28%29%20and%20ChangeDetectorRef.detectChanges%28%29" aria-label=reddit><i class="fab fa-reddit fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="http://www.tumblr.com/share/link?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2ftick-vs-detect-changes%2f&name=Myth%3a%20There%20is%20no%20difference%20between%20ApplicationRef.tick%28%29%20and%20ChangeDetectorRef.detectChanges%28%29&description=%26ldquo%3bI%20use%20ApplicationRef.tick%28%29%20because%20it%20works%2c%20and%20after%20all%2c%20there%20is%20no%20difference%26rdquo%3b%0aCome%20on.%20These%20kinds%20of%20sentences%20almost%20always%20are%20not%20true.%20In%20this%20article%20I%20will%20show%20you%20how%20big%20difference%20is%20between%20ApplicationRef.tick%20and%20ChangeDetectorRef.tick.%0aPlease%20remember%20that%20all%20my%20research%20is%20focused%20on%20using%20Angular%20in%20%26ldquo%3bhigh-performance%26rdquo%3b%20mode.%20For%20normal%20usage%2c%20simple%20webpages%20or%20small%20apps%2c%20there%20is%20a%20difference%2c%20of%20course%2c%20but%20I%20doubt%20that%20we%20should%20care%20about%20it." aria-label=Tumblr><i class="fab fa-tumblr fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2ftick-vs-detect-changes%2f&t=Myth%3a%20There%20is%20no%20difference%20between%20ApplicationRef.tick%28%29%20and%20ChangeDetectorRef.detectChanges%28%29" aria-label="Hacker News"><i class="fab fa-hacker-news fa-lg" aria-hidden=true></i></a></li></ul></div><div id=actions-footer><a id=menu-toggle class=icon href=# onclick="return $('#nav-footer').toggle(),!1" aria-label=Menu><i class="fas fa-bars fa-lg" aria-hidden=true></i> Menu</a>
+<a id=toc-toggle class=icon href=# onclick="return $('#toc-footer').toggle(),!1" aria-label=TOC><i class="fas fa-list fa-lg" aria-hidden=true></i> TOC</a>
+<a id=share-toggle class=icon href=# onclick="return $('#share-footer').toggle(),!1" aria-label=Share><i class="fas fa-share-alt fa-lg" aria-hidden=true></i> share</a>
+<a id=top style=display:none class=icon href=# onclick="$('html, body').animate({scrollTop:0},'fast')" aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg" aria-hidden=true></i> Top</a></div></div></div><footer id=footer><div class=footer-left>Copyright &copy; 2022 Kamil Gałek</div><div class=footer-right><nav><ul><li><a href=/mythical-angular/>Home</a></li><li><a href=/mythical-angular/posts>All posts</a></li><li><a href=/mythical-angular/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></nav></div></footer></div></body><link rel=stylesheet href=/mythical-angular/lib/font-awesome/css/all.min.css><script src=/mythical-angular/lib/jquery/jquery.min.js></script>
+<script src=/mythical-angular/js/main.js></script>
+<script src=/mythical-angular/js/code-copy.js></script></html>
