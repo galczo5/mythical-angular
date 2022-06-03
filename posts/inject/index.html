@@ -1,0 +1,289 @@
+<!doctype html><html lang=en-us><head><link rel=preload href=/mythical-angular/lib/font-awesome/webfonts/fa-brands-400.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=preload href=/mythical-angular/lib/font-awesome/webfonts/fa-regular-400.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=preload href=/mythical-angular/lib/font-awesome/webfonts/fa-solid-900.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=preload href=/mythical-angular/lib/JetBrainsMono/web/woff2/JetBrainsMono-Regular.woff2 as=font type=font/woff2 crossorigin=anonymous><script type=text/javascript src=https://latest.cactus.chat/cactus.js></script>
+<link rel=stylesheet href=https://latest.cactus.chat/style.css type=text/css><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><title>Angular 14 `inject()` implementation analysis | Mythical Angular</title><link rel=canonical href=https://galczo5.github.io/mythical-angular/posts/inject/><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="all,follow"><meta name=googlebot content="index,follow,snippet,archive"><meta property="og:title" content="Angular 14 `inject()` implementation analysis"><meta property="og:description" content="Angular 14 brings us a very cool feature, function which we can use to inject our dependencies. First time, I read about it in an article written by Netanel Basal. It looked very cool and a little mysterious. Now, when Angular 14 is officially released, we can check how it works and how they implemented it.
+In the article, Netanel described inject() interesting behaviour:
+First, inject() can only be called in the constructor, so we can’t leverage a component’s inputs."><meta property="og:type" content="article"><meta property="og:url" content="https://galczo5.github.io/mythical-angular/posts/inject/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-06-03T00:00:00+00:00"><meta property="article:modified_time" content="2022-06-03T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Angular 14 `inject()` implementation analysis"><meta name=twitter:description content="Angular 14 brings us a very cool feature, function which we can use to inject our dependencies. First time, I read about it in an article written by Netanel Basal. It looked very cool and a little mysterious. Now, when Angular 14 is officially released, we can check how it works and how they implemented it.
+In the article, Netanel described inject() interesting behaviour:
+First, inject() can only be called in the constructor, so we can’t leverage a component’s inputs."><link rel=stylesheet href=https://galczo5.github.io/mythical-angular/css/styles.94f653e9e151e28067a7c5dbbc4600cbd5a3c721e79faaf971e523c40f3b249b8e4f20bb57810dfffa8d559ca5c140fd56eb4cd9c0853113ad08e66afdb08bdd.css integrity="sha512-lPZT6eFR4oBnp8XbvEYAy9WjxyHnn6r5ceUjxA87JJuOTyC7V4EN//qNVZylwUD9VutM2cCFMROtCOZq/bCL3Q=="><link rel=stylesheet href=https://galczo5.github.io/mythical-angular/css/custom.css><!--[if lt IE 9]><script src=https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js></script>
+<script src=https://oss.maxcdn.com/respond/1.4.2/respond.min.js></script><![endif]--><link rel=icon type=image/png href=https://galczo5.github.io/mythical-angular/images/favicon.ico></head><body class="max-width mx-auto px3 ltr"><div class="content index py4"><header id=header><a href=https://galczo5.github.io/mythical-angular><div id=logo style=background-image:url(https://galczo5.github.io/mythical-angular/logo.jpeg)></div><div id=title><h1>Mythical Angular</h1></div></a><div id=nav><ul><li class=icon><a href=# aria-label=Menu><i class="fas fa-bars fa-2x" aria-hidden=true></i></a></li><li><a href=/mythical-angular/>Home</a></li><li><a href=/mythical-angular/posts>All posts</a></li><li><a href=/mythical-angular/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></div></header><article class=post itemscope itemtype=http://schema.org/BlogPosting><header><h1 class=posttitle itemprop="name headline">Angular 14 `inject()` implementation analysis</h1><div class=meta><div class=postdate><time datetime="2022-06-03 00:00:00 +0000 UTC" itemprop=datePublished>2022-06-03</time></div></div></header><div class=content itemprop=articleBody><p>Angular 14 brings us a very cool feature, function which we can use to inject our dependencies.
+First time,
+I read about it in <a href=https://netbasal.com/unleash-the-power-of-di-functions-in-angular-2eb9f2697d66>an article
+written by Netanel Basal</a>.
+It looked very cool and a little mysterious.
+Now, when Angular 14 is officially released, we can check how it works and how they implemented it.</p><p>In the article, Netanel described <code>inject()</code> interesting behaviour:</p><blockquote><p>First, inject() can only be called in the constructor, so we can’t leverage a component’s inputs. We can work around it by using closures, but did we gain anything?</p></blockquote><p>I&rsquo;ll try to explain why it works only during component construction.</p><h2 id=investigation>Investigation</h2><p>My work today I&rsquo;m starting with generating a basic app, adding new injectable to it and modifying <code>AppComponent</code>.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">36
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#6272a4>// app.component.ts
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {Component, inject} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;@angular/core&#39;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {TestService} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;./test.service&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>@Component</span>({
+</span></span><span style=display:flex><span>  selector<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;app-root&#39;</span>,
+</span></span><span style=display:flex><span>  template<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>`
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>    &lt;h1&gt;Parent [{{ service.method() }}]&lt;/h1&gt;
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>  `</span>
+</span></span><span style=display:flex><span>})
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> AppComponent {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  service<span style=color:#ff79c6>!:</span> TestService;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>constructor</span>() {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>.service <span style=color:#ff79c6>=</span> inject(TestService);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#6272a4>// test.service.ts
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> { Injectable } <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;@angular/core&#39;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>@Injectable</span>({
+</span></span><span style=display:flex><span>    providedIn<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;root&#39;</span>
+</span></span><span style=display:flex><span>})
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> TestService {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>constructor</span>() {
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    method()<span style=color:#ff79c6>:</span> <span style=color:#8be9fd>string</span> {
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>return</span> <span style=color:#f1fa8c>&#39;OK&#39;</span>;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>Nothing special, but it&rsquo;s enough to check how it works.</p><p>Before you start, I would recommend disabling the javascript source maps in your browser;
+for me, it was a lot easier to mess around with the code without maps.
+If you don&rsquo;t want to do it, I&rsquo;m going to paste the source code anyway, so no worries.</p><p>To investigate <code>inject()</code> function I set a breakpoint in constructor of my <code>AppComponent</code> and I stepped
+into using debugger.
+I found this:</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>function</span> inject(token, flags<span style=color:#ff79c6>=</span>InjectFlags.Default) {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> ɵɵinject(token, flags);
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>So to check it, we have to follow <code>ɵɵinject</code> function.
+It&rsquo;s not a very complicated code,
+we have a variable that contains current inject implementation and getter/setter for it.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>function</span> ɵɵinject(token, flags<span style=color:#ff79c6>=</span>InjectFlags.Default) {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> (getInjectImplementation() <span style=color:#ff79c6>||</span> injectInjectorOnly)(resolveForwardRef(token), flags);
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#6272a4>// ...
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>
+</span></span><span style=display:flex><span><span style=color:#6272a4>/**
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * Current implementation of inject.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * By default, it is `injectInjectorOnly`, which makes it `Injector`-only aware. It can be changed
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * to `directiveInject`, which brings in the `NodeInjector` system of ivy. It is designed this
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * way for two reasons:
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> *  1. `Injector` should not depend on ivy logic.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> *  2. To maintain tree shake-ability we don&#39;t want to bring in unnecessary code.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> */</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>let</span> _injectImplementation;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>function</span> getInjectImplementation() {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> _injectImplementation;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#6272a4>/**
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * Sets the current inject implementation.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> */</span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>function</span> setInjectImplementation(impl) {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> previous <span style=color:#ff79c6>=</span> _injectImplementation;
+</span></span><span style=display:flex><span>    _injectImplementation <span style=color:#ff79c6>=</span> impl;
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> previous;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>In my case I got the <code>ɵɵdirectiveInject</code> implementation,
+and it looks ok, because component in Angular extends directive.
+This function is very important, so please try to understand it.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>function</span> ɵɵdirectiveInject(token, flags<span style=color:#ff79c6>=</span>InjectFlags.Default) {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> lView <span style=color:#ff79c6>=</span> getLView();
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>// Fall back to inject() if view hasn&#39;t been created. This situation can happen in tests
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>    <span style=color:#6272a4>// if inject utilities are used before bootstrapping.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (lView <span style=color:#ff79c6>===</span> <span style=color:#ff79c6>null</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#6272a4>// Verify that we will not get into infinite loop.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>        ngDevMode <span style=color:#ff79c6>&amp;&amp;</span> assertInjectImplementationNotEqual(ɵɵdirectiveInject);
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>return</span> ɵɵinject(token, flags);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> tNode <span style=color:#ff79c6>=</span> getCurrentTNode();
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> getOrCreateInjectable(tNode, lView, resolveForwardRef(token), flags);
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>First, <code>ɵɵdirectiveInject</code> reach for two values <code>lView</code> and <code>tNode</code>.
+These properties are necessary to execute <code>getOrCreateInjectable</code> function.
+Both values are strongly connected the currently processed view.
+It creates a context for DI, so Angular knows in what place in view tree we are trying to inject something.
+And both <code>getLView()</code> and <code>getCurrentTNode()</code> functions are quite simple.
+Both of them get the necessary values from <code>instructionState.lFrame.</code>,
+and this value is set by <code>enterView()</code> function
+you might know from my previous post about differences between <code>ApplicationRef.tick()</code> and <code>ChangeDetectorRef.detectChanges()</code>.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>function</span> getLView() {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> instructionState.lFrame.lView;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#6272a4>// ...
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>function</span> getCurrentTNode() {
+</span></span><span style=display:flex><span>    <span style=color:#8be9fd;font-style:italic>let</span> currentTNode <span style=color:#ff79c6>=</span> getCurrentTNodePlaceholderOk();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>while</span> (currentTNode <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span> <span style=color:#ff79c6>&amp;&amp;</span> currentTNode.<span style=color:#ff79c6>type</span> <span style=color:#ff79c6>===</span> <span style=color:#bd93f9>64</span> <span style=color:#6272a4>/* TNodeType.Placeholder */</span>
+</span></span><span style=display:flex><span>        ) {
+</span></span><span style=display:flex><span>        currentTNode <span style=color:#ff79c6>=</span> currentTNode.parent;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> currentTNode;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>function</span> getCurrentTNodePlaceholderOk() {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> instructionState.lFrame.currentTNode;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>Second. The only missing part is the code of <code>getOrCreateInjectable()</code> function.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>function</span> getOrCreateInjectable(tNode, lView, token, flags<span style=color:#ff79c6>=</span>InjectFlags.Default, notFoundValue) {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (tNode <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#6272a4>// If the view or any of its ancestors have an embedded
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>        <span style=color:#6272a4>// view injector, we have to look it up there first.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>        <span style=color:#ff79c6>if</span> (lView[FLAGS] <span style=color:#ff79c6>&amp;</span> <span style=color:#bd93f9>1024</span> <span style=color:#6272a4>/* LViewFlags.HasEmbeddedViewInjector */</span>
+</span></span><span style=display:flex><span>        ) {
+</span></span><span style=display:flex><span>            <span style=color:#ff79c6>const</span> embeddedInjectorValue <span style=color:#ff79c6>=</span> lookupTokenUsingEmbeddedInjector(tNode, lView, token, flags, NOT_FOUND);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#ff79c6>if</span> (embeddedInjectorValue <span style=color:#ff79c6>!==</span> NOT_FOUND) {
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>return</span> embeddedInjectorValue;
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#6272a4>// Otherwise try the node injector.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>const</span> value <span style=color:#ff79c6>=</span> lookupTokenUsingNodeInjector(tNode, lView, token, flags, NOT_FOUND);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>if</span> (value <span style=color:#ff79c6>!==</span> NOT_FOUND) {
+</span></span><span style=display:flex><span>            <span style=color:#ff79c6>return</span> value;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>// Finally, fall back to the module injector.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> lookupTokenUsingModuleInjector(lView, token, flags, notFoundValue);
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>I bet you know what this code does. It&rsquo;s trying to find a <code>Injector</code> instance and get the desired Injectable.</p><p>I know that it&rsquo;s crazy and complicated. I decided to use here a huge simplification to describe it:</p><ol><li>When Angular is building a view, it enters it</li><li>This operation sets the current &ldquo;context&rdquo;</li><li>Having that context, Angular is able to access a <code>Injector</code> instance</li><li>From <code>Injector</code> we can get the service</li></ol><h2 id=summary>Summary</h2><p>If you don&rsquo;t know it already, we can use <code>inject()</code> function because the &ldquo;context&rdquo; has to be set.
+Something has to &ldquo;enter&rdquo; the component, and when we do other operations like event listeners that part is missing.
+That&rsquo;s why for now, <code>inject()</code> can only be called in the constructor.</p><p>Personally, event with this limitation, I think that it&rsquo;s a very cool feature.
+It simplifies visual style of the code and makes it more readable.</p></div></article><div id=footer-post-container><div id=footer-post><div id=nav-footer style=display:none><ul><li><a href=/mythical-angular/>Home</a></li><li><a href=/mythical-angular/posts>All posts</a></li><li><a href=/mythical-angular/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></div><div id=toc-footer style=display:none><nav id=TableOfContents><ul><li><a href=#investigation>Investigation</a></li><li><a href=#summary>Summary</a></li></ul></nav></div><div id=share-footer style=display:none><ul><li><a class=icon href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2finject%2f" aria-label=Facebook><i class="fab fa-facebook fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://twitter.com/share?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2finject%2f&text=Angular%2014%20%60inject%28%29%60%20implementation%20analysis" aria-label=Twitter><i class="fab fa-twitter fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2finject%2f&title=Angular%2014%20%60inject%28%29%60%20implementation%20analysis" aria-label=Linkedin><i class="fab fa-linkedin fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2finject%2f&is_video=false&description=Angular%2014%20%60inject%28%29%60%20implementation%20analysis" aria-label=Pinterest><i class="fab fa-pinterest fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="mailto:?subject=Angular%2014%20%60inject%28%29%60%20implementation%20analysis&body=Check out this article: https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2finject%2f" aria-label=Email><i class="fas fa-envelope fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://getpocket.com/save?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2finject%2f&title=Angular%2014%20%60inject%28%29%60%20implementation%20analysis" aria-label=Pocket><i class="fab fa-get-pocket fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="http://reddit.com/submit?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2finject%2f&title=Angular%2014%20%60inject%28%29%60%20implementation%20analysis" aria-label=reddit><i class="fab fa-reddit fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="http://www.tumblr.com/share/link?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2finject%2f&name=Angular%2014%20%60inject%28%29%60%20implementation%20analysis&description=Angular%2014%20brings%20us%20a%20very%20cool%20feature%2c%20function%20which%20we%20can%20use%20to%20inject%20our%20dependencies.%20First%20time%2c%20I%20read%20about%20it%20in%20an%20article%20written%20by%20Netanel%20Basal.%20It%20looked%20very%20cool%20and%20a%20little%20mysterious.%20Now%2c%20when%20Angular%2014%20is%20officially%20released%2c%20we%20can%20check%20how%20it%20works%20and%20how%20they%20implemented%20it.%0aIn%20the%20article%2c%20Netanel%20described%20inject%28%29%20interesting%20behaviour%3a%0aFirst%2c%20inject%28%29%20can%20only%20be%20called%20in%20the%20constructor%2c%20so%20we%20can%e2%80%99t%20leverage%20a%20component%e2%80%99s%20inputs." aria-label=Tumblr><i class="fab fa-tumblr fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2finject%2f&t=Angular%2014%20%60inject%28%29%60%20implementation%20analysis" aria-label="Hacker News"><i class="fab fa-hacker-news fa-lg" aria-hidden=true></i></a></li></ul></div><div id=actions-footer><a id=menu-toggle class=icon href=# onclick="return $('#nav-footer').toggle(),!1" aria-label=Menu><i class="fas fa-bars fa-lg" aria-hidden=true></i> Menu</a>
+<a id=toc-toggle class=icon href=# onclick="return $('#toc-footer').toggle(),!1" aria-label=TOC><i class="fas fa-list fa-lg" aria-hidden=true></i> TOC</a>
+<a id=share-toggle class=icon href=# onclick="return $('#share-footer').toggle(),!1" aria-label=Share><i class="fas fa-share-alt fa-lg" aria-hidden=true></i> share</a>
+<a id=top style=display:none class=icon href=# onclick="$('html, body').animate({scrollTop:0},'fast')" aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg" aria-hidden=true></i> Top</a></div></div></div><footer id=footer><div class=footer-left>Copyright &copy; 2022 Kamil Gałek</div><div class=footer-right><nav><ul><li><a href=/mythical-angular/>Home</a></li><li><a href=/mythical-angular/posts>All posts</a></li><li><a href=/mythical-angular/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></nav></div></footer></div></body><link rel=stylesheet href=/mythical-angular/lib/font-awesome/css/all.min.css><script src=/mythical-angular/lib/jquery/jquery.min.js></script>
+<script src=/mythical-angular/js/main.js></script>
+<script src=/mythical-angular/js/code-copy.js></script></html>
