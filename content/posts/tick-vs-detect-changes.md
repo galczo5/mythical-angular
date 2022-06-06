@@ -533,7 +533,7 @@ of `detectChanges` and when I precisely know which component I want to re-render
 Please remember that I very rarely use the default settings
 and `NgZones` to avoid execution of javascript code that is unnecessary to get the same result. 
 
-If you wander, yes, I know that again my article contains tons of source code from the Angular repository.
+If you wonder, yes, I know that again my article contains tons of source code from the Angular repository.
 For me, it's important to show you that there is no magic, that code is not that hard to understand.
 
 ![tick](/mythical-angular/images/trust-the-code.png)
