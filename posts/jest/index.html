@@ -1,0 +1,385 @@
+<!doctype html><html lang=en-us><head><link rel=preload href=/mythical-angular/lib/font-awesome/webfonts/fa-brands-400.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=preload href=/mythical-angular/lib/font-awesome/webfonts/fa-regular-400.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=preload href=/mythical-angular/lib/font-awesome/webfonts/fa-solid-900.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=preload href=/mythical-angular/lib/JetBrainsMono/web/woff2/JetBrainsMono-Regular.woff2 as=font type=font/woff2 crossorigin=anonymous><script type=text/javascript src=https://latest.cactus.chat/cactus.js></script>
+<link rel=stylesheet href=https://latest.cactus.chat/style.css type=text/css><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><title>esbuild against TestBed | Mythical Angular</title><link rel=canonical href=https://galczo5.github.io/mythical-angular/posts/jest/><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="all,follow"><meta name=googlebot content="index,follow,snippet,archive"><meta property="og:title" content="esbuild against TestBed"><meta property="og:description" content="Isn&rsquo;t the unit testing the most basic technique and one of the more important aspects of programing these days? During my days as a .NET developer, I learned a few things about unit testing:
+Unit tests have to be FAST. If they are not fast, you&rsquo;re going to be irritated, and you&rsquo;ll waste a lot of time. You have to ISOLATE your unit tests from the source code. If not, changes in the source code may affect tests and change the requirement behind the test."><meta property="og:type" content="article"><meta property="og:url" content="https://galczo5.github.io/mythical-angular/posts/jest/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-07-24T00:00:00+00:00"><meta property="article:modified_time" content="2022-07-24T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="esbuild against TestBed"><meta name=twitter:description content="Isn&rsquo;t the unit testing the most basic technique and one of the more important aspects of programing these days? During my days as a .NET developer, I learned a few things about unit testing:
+Unit tests have to be FAST. If they are not fast, you&rsquo;re going to be irritated, and you&rsquo;ll waste a lot of time. You have to ISOLATE your unit tests from the source code. If not, changes in the source code may affect tests and change the requirement behind the test."><link rel=stylesheet href=https://galczo5.github.io/mythical-angular/css/styles.94f653e9e151e28067a7c5dbbc4600cbd5a3c721e79faaf971e523c40f3b249b8e4f20bb57810dfffa8d559ca5c140fd56eb4cd9c0853113ad08e66afdb08bdd.css integrity="sha512-lPZT6eFR4oBnp8XbvEYAy9WjxyHnn6r5ceUjxA87JJuOTyC7V4EN//qNVZylwUD9VutM2cCFMROtCOZq/bCL3Q=="><link rel=stylesheet href=https://galczo5.github.io/mythical-angular/css/custom.css><!--[if lt IE 9]><script src=https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js></script>
+<script src=https://oss.maxcdn.com/respond/1.4.2/respond.min.js></script><![endif]--><link rel=icon type=image/png href=https://galczo5.github.io/mythical-angular/images/favicon.ico></head><body class="max-width mx-auto px3 ltr"><div class="content index py4"><header id=header><a href=https://galczo5.github.io/mythical-angular><div id=logo style=background-image:url(https://galczo5.github.io/mythical-angular/logo.jpeg)></div><div id=title><h1>Mythical Angular</h1></div></a><div id=nav><ul><li class=icon><a href=# aria-label=Menu><i class="fas fa-bars fa-2x" aria-hidden=true></i></a></li><li><a href=/mythical-angular/>Home</a></li><li><a href=/mythical-angular/posts>All posts</a></li><li><a href=/mythical-angular/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></div></header><article class=post itemscope itemtype=http://schema.org/BlogPosting><header><h1 class=posttitle itemprop="name headline">esbuild against TestBed</h1><div class=meta><div class=postdate><time datetime="2022-07-24 00:00:00 +0000 UTC" itemprop=datePublished>2022-07-24</time></div></div></header><div class=content itemprop=articleBody><p>Isn&rsquo;t the unit testing the most basic technique and one of the more important aspects of programing these days?
+During my days as a .NET developer, I learned a few things about unit testing:</p><ol><li>Unit tests have to be <strong>FAST</strong>. If they are not fast, you&rsquo;re going to be irritated, and you&rsquo;ll waste a lot of time.</li><li>You have to <strong>ISOLATE</strong> your unit tests from the source code. If not, changes in the source code may affect tests and change the requirement behind the test.</li><li>Tests have to be <strong>REPEATABLE</strong>. No need to explain, random tests are not trustworthy.</li><li>You shouldn&rsquo;t have to check the code manually. Tests should be <strong>SELF-VALIDATING</strong>. If you have to check it manually even after a unit testing end, there is no reason to worry about unit tests.</li><li>Tests should be <strong>THOROUGH</strong>. If not, again, there is no reason to write them.</li></ol><p>All of these rules are known as F.I.R.S.T. principles of unit testing.
+These rules are pretty obvious and easy to understand.</p><p>Unfortunately, I have a problem with unit testing in Angular.
+The default stack is using Karma as a test runner,
+so the test code is compiled, transpiled to JS,
+after that is being sent to the new instance of the browser and then executed.
+A lot of things can go wrong.
+For example, the browser may crash during the tests, and boom, tests are not repeatable.
+Another example, we have to compile the Angular code, and it&rsquo;s not fast at all.
+Don&rsquo;t believe me&mldr;?
+Just compare how fun, and fast is having a project in Vite.</p><p>We all know that Karma is not the only option.
+For example, in NX projects, the default runner is Jest.
+The test code looks almost the same, but instead of running in the browser it&rsquo;s executed in NodeJS.
+In my opinion and experience, it&rsquo;s more stable.
+There&rsquo;s still a problem with running time.
+We still need to transpile TypeScript to JavaScript.
+And without caches, with cold start, it&rsquo;s a very time-consuming process.</p><p>I don&rsquo;t want to discuss and describe in this article why the Angular building is slower than Vite, SWC or esbuild.
+I just want to mention that for now, we cannot change it that easily,
+and probably, we need to wait for the move from the Angular team.</p><p>The situation is not very positive for us, Angular developers.
+I&rsquo;m still looking for the best way of not only writing but also running the unit tests.
+Please remember, that probably, it&rsquo;s not that important when you have a few or even a dozens of tests.
+As always, my perspective is based on the huge, enterprise scale apps,
+where the Angular framework is a very good choice.
+So instead of dozens of tests, we have tens of thousands of tests to run, and we want to run them as often as possible.
+In the perfect world, we want to run all tests on every commit.</p><p>Why am I writing this article?</p><p>I think that there is a new possibility to avoid time-consuming tests.
+I was able to run Angular tests in Jest using a custom transformer that is using esbuild under the hood.
+It was much faster than the default configuration from NX, but there is a sacrifice too.
+You cannot use the <code>TestBed</code> helper.</p><p>Sounds scary.</p><p>I&rsquo;m constantly thinking about it, and every second I&rsquo;m closer to say that you want to get rid of <code>TestBed</code> anyway.
+Unit testing is about testing &ldquo;units&rdquo;, and it&rsquo;s not strictly defined term.
+No one ever said that &ldquo;unit&rdquo; has to be 100 lines long file, containing only one class, etc.
+In frontend, we very often assume that &ldquo;unit&rdquo; in our case is the whole component.
+In other words, a component is the business logic attached to the view, that can be rendered and interact with a user.</p><p><code>TestBed</code> helps us to create components and their dependencies.
+If we stop using the <code>TestBed</code>, we have to handle this problem manually,
+using constructors and what&rsquo;s more problematic we cannot test the views
+(in Angular, might be different in other frameworks).
+Without this helper, &ldquo;unit&rdquo; is smaller.
+I assume that smaller units should be easier to test.
+So at the end, maybe not having the <code>TestBed</code> is a good thing.
+We can test visual part of the components using different types of tests, like e2e or storybook tests.
+BTW. In Jest we don&rsquo;t have a real browser, so there is no actual rendering.</p><p>There is another problem that I have with <code>TestBed</code>.
+It&rsquo;s very easy to mess it up, and very often are written more like integration tests than unit tests.
+We can always say that it all depends on the developer,
+and if the developer writes bad code, it&rsquo;s not the framework concern.
+I strongly disagree with the sentences like this.
+If it&rsquo;s very easy to make mistakes, and it was designed to be used by a lot of people, there always be messed-up code.
+It&rsquo;s like creating two buttons, both red, without labels,
+and information in the header says that left one is for deleting and the right one is cancel action.
+If a framework ensures that you are not able to make simple mistakes, there is no way that you will make these mistakes.
+It&rsquo;s a very intuitive way of thinking, so maybe I will show you what I did with the esbuild.</p><h2 id=what-i-did>What I did</h2><p>Not so long ago, I was thinking about the duration of the tests in Jest,
+and I realized that I have quite complicated tests, with multiple dependencies.</p><p><img src=/mythical-angular/images/esbuild.png alt=tick></p><p>For some time,
+I knew that Angular CLI is not a very fast solution of bundling and newer bundlers like esbuild are much faster.
+I even had a talk on Devoxx 2021 in Kraków about it.
+I knew also
+that there was <a href=https://github.com/cherryApp/ngc-esbuild>ngc-esbuild</a>
+that is trying using esbuild to run the Angular app.
+I tried to use it, but it&rsquo;s not working with more complicated apps.
+I had problems in the runtime in the browser, but the building process was really fast.
+The author of ngc-esbuild says that it&rsquo;s 50 times faster than Angular CLI, and I think that it might be possible.</p><p>It&rsquo;s maybe not ready to run the whole application,
+but it looks that it&rsquo;s able to build a small part and run it as a unit test.</p><p>I tried to use esbuild transformer in Jest, but for some reason it had some problems with <code>@Injectable</code> decorator.
+So, I decided to write my own, custom, transformer to solve the problem.
+I thought that I could check how ngc-esbuild is solving the same difficulties,
+but at the end there was no need to do the same.</p><p>All the code
+you will find in the <a href=https://github.com/galczo5/ng-esbuild-transformer>ng-esbuild-transformer GitHub repository</a>.
+It&rsquo;s published in the npm, and you can easily try it on your repository.
+It&rsquo;s not production ready, so you do it at your own risk.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 36
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 37
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 38
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 39
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 40
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 41
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 42
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 43
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 44
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 45
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 46
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 47
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 48
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 49
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 50
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 51
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 52
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 53
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 54
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 55
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 56
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 57
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 58
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 59
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 60
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 61
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 62
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 63
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 64
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 65
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 66
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 67
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 68
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 69
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 70
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 71
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 72
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 73
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 74
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 75
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 76
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 77
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 78
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 79
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 80
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 81
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 82
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 83
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 84
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 85
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 86
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 87
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 88
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 89
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 90
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 91
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 92
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 93
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 94
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 95
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 96
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 97
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 98
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 99
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">100
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">101
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">102
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#6272a4>/**
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * https://jestjs.io/docs/next/code-transformation
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> */</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>const</span> {buildSync} <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>require</span>(<span style=color:#f1fa8c>&#39;esbuild&#39;</span>);
+</span></span><span style=display:flex><span><span style=color:#ff79c6>const</span> {appendFileSync, readFileSync} <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>require</span>(<span style=color:#f1fa8c>&#39;fs&#39;</span>);
+</span></span><span style=display:flex><span><span style=color:#ff79c6>const</span> {randomUUID} <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>require</span>(<span style=color:#f1fa8c>&#39;crypto&#39;</span>);
+</span></span><span style=display:flex><span><span style=color:#ff79c6>const</span> {join, resolve} <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>require</span>(<span style=color:#f1fa8c>&#39;path&#39;</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>interface</span> TransformerConfig {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>readonly</span> outDir: <span style=color:#8be9fd>string</span>,
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>readonly</span> esbuildLogFilename: <span style=color:#8be9fd>string</span>,
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>readonly</span> verbose: <span style=color:#8be9fd>boolean</span>,
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>readonly</span> useCache: <span style=color:#8be9fd>boolean</span>,
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>readonly</span> esbuildConfig: <span style=color:#8be9fd>any</span>
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>const</span> defaultConfig: <span style=color:#8be9fd>TransformerConfig</span> <span style=color:#ff79c6>=</span> {
+</span></span><span style=display:flex><span>    esbuildLogFilename<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;esbuild.log&#39;</span>,
+</span></span><span style=display:flex><span>    outDir<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;./dist/ng-esbuild/&#39;</span>,
+</span></span><span style=display:flex><span>    useCache: <span style=color:#8be9fd>true</span>,
+</span></span><span style=display:flex><span>    verbose: <span style=color:#8be9fd>false</span>,
+</span></span><span style=display:flex><span>    esbuildConfig<span style=color:#ff79c6>:</span> {}
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>interface</span> TransformOptions {
+</span></span><span style=display:flex><span>    supportsDynamicImport: <span style=color:#8be9fd>boolean</span>;
+</span></span><span style=display:flex><span>    supportsExportNamespaceFrom: <span style=color:#8be9fd>boolean</span>;
+</span></span><span style=display:flex><span>    supportsStaticESM: <span style=color:#8be9fd>boolean</span>;
+</span></span><span style=display:flex><span>    supportsTopLevelAwait: <span style=color:#8be9fd>boolean</span>;
+</span></span><span style=display:flex><span>    instrument: <span style=color:#8be9fd>boolean</span>;
+</span></span><span style=display:flex><span>    cacheFS: <span style=color:#8be9fd>Map</span>&lt;<span style=color:#ff79c6>string</span>, <span style=color:#50fa7b>string</span>&gt;;
+</span></span><span style=display:flex><span>    configString: <span style=color:#8be9fd>string</span>;
+</span></span><span style=display:flex><span>    transformerConfig: <span style=color:#8be9fd>TransformerConfig</span>;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>type</span> TransformedSource <span style=color:#ff79c6>=</span> {
+</span></span><span style=display:flex><span>    code: <span style=color:#8be9fd>string</span>;
+</span></span><span style=display:flex><span>    map?: <span style=color:#8be9fd>string</span> <span style=color:#ff79c6>|</span> <span style=color:#ff79c6>null</span>;
+</span></span><span style=display:flex><span>};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>module</span>.exports <span style=color:#ff79c6>=</span> {
+</span></span><span style=display:flex><span>    process(sourceText: <span style=color:#8be9fd>string</span>, sourcePath: <span style=color:#8be9fd>string</span>, userOptions: <span style=color:#8be9fd>TransformOptions</span>)<span style=color:#ff79c6>:</span> TransformedSource {
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>const</span> options <span style=color:#ff79c6>=</span> {
+</span></span><span style=display:flex><span>            ...defaultConfig,
+</span></span><span style=display:flex><span>            ...(userOptions <span style=color:#ff79c6>&amp;&amp;</span> userOptions.transformerConfig <span style=color:#ff79c6>?</span> userOptions.transformerConfig <span style=color:#ff79c6>:</span> {})
+</span></span><span style=display:flex><span>        };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        printVerbose(options, <span style=color:#f1fa8c>&#39;Processing file&#39;</span>, sourcePath);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>const</span> fileName <span style=color:#ff79c6>=</span> randomUUID().toString() <span style=color:#ff79c6>+</span> <span style=color:#f1fa8c>&#39;.js&#39;</span>;
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>const</span> outFile <span style=color:#ff79c6>=</span> resolve(join(options.outDir, fileName));
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        printVerbose(options, <span style=color:#f1fa8c>&#39;Processed file will be saved as&#39;</span>, outFile);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>const</span> buildOptions <span style=color:#ff79c6>=</span> {
+</span></span><span style=display:flex><span>            ...options.esbuildConfig,
+</span></span><span style=display:flex><span>            entryPoints<span style=color:#ff79c6>:</span> [sourcePath],
+</span></span><span style=display:flex><span>            format<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;iife&#39;</span>,
+</span></span><span style=display:flex><span>            platform<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;node&#39;</span>,
+</span></span><span style=display:flex><span>            bundle: <span style=color:#8be9fd>true</span>,
+</span></span><span style=display:flex><span>            outfile: <span style=color:#8be9fd>outFile</span>,
+</span></span><span style=display:flex><span>        };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        printVerbose(options, <span style=color:#f1fa8c>&#39;Build options&#39;</span>, JSON.stringify(buildOptions));
+</span></span><span style=display:flex><span>        printVerbose(options, <span style=color:#f1fa8c>&#39;Build started&#39;</span>);
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>const</span> buildResult <span style=color:#ff79c6>=</span> buildSync(buildOptions);
+</span></span><span style=display:flex><span>        printVerbose(options, <span style=color:#f1fa8c>&#39;Build completed&#39;</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        logIfNecessary(options, buildResult);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        printVerbose(
+</span></span><span style=display:flex><span>            options,
+</span></span><span style=display:flex><span>            <span style=color:#f1fa8c>&#39;Esbuild result&#39;</span>,
+</span></span><span style=display:flex><span>            <span style=color:#f1fa8c>`errors: </span><span style=color:#f1fa8c>${</span>buildResult.errors.length<span style=color:#f1fa8c>}</span><span style=color:#f1fa8c>`</span>,
+</span></span><span style=display:flex><span>            <span style=color:#f1fa8c>`warnings: </span><span style=color:#f1fa8c>${</span>buildResult.warnings.length<span style=color:#f1fa8c>}</span><span style=color:#f1fa8c>`</span>
+</span></span><span style=display:flex><span>        );
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>const</span> result <span style=color:#ff79c6>=</span> readFileSync(outFile).toString();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>return</span> {
+</span></span><span style=display:flex><span>            code: <span style=color:#8be9fd>result</span>
+</span></span><span style=display:flex><span>        };
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>function</span> logIfNecessary(options: <span style=color:#8be9fd>TransformerConfig</span>, buildResult: <span style=color:#8be9fd>unknown</span>) {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (options.esbuildLogFilename) {
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>const</span> buildLogFile <span style=color:#ff79c6>=</span> resolve(join(options.outDir, options.esbuildLogFilename));
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>const</span> buildResultJson <span style=color:#ff79c6>=</span> JSON.stringify(buildResult, <span style=color:#ff79c6>null</span>, <span style=color:#bd93f9>2</span>);
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>const</span> logText <span style=color:#ff79c6>=</span> <span style=color:#f1fa8c>`</span><span style=color:#f1fa8c>${</span><span style=color:#ff79c6>new</span> <span style=color:#8be9fd;font-style:italic>Date</span>().toISOString()<span style=color:#f1fa8c>}</span>\<span style=color:#f1fa8c>n</span><span style=color:#f1fa8c>${</span>buildResultJson<span style=color:#f1fa8c>}</span>\<span style=color:#f1fa8c>n`</span>;
+</span></span><span style=display:flex><span>        appendFileSync(buildLogFile, logText);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        printVerbose(options, <span style=color:#f1fa8c>&#39;Build log saved in file&#39;</span>, buildLogFile);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>function</span> printVerbose(options: <span style=color:#8be9fd>TransformerConfig</span>, ...msg: <span style=color:#8be9fd>Array</span>&lt;<span style=color:#ff79c6>string</span>&gt;)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (options.verbose) {
+</span></span><span style=display:flex><span>        console.log(<span style=color:#ff79c6>new</span> <span style=color:#8be9fd;font-style:italic>Date</span>().toISOString(), <span style=color:#f1fa8c>&#39;[ng-esbuild]&#39;</span>, ...msg);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>My transformer is relatively easy. It&rsquo;s just starting a synchronous esbuild process and returns its results.</p><p>I was able to run simple tests on it, and measure the time.
+The results were very satisfying.
+<strong>Instead of 31s on ts-jest I had only 6s in the first test.
+Both builds were not using cache etc.</strong></p><p>Remember that the tests cannot use <code>TestBed</code>.
+I tried to find the alternative, and there is one think that you can use.
+It&rsquo;s not super automatic, super intuitive or super developer friendly, but it works.</p><h2 id=the-testbed-problem>The <code>TestBed</code> problem</h2><p>I found
+that I still can use part of the Angular framework as a helper to create necessary components and its dependencies.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#6272a4>// Needed by Injector
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span><span style=color:#ff79c6>import</span> <span style=color:#f1fa8c>&#39;@angular/compiler&#39;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> { AppComponent } <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;./app.component&#39;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {AppService} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;./app.service&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {Injector} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;@angular/core&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>describe(<span style=color:#f1fa8c>&#39;AppComponent&#39;</span>, () <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    it(<span style=color:#f1fa8c>&#39;Injector helper - instead of TestBed&#39;</span>, <span style=color:#ff79c6>async</span> () <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>const</span> injector <span style=color:#ff79c6>=</span> Injector.create({
+</span></span><span style=display:flex><span>            providers<span style=color:#ff79c6>:</span> [
+</span></span><span style=display:flex><span>                <span style=color:#6272a4>// Have to provide deps directly into the provider because we are not transforming the constructor
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                { provide: <span style=color:#8be9fd>AppComponent</span>, useClass: <span style=color:#8be9fd>AppComponent</span>, deps<span style=color:#ff79c6>:</span> [AppService] },
+</span></span><span style=display:flex><span>                { provide: <span style=color:#8be9fd>AppService</span>, useClass: <span style=color:#8be9fd>AppService</span> }
+</span></span><span style=display:flex><span>            ]
+</span></span><span style=display:flex><span>        });
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>const</span> service <span style=color:#ff79c6>=</span> injector.<span style=color:#ff79c6>get</span>(AppService);
+</span></span><span style=display:flex><span>        expect(service.isEnabled()).toBeFalsy();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>const</span> component <span style=color:#ff79c6>=</span> injector.<span style=color:#ff79c6>get</span>(AppComponent);
+</span></span><span style=display:flex><span>        expect(component.isEnabled()).toBeFalsy();
+</span></span><span style=display:flex><span>    })
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>});
+</span></span></code></pre></td></tr></table></div></div><p>It looks that after importing the <code>@angular/compiler</code> into the test we are able to use <code>Injector</code> to manage our objects.
+There is only one problem, we have to directly point dependencies using <code>deps</code> property.</p><p>We can omit this problem,
+but it requires us to use <code>@Inject()</code> in components or other injectables instead of shorthands.
+I don&rsquo;t like it, because it influences the code of the app, not only the test.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>import</span> {Component, Inject} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;@angular/core&#39;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {AppService} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;./app.service&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>@Component</span>({
+</span></span><span style=display:flex><span>  selector<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;jest-ngc-esbuild-transformer-root&#39;</span>,
+</span></span><span style=display:flex><span>  templateUrl<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;./app.component.html&#39;</span>,
+</span></span><span style=display:flex><span>  styleUrls<span style=color:#ff79c6>:</span> [<span style=color:#f1fa8c>&#39;./app.component.css&#39;</span>],
+</span></span><span style=display:flex><span>})
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> AppComponent {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>constructor</span>(
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>private</span> <span style=color:#ff79c6>readonly</span> appService: <span style=color:#8be9fd>AppService</span>,
+</span></span><span style=display:flex><span>      <span style=color:#6272a4>// You don&#39;t have to use deps if you do:
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>      <span style=color:#6272a4>// @Inject(AppService) private readonly appService: AppService,
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>  ) {
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  isEnabled()<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>boolean</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> <span style=color:#ff79c6>this</span>.appService.isEnabled();
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>You can use <code>Injector</code>. It&rsquo;s not very helpful.
+BTW it prevents you from writing &ldquo;too big&rdquo; tests, so it has the bright side.</p><h2 id=summary>Summary</h2><p>I&rsquo;m still not sure what to think about this way of testing.
+On the one hand, I have fast tests.
+On another, I have the <code>TestBed</code>.</p><p>I just wanted to show you the possibilities and the profits of using esbuild in Angular unit testing.
+Maybe we can evolve this idea, and describe this way well.</p><p>You know my opinion, it&rsquo;s the time for your reflections.</p></div></article><div id=footer-post-container><div id=footer-post><div id=nav-footer style=display:none><ul><li><a href=/mythical-angular/>Home</a></li><li><a href=/mythical-angular/posts>All posts</a></li><li><a href=/mythical-angular/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></div><div id=toc-footer style=display:none><nav id=TableOfContents><ul><li><a href=#what-i-did>What I did</a></li><li><a href=#the-testbed-problem>The <code>TestBed</code> problem</a></li><li><a href=#summary>Summary</a></li></ul></nav></div><div id=share-footer style=display:none><ul><li><a class=icon href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fjest%2f" aria-label=Facebook><i class="fab fa-facebook fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://twitter.com/share?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fjest%2f&text=esbuild%20against%20TestBed" aria-label=Twitter><i class="fab fa-twitter fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fjest%2f&title=esbuild%20against%20TestBed" aria-label=Linkedin><i class="fab fa-linkedin fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fjest%2f&is_video=false&description=esbuild%20against%20TestBed" aria-label=Pinterest><i class="fab fa-pinterest fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="mailto:?subject=esbuild%20against%20TestBed&body=Check out this article: https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fjest%2f" aria-label=Email><i class="fas fa-envelope fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://getpocket.com/save?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fjest%2f&title=esbuild%20against%20TestBed" aria-label=Pocket><i class="fab fa-get-pocket fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="http://reddit.com/submit?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fjest%2f&title=esbuild%20against%20TestBed" aria-label=reddit><i class="fab fa-reddit fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="http://www.tumblr.com/share/link?url=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fjest%2f&name=esbuild%20against%20TestBed&description=Isn%26rsquo%3bt%20the%20unit%20testing%20the%20most%20basic%20technique%20and%20one%20of%20the%20more%20important%20aspects%20of%20programing%20these%20days%3f%20During%20my%20days%20as%20a%20.NET%20developer%2c%20I%20learned%20a%20few%20things%20about%20unit%20testing%3a%0aUnit%20tests%20have%20to%20be%20FAST.%20If%20they%20are%20not%20fast%2c%20you%26rsquo%3bre%20going%20to%20be%20irritated%2c%20and%20you%26rsquo%3bll%20waste%20a%20lot%20of%20time.%20You%20have%20to%20ISOLATE%20your%20unit%20tests%20from%20the%20source%20code.%20If%20not%2c%20changes%20in%20the%20source%20code%20may%20affect%20tests%20and%20change%20the%20requirement%20behind%20the%20test." aria-label=Tumblr><i class="fab fa-tumblr fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fgalczo5.github.io%2fmythical-angular%2fposts%2fjest%2f&t=esbuild%20against%20TestBed" aria-label="Hacker News"><i class="fab fa-hacker-news fa-lg" aria-hidden=true></i></a></li></ul></div><div id=actions-footer><a id=menu-toggle class=icon href=# onclick='return $("#nav-footer").toggle(),!1' aria-label=Menu><i class="fas fa-bars fa-lg" aria-hidden=true></i> Menu</a>
+<a id=toc-toggle class=icon href=# onclick='return $("#toc-footer").toggle(),!1' aria-label=TOC><i class="fas fa-list fa-lg" aria-hidden=true></i> TOC</a>
+<a id=share-toggle class=icon href=# onclick='return $("#share-footer").toggle(),!1' aria-label=Share><i class="fas fa-share-alt fa-lg" aria-hidden=true></i> share</a>
+<a id=top style=display:none class=icon href=# onclick='$("html, body").animate({scrollTop:0},"fast")' aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg" aria-hidden=true></i> Top</a></div></div></div><footer id=footer><div class=footer-left>Copyright &copy; 2022 Kamil Gałek</div><div class=footer-right><nav><ul><li><a href=/mythical-angular/>Home</a></li><li><a href=/mythical-angular/posts>All posts</a></li><li><a href=/mythical-angular/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></nav></div></footer></div></body><link rel=stylesheet href=/lib/font-awesome/css/all.min.css><script src=/lib/jquery/jquery.min.js></script>
+<script src=/js/main.js></script>
+<script src=/mythical-angular/js/code-copy.js></script></html>
