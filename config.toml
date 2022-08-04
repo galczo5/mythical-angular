@@ -3,6 +3,7 @@ title = "Mythical Angular"
 theme = "cactus"
 copyright = "Kamil Gałek"
 baseURL = "https://galczo5.github.io/mythical-angular"
+googleAnalytics = "G-X7BCK4L1CF"
 
 [[menu.main]]
 name = "Home"
@@ -30,8 +31,6 @@ weight = 4
   logo = "logo.jpeg"
   css = ["css/custom.css"]
   postsOnHomePage = 10
-  googleAnalytics = "G-X7BCK4L1CF"
-
 
 [markup]
   [markup.highlight]
