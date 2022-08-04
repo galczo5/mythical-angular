@@ -25,11 +25,13 @@ url = "https://github.com/galczo5"
 weight = 4
 
 [params]
-  showAllPostsOnHomePage = true
   mainSection = "posts"
   colortheme = "white"
   logo = "logo.jpeg"
   css = ["css/custom.css"]
+  postsOnHomePage = 10
+  googleAnalytics = "G-X7BCK4L1CF"
+
 
 [markup]
   [markup.highlight]
