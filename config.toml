@@ -26,6 +26,7 @@ url = "https://github.com/galczo5"
 weight = 4
 
 [params]
+  showAllPostsOnHomePage = true
   mainSection = "posts"
   colortheme = "white"
   logo = "logo.jpeg"
