@@ -30,7 +30,6 @@ weight = 4
   colortheme = "white"
   logo = "logo.jpeg"
   css = ["css/custom.css"]
-  postsOnHomePage = 10
 
 [markup]
   [markup.highlight]
