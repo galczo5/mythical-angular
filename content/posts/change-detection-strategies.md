@@ -12,7 +12,7 @@ For the first sight, it looks very simple, and it is.
 So, we have two change detection strategies: `Default` and `OnPush`. If you have not specified which one you want to use in your component, it's going to use `Default` one.
 Our experiment we should start with the [docs](https://angular.io/api/core/ChangeDetectionStrategy).
 
-![docs](/mythical-angular/images/cd-docs.png)
+![docs](/images/cd-docs.png)
 
 As you can see, the documentation is not that easy to base here only on the docs. Even if you follow the [Change detection usage](https://angular.io/api/core/ChangeDetectorRef#usage-notes) links, it's not enough. 
 In this case, it's good to try using external sources to learn how it works,
@@ -34,7 +34,7 @@ It's a very simple app.
 Basically there are two branches of almost identical components, one branch with `Default` strategy and the second one with the `OnPush`.
 Every branch contains three components: Parent and two children.
 
-![docs](/mythical-angular/images/cd-app.png)
+![docs](/images/cd-app.png)
 
 Every component of my app implements `OnInit`, `OnChanges` and `DoCheck` hooks to log what is called by Angular.
 Today we are not using it to do anything. I just want to know which component was checked etc.

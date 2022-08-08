@@ -306,7 +306,7 @@ Every action is just called and not passed to the zone.
 In this case `zone.js` library is needless, you don't have to load it.
 It's not a lot, but still it's something.
 
-![zone](/mythical-angular/images/zone-size.png)
+![zone](/images/zone-size.png)
 
 ## How change detection is triggered by NgZone
 

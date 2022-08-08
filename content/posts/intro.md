@@ -25,7 +25,7 @@ Probably you'll not be surprised that a lot of myths are connected to web perfor
 
 If you like my work, I'll be grateful for a star on my repository. If you have an idea, you want to propose some subjects, leave an issue, please.
 
-![trust-the-code](/mythical-angular/images/trust-the-code.png)
+![trust-the-code](/images/trust-the-code.png)
 
 BTW. Here is a link to a GitHub repository in the header.
 If you missed it: [galczo5/mythical-angular](https://github.com/galczo5/mythical-angular)

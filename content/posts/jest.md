@@ -86,7 +86,7 @@ It's a very intuitive way of thinking, so maybe I will show you what I did with 
 Not so long ago, I was thinking about the duration of the tests in Jest,
 and I realized that I have quite complicated tests, with multiple dependencies.
 
-![tick](/mythical-angular/images/esbuild.png)
+![tick](/images/esbuild.png)
 
 For some time,
 I knew that Angular CLI is not a very fast solution of bundling and newer bundlers like esbuild are much faster.

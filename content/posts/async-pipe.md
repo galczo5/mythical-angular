@@ -277,7 +277,7 @@ I'm going to cite the most important part: "Marks current view and **all ancesto
 It means that if you use async pipe, and there is a new value on the stream,
 it's going to refresh your component and all its parents.
 
-![trust-the-code](/mythical-angular/images/mark-for-check.png)
+![trust-the-code](/images/mark-for-check.png)
 
 Is it a necessary thing to do...? No.
 

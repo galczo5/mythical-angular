@@ -153,7 +153,7 @@ main.af80531c057bb360.js:1 ngDoCheck ChildComponent 4
 What's more important, again next to the header you should be able to observe timestamps again.
 The difference is that not only Child 3 component was re-rendered but also Parent and Child 2 was re-rendered too.
 
-![tick](/mythical-angular/images/tick.png)
+![tick](/images/tick.png)
 
 This simply makes me sad :( I like to avoid any unnecessary functions call as you may notice from my previous posts. 
 
@@ -460,7 +460,7 @@ class ApplicationRef {
 Stop... Wait. Yes, it calls the same `detectChanges()` method on root views!
 What's important too, these views are implementing `RootViewRef`, so we have another difference.
 
-![tick](/mythical-angular/images/root-view-ref.png)
+![tick](/images/root-view-ref.png)
 
 ```typescript
 class RootViewRef extends ViewRef$1 {
@@ -536,4 +536,4 @@ and `NgZones` to avoid execution of javascript code that is unnecessary to get t
 If you wonder, yes, I know that again my article contains tons of source code from the Angular repository.
 For me, it's important to show you that there is no magic, that code is not that hard to understand.
 
-![tick](/mythical-angular/images/trust-the-code.png)
+![tick](/images/trust-the-code.png)
