@@ -431,7 +431,7 @@ So at the very end of there is code presented bellow.</p><div class=highlight><d
 </span></span><span style=display:flex><span>}
 </span></span></code></pre></td></tr></table></div></div><p>I&rsquo;m going to cite the most important part: &ldquo;Marks current view and <strong>all ancestors dirty.</strong>&rdquo;.
 It means that if you use async pipe, and there is a new value on the stream,
-it&rsquo;s going to refresh your component and all its parents.</p><p><img src=/mythical-angular/images/mark-for-check.png alt=trust-the-code></p><p>Is it a necessary thing to do&mldr;? No.</p><p>Template changed only in one component there is no reason to render more than one view.
+it&rsquo;s going to refresh your component and all its parents.</p><p><img src=/images/mark-for-check.png alt=trust-the-code></p><p>Is it a necessary thing to do&mldr;? No.</p><p>Template changed only in one component there is no reason to render more than one view.
 Why Angular is checking everything on the path to the top&mldr;?
 There is a simple explanation.
 To refresh the view after marking it dirty, we need NgZones to run the whole check.

@@ -9,7 +9,7 @@ Using styles instead of styleUrls is good for performance Just before we start w
 In Angular every component can have its own attached styles.
 Styles can be in the same file or in separated files, similar to the templates.</p><p>In addition, we can encapsulate styles.
 There are two methods of encapsulation: <code>Emulated</code> and <code>ShadowDom</code>.
-This article describes both types of encapsulation, and its influence on the performance of the whole app.</p><p><img src=/mythical-angular/images/styles.png alt=docs></p><h2 id=using-styles-instead-of-styleurls-is-good-for-performance>Using <code>styles</code> instead of <code>styleUrls</code> is good for performance</h2><p>Just before we start with the &ldquo;complicated&rdquo; stuff,
+This article describes both types of encapsulation, and its influence on the performance of the whole app.</p><p><img src=/images/styles.png alt=docs></p><h2 id=using-styles-instead-of-styleurls-is-good-for-performance>Using <code>styles</code> instead of <code>styleUrls</code> is good for performance</h2><p>Just before we start with the &ldquo;complicated&rdquo; stuff,
 I want to mention one of the myths connected to the place where you can put your style.</p><p>A Few times, I head that keeping styles in the file with logic and the template.
 It&rsquo;s easy to check and verify this myth.</p><p>First, I created two components with code like bellow.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
 </span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
@@ -651,7 +651,7 @@ If you want to do it, remember to open dev tools.
 The time of the test will be printed there.</p><table><thead><tr><th>Encapsulation type</th><th>Total</th><th>Avg iteration time</th></tr></thead><tbody><tr><td>None</td><td>12496ms</td><td>124,9ms</td></tr><tr><td>Emulated</td><td>13027ms</td><td>130,2ms</td></tr><tr><td>ShadowDom</td><td>21352ms</td><td>213,5ms</td></tr></tbody></table><p>There is almost no difference between the <code>Emulated</code> and disabled encapsulation.
 The difference between <code>ShadowDom</code> and the rest of the encapsulation types is huge.</p><h2 id=conclusion>Conclusion</h2><p>It scares me a little that I wrote an article about encapsulation
 and its performance where the test is a very small part of the whole text.
-I just wanted to describe differences well :D</p><p><img src=/mythical-angular/images/encapsulation.png alt=docs></p><p>To sum up, the default <code>Emulated</code> encapsulation is as fast as no encapsulation at all.
+I just wanted to describe differences well :D</p><p><img src=/images/encapsulation.png alt=docs></p><p>To sum up, the default <code>Emulated</code> encapsulation is as fast as no encapsulation at all.
 It looks that this can be explained by the implementation.
 At the end, it&rsquo;s only a smart way of using native css attribute selectors.
 The <code>ShadowDom</code> way is significantly slower,

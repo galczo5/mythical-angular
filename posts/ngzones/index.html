@@ -482,7 +482,7 @@ Looks like a cool way to add &ldquo;secret&rdquo; fields to the class.</p><div c
 </span></span></code></pre></td></tr></table></div></div><p>Basically, there is nothing there.
 Every action is just called and not passed to the zone.
 In this case <code>zone.js</code> library is needless, you don&rsquo;t have to load it.
-It&rsquo;s not a lot, but still it&rsquo;s something.</p><p><img src=/mythical-angular/images/zone-size.png alt=zone></p><h2 id=how-change-detection-is-triggered-by-ngzone>How change detection is triggered by NgZone</h2><p>We know how <code>NgZone</code> and <code>NoopNgZone</code> is implemented.
+It&rsquo;s not a lot, but still it&rsquo;s something.</p><p><img src=/images/zone-size.png alt=zone></p><h2 id=how-change-detection-is-triggered-by-ngzone>How change detection is triggered by NgZone</h2><p>We know how <code>NgZone</code> and <code>NoopNgZone</code> is implemented.
 The most important question is how it triggers the change detection process&mldr;?</p><p>To find it, we have to follow <code>onMicrotaskEmpty</code> stream (event emitter if you want).
 Little reminder, value is emitted in this stream, when every micro task is completed.
 So when there is only one micro task at the same moment, there is no problem; value is emitted.
