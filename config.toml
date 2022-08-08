@@ -2,7 +2,7 @@ languageCode = "en-us"
 title = "Mythical Angular"
 theme = "cactus"
 copyright = "Kamil Gałek"
-baseURL = "https://galczo5.github.io/mythical-angular"
+baseURL = "https://mythical-angular.dev"
 googleAnalytics = "G-X7BCK4L1CF"
 
 [[menu.main]]
