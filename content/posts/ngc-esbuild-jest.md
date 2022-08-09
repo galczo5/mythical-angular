@@ -339,7 +339,7 @@ Basically, this is it.
 As I mentioned, probably, there is no sense to fight with `TestBed`.
 It's slow.
 
-![](/images/jest-preset-angular.png)
+![jest-preset-angular](/images/jest-preset-angular.png)
 
 PS. `jest-preset-angular` has support for the esbuild.
 It compiles all of the `.mjs` files with esbuild and additional pointed files. 
