@@ -342,7 +342,10 @@ It's slow.
 ![jest-preset-angular](/images/jest-preset-angular.png)
 
 PS. `jest-preset-angular` has support for the esbuild.
-It compiles all of the `.mjs` files with esbuild and additional pointed files. 
+It compiles all of the `.mjs` files with esbuild and additional pointed files.
+
+PPS. I check the difference in time between TestBed-based tests and regular tests.
+You can check it in the next post or just follow the link: [Short: I had some time, so I checked how much time-consuming is TesBed](https://mythical-angular.dev/posts/testbed-time/).
 
 ```typescript
 /**
