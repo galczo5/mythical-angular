@@ -1,5 +1,5 @@
 ---
-title: "Short: I had some time, so I checked how much time-consuming is TesBed"
+title: "Short: I had some time, so I checked how time-consuming is TesBed"
 date: 2022-08-09
 draft: false
 ---
@@ -9,16 +9,16 @@ I cannot stop
 thinking about my last results from the [previous article](https://mythical-angular.dev/posts/ngc-esbuild-jest/).
 I was able to use esbuild instead of ts-jest, and it was still slow.
 
-It looked like using TestBed is really time-consuming. So I decided to check it, and I'm ready to show you the results.
+It looked like using TestBed is time-consuming. So I decided to check it, and I'm ready to show you the results.
 
 ## The test
 
-For testing, I used the same repository. 
+For testing, I used the same repository.
 You can find it on my GitHub: [ng-esbuild-unit-tests](https://github.com/galczo5/ng-esbuild-unit-tests).
 
 The test is simple. Each `it` contains a loop and a test.
 Both tests are testing the same case,
-tests are checking if `Output` of the component emitted a value after calling `createItem` method.
+tests are checking if the `Output` of the component emitted a value after calling `createItem` method.
 
 ```typescript
 import {TestBed} from '@angular/core/testing';
@@ -71,12 +71,12 @@ describe('CreateFormComponent', () => {
 
 ## Results
 
-I decided to run tests a few times. Each time, I increased the number of iterations in the loop inside the tests. 
+I decided to run tests a few times. Each time, I increased the number of iterations in the loop inside the tests.
 
 {{< rawhtml >}}
 <div style="border: 1px solid lightgray;">
 {{< /rawhtml >}}
-![trust-the-code](/images/testbed-chart.png)
+![testbedchart](/images/testbed-chart.png)
 {{< rawhtml >}}
 </div>
 {{< /rawhtml >}}
@@ -95,13 +95,13 @@ I decided to run tests a few times. Each time, I increased the number of iterati
 
 ## Summary
 
-I've expected before doing the test that the time of the test will be linear.
+I expected before doing the test that the time of the test will be linear.
 It's a simple loop, so it's natural.
 What is fascinating is that when I had a small number of iterations,
 the difference between my two tests was significantly greater.
-When I had a lot of iterations, the difference was still visible, but time per iteration was shrinking.
+When I had a lot of iterations, the difference was still visible, but the time per iteration was shrinking.
 
-So why not to verify it...?
+So why not verify it...?
 
 ONE LAST TEST: 100000 ITERATIONS!
 
