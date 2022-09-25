@@ -8,7 +8,7 @@ draft: false
 
 Come on.
 These kinds of sentences almost always are not true.
-In this article I will show you how big difference is between `ApplicationRef.tick` and `ChangeDetectorRef.tick`. 
+In this article I will show you how big difference is between `ApplicationRef.tick` and `ChangeDetectorRef.detectChanges`. 
 
 Please remember that all my research is focused on using Angular in "high-performance" mode.
 For normal usage, simple webpages or small apps, there is a difference, of course,
