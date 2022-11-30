@@ -84,29 +84,25 @@ here is the [galczo5/experiment-angular-15-esbuild](https://github.com/galczo5/e
 
 ## Test results
 
-| Number of components | @angular-devkit/build-angular:browser | @angular-devkit/build-angular:browser-esbuild | %   |
-|----------------------|---------------------------------------|-----------------------------------------------|-----|
-| 100 (cold)           | 11.63s                                | 5.63s                                         |     |
-| 100                  | 4.94s                                 | 4.44s                                         |     |
-| 100                  | 5.55s                                 | 5.11s                                         |     |
-| **AVG for 100**      |                                       |                                               |     |
-| -------------------- |                                       |                                               |     |
-| 1_000 (cold)         | 16.34s                                | 8.25s                                         |     |
-| 1_000                | 7.83s                                 | 7.38s                                         |     |
-| 1_000                | 7.19s                                 | 7.23s                                         |     |
-| **AVG for 1_000**    |                                       |                                               |     |
-| -------------------- |                                       |                                               |     |
-| 5_000 (cold)         | 60.60s                                | 33.62s                                        |     |
-| 5_000                | 38.52s                                | 36.52s                                        |     |
-| 5_000                | 43.84s                                | 34.19s                                        |     |
-| **AVG for 5_000**    |                                       |                                               |     |
-| -------------------- |                                       |                                               |     |
-| 10_000 (cold)        | 187.01s                               | 125.51s                                       |     |
-| 10_000               | 119.18s                               | 121.00s                                       |     |
-| 10_000               | 127.30s                               | 118.76s                                       |     |
-| **AVG for 10_000**   |                                       |                                               |     |
-| -------------------- |                                       |                                               |     |
-| 20_000 (cold)        | 575.86s                               | 467.61s                                       |     |
+| Number of components | @angular-devkit/build-angular:browser | @angular-devkit/build-angular:browser-esbuild |
+|----------------------|---------------------------------------|-----------------------------------------------|
+| 100 (cold)           | 11.63s                                | 5.63s                                         |
+| 100                  | 4.94s                                 | 4.44s                                         |
+| 100                  | 5.55s                                 | 5.11s                                         |
+| -------------------- |                                       |                                               |
+| 1_000 (cold)         | 16.34s                                | 8.25s                                         |
+| 1_000                | 7.83s                                 | 7.38s                                         |
+| 1_000                | 7.19s                                 | 7.23s                                         |
+| -------------------- |                                       |                                               |
+| 5_000 (cold)         | 60.60s                                | 33.62s                                        |
+| 5_000                | 38.52s                                | 36.52s                                        |
+| 5_000                | 43.84s                                | 34.19s                                        |
+| -------------------- |                                       |                                               |
+| 10_000 (cold)        | 187.01s                               | 125.51s                                       |
+| 10_000               | 119.18s                               | 121.00s                                       |
+| 10_000               | 127.30s                               | 118.76s                                       |
+| -------------------- |                                       |                                               |
+| 20_000 (cold)        | 575.86s                               | 467.61s                                       |
 
 According to my experience with the esbuild, it's not a full potential of its ability to compile and bundle typescript.
 Just look at the results that I had almost two years ago when I was preparing my presentation about it. 
