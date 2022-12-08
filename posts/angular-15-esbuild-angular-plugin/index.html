@@ -1,0 +1,666 @@
+<!doctype html><html lang=en-us><head><link rel=preload href=/lib/font-awesome/webfonts/fa-brands-400.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=preload href=/lib/font-awesome/webfonts/fa-regular-400.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=preload href=/lib/font-awesome/webfonts/fa-solid-900.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=preload href=/lib/JetBrainsMono/web/woff2/JetBrainsMono-Regular.woff2 as=font type=font/woff2 crossorigin=anonymous><script type=text/javascript src=https://latest.cactus.chat/cactus.js></script>
+<link rel=stylesheet href=https://latest.cactus.chat/style.css type=text/css><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><title>Angular 15 - esbuild `angular-compiler` plugin | Mythical Angular</title><link rel=canonical href=https://mythical-angular.dev/posts/angular-15-esbuild-angular-plugin/><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="all,follow"><meta name=googlebot content="index,follow,snippet,archive"><meta property="og:title" content="Angular 15 - esbuild `angular-compiler` plugin"><meta property="og:description" content="In the two previous articles I tried to test and diagnose the esbuild builder for Angular. It has been introduced recently in Angular 15, and it should fix my main problems with building time using ng cli.
+Unfortunately after a few first tests, @angular-devkit/build-angular:browser-esbuild was faster than @angular-devkit/build-angular:browser, but not as fast as advertised on the esbuild webpage.
+In the second article, I found out that the configuration contains custom plugins added by Angular repository:"><meta property="og:type" content="article"><meta property="og:url" content="https://mythical-angular.dev/posts/angular-15-esbuild-angular-plugin/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-12-07T00:00:00+00:00"><meta property="article:modified_time" content="2022-12-07T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Angular 15 - esbuild `angular-compiler` plugin"><meta name=twitter:description content="In the two previous articles I tried to test and diagnose the esbuild builder for Angular. It has been introduced recently in Angular 15, and it should fix my main problems with building time using ng cli.
+Unfortunately after a few first tests, @angular-devkit/build-angular:browser-esbuild was faster than @angular-devkit/build-angular:browser, but not as fast as advertised on the esbuild webpage.
+In the second article, I found out that the configuration contains custom plugins added by Angular repository:"><link rel=stylesheet href=https://mythical-angular.dev/css/styles.94f653e9e151e28067a7c5dbbc4600cbd5a3c721e79faaf971e523c40f3b249b8e4f20bb57810dfffa8d559ca5c140fd56eb4cd9c0853113ad08e66afdb08bdd.css integrity="sha512-lPZT6eFR4oBnp8XbvEYAy9WjxyHnn6r5ceUjxA87JJuOTyC7V4EN//qNVZylwUD9VutM2cCFMROtCOZq/bCL3Q=="><link rel=stylesheet href=https://mythical-angular.dev/css/custom.css><!--[if lt IE 9]><script src=https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js></script>
+<script src=https://oss.maxcdn.com/respond/1.4.2/respond.min.js></script><![endif]--><link rel=icon type=image/png href=https://mythical-angular.dev/images/favicon.ico><script async src="https://www.googletagmanager.com/gtag/js?id=G-X7BCK4L1CF"></script>
+<script>var doNotTrack=!1;if(!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-X7BCK4L1CF",{anonymize_ip:!1})}</script></head><body class="max-width mx-auto px3 ltr"><div class="content index py4"><header id=header><a href=https://mythical-angular.dev><div id=logo style=background-image:url(https://mythical-angular.dev/logo.jpeg)></div><div id=title><h1>Mythical Angular</h1></div></a><div id=nav><ul><li class=icon><a href=# aria-label=Menu><i class="fas fa-bars fa-2x" aria-hidden=true></i></a></li><li><a href=/>Home</a></li><li><a href=/posts>All posts</a></li><li><a href=/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></div></header><article class=post itemscope itemtype=http://schema.org/BlogPosting><header><h1 class=posttitle itemprop="name headline">Angular 15 - esbuild `angular-compiler` plugin</h1><div class=meta><div class=postdate><time datetime="2022-12-07 00:00:00 +0000 UTC" itemprop=datePublished>2022-12-07</time></div></div></header><div class=content itemprop=articleBody><p>In the two previous articles I tried to test and diagnose the <code>esbuild</code> builder for Angular.
+It has been introduced recently in Angular 15, and it should fix my main problems with building time using ng cli.</p><p>Unfortunately after a few first tests, <code>@angular-devkit/build-angular:browser-esbuild</code>
+was faster than <code>@angular-devkit/build-angular:browser</code>, but not as fast as advertised on the <code>esbuild</code> webpage.</p><p>In the second article, I found out that the configuration contains custom plugins added by Angular repository:</p><ul><li><code>angular-compiler</code></li><li><code>angular-global-styles</code></li><li><code>angular-sass</code></li><li><code>angular-css-resource</code></li></ul><p>The most impactful plugin is the <code>angular-compiler</code>. Please check <a href=https://mythical-angular.dev/posts/angular-15-esbuild-plugins/>the previous article for details.</a></p><p><img src=/images/deeper.jpeg alt=deeper></p><p>Today I want to analyse for you what this plugin looks like and what is the slowest part. Enjoy!</p><h2 id=prepare>Prepare</h2><p>To fully understand the code below, it is good to read about <code>esbuild</code> plugins. How it&rsquo;s working, how to write one, etc.</p><p><a href=https://esbuild.github.io/plugins/#using-plugins>Here</a> you can find the docs for it. Focus on <code>setup</code> function and <code>build.onLoad</code> hook.</p><h2 id=plugin-code>Plugin code</h2><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">  9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 36
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 37
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 38
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 39
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 40
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 41
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 42
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 43
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 44
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 45
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 46
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 47
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 48
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 49
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 50
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 51
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 52
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 53
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 54
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 55
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 56
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 57
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 58
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 59
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 60
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 61
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 62
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 63
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 64
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 65
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 66
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 67
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 68
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 69
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 70
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 71
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 72
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 73
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 74
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 75
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 76
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 77
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 78
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 79
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 80
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 81
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 82
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 83
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 84
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 85
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 86
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 87
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 88
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 89
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 90
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 91
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 92
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 93
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 94
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 95
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 96
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 97
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 98
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 99
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">100
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">101
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">102
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">103
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">104
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">105
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">106
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">107
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">108
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">109
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">110
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">111
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">112
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">113
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">114
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">115
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">116
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">117
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">118
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">119
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">120
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">121
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">122
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">123
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">124
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">125
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">126
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">127
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">128
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">129
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">130
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">131
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">132
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">133
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">134
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">135
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">136
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">137
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">138
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">139
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">140
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">141
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">142
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">143
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">144
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">145
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">146
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">147
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">148
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">149
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">150
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">151
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">152
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">153
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">154
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">155
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">156
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">157
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">158
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">159
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">160
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">161
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">162
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">163
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">164
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">165
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">166
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">167
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">168
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">169
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">170
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">171
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">172
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">173
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">174
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">175
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">176
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">177
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">178
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">179
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">180
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">181
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">182
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">183
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">184
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">185
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">186
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">187
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">188
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">189
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">190
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">191
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">192
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">193
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">194
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">195
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">196
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">197
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">198
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">199
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">200
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">201
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">202
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">203
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">204
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">205
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">206
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">207
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">208
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">209
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">210
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">211
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">212
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">213
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">214
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">215
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">216
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">217
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">218
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">219
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">220
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">221
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">222
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">223
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">224
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">225
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">226
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">227
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">228
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">229
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">230
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">231
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">232
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">233
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">234
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">235
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">236
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">237
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">238
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">239
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">240
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">241
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">242
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">243
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">244
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">245
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">246
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">247
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">248
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">249
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">250
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">251
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">252
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">253
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">254
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">255
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">256
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">257
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">258
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">259
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">260
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">261
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">262
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">263
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">264
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">265
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">266
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-javascript data-lang=javascript><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>function</span> createCompilerPlugin(pluginOptions, styleOptions) {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> {
+</span></span><span style=display:flex><span>        name<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;angular-compiler&#39;</span>,
+</span></span><span style=display:flex><span>        <span style=color:#6272a4>// eslint-disable-next-line max-lines-per-function
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>        <span style=color:#ff79c6>async</span> setup(build) {
+</span></span><span style=display:flex><span>            <span style=color:#8be9fd;font-style:italic>var</span> _a, _b;
+</span></span><span style=display:flex><span>            <span style=color:#8be9fd;font-style:italic>var</span> _c;
+</span></span><span style=display:flex><span>            <span style=color:#8be9fd;font-style:italic>let</span> setupWarnings;
+</span></span><span style=display:flex><span>            <span style=color:#6272a4>// This uses a wrapped dynamic import to load `@angular/compiler-cli` which is ESM.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>            <span style=color:#6272a4>// Once TypeScript provides support for retaining dynamic imports this workaround can be dropped.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>            <span style=color:#ff79c6>const</span> { GLOBAL_DEFS_FOR_TERSER_WITH_AOT, NgtscProgram, OptimizeFor, readConfiguration } <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>await</span> (<span style=color:#bd93f9>0</span>, load_esm_1.loadEsmModule)(<span style=color:#f1fa8c>&#39;@angular/compiler-cli&#39;</span>);
+</span></span><span style=display:flex><span>            <span style=color:#6272a4>// Temporary deep import for transformer support
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>            <span style=color:#ff79c6>const</span> { mergeTransformers, replaceBootstrap, } <span style=color:#ff79c6>=</span> require(<span style=color:#f1fa8c>&#39;@ngtools/webpack/src/ivy/transformation&#39;</span>);
+</span></span><span style=display:flex><span>            <span style=color:#6272a4>// Setup defines based on the values provided by the Angular compiler-cli
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>            (_a <span style=color:#ff79c6>=</span> (_c <span style=color:#ff79c6>=</span> build.initialOptions).define) <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span> <span style=color:#ff79c6>&amp;&amp;</span> _a <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>?</span> _a <span style=color:#ff79c6>:</span> (_c.define <span style=color:#ff79c6>=</span> {});
+</span></span><span style=display:flex><span>            <span style=color:#ff79c6>for</span> (<span style=color:#ff79c6>const</span> [key, value] <span style=color:#ff79c6>of</span> <span style=color:#8be9fd;font-style:italic>Object</span>.entries(GLOBAL_DEFS_FOR_TERSER_WITH_AOT)) {
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>if</span> (key <span style=color:#ff79c6>in</span> build.initialOptions.define) {
+</span></span><span style=display:flex><span>                    <span style=color:#6272a4>// Skip keys that have been manually provided
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                    <span style=color:#ff79c6>continue</span>;
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>                <span style=color:#6272a4>// esbuild requires values to be a string (actual strings need to be quoted).
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                <span style=color:#6272a4>// In this case, all provided values are booleans.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                build.initialOptions.define[key] <span style=color:#ff79c6>=</span> value.toString();
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#6272a4>// The tsconfig is loaded in setup instead of in start to allow the esbuild target build option to be modified.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>            <span style=color:#6272a4>// esbuild build options can only be modified in setup prior to starting the build.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>            <span style=color:#ff79c6>const</span> { options<span style=color:#ff79c6>:</span> compilerOptions, rootNames, errors<span style=color:#ff79c6>:</span> configurationDiagnostics, } <span style=color:#ff79c6>=</span> (<span style=color:#bd93f9>0</span>, profiling_1.profileSync)(<span style=color:#f1fa8c>&#39;NG_READ_CONFIG&#39;</span>, () =&gt; readConfiguration(pluginOptions.tsconfig, {
+</span></span><span style=display:flex><span>                noEmitOnError<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>false</span>,
+</span></span><span style=display:flex><span>                suppressOutputPathCheck<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>true</span>,
+</span></span><span style=display:flex><span>                outDir<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>undefined</span>,
+</span></span><span style=display:flex><span>                inlineSources<span style=color:#ff79c6>:</span> pluginOptions.sourcemap,
+</span></span><span style=display:flex><span>                inlineSourceMap<span style=color:#ff79c6>:</span> pluginOptions.sourcemap,
+</span></span><span style=display:flex><span>                sourceMap<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>false</span>,
+</span></span><span style=display:flex><span>                mapRoot<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>undefined</span>,
+</span></span><span style=display:flex><span>                sourceRoot<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>undefined</span>,
+</span></span><span style=display:flex><span>                declaration<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>false</span>,
+</span></span><span style=display:flex><span>                declarationMap<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>false</span>,
+</span></span><span style=display:flex><span>                allowEmptyCodegenFiles<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>false</span>,
+</span></span><span style=display:flex><span>                annotationsAs<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;decorators&#39;</span>,
+</span></span><span style=display:flex><span>                enableResourceInlining<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>false</span>,
+</span></span><span style=display:flex><span>            }));
+</span></span><span style=display:flex><span>            <span style=color:#ff79c6>if</span> (compilerOptions.target <span style=color:#ff79c6>===</span> <span style=color:#ff79c6>undefined</span> <span style=color:#ff79c6>||</span> compilerOptions.target <span style=color:#ff79c6>&lt;</span> typescript_1.<span style=color:#ff79c6>default</span>.ScriptTarget.ES2022) {
+</span></span><span style=display:flex><span>                <span style=color:#6272a4>// If &#39;useDefineForClassFields&#39; is already defined in the users project leave the value as is.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                <span style=color:#6272a4>// Otherwise fallback to false due to https://github.com/microsoft/TypeScript/issues/45995
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                <span style=color:#6272a4>// which breaks the deprecated `@Effects` NGRX decorator and potentially other existing code as well.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                compilerOptions.target <span style=color:#ff79c6>=</span> typescript_1.<span style=color:#ff79c6>default</span>.ScriptTarget.ES2022;
+</span></span><span style=display:flex><span>                (_b <span style=color:#ff79c6>=</span> compilerOptions.useDefineForClassFields) <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span> <span style=color:#ff79c6>&amp;&amp;</span> _b <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>?</span> _b <span style=color:#ff79c6>:</span> (compilerOptions.useDefineForClassFields <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>false</span>);
+</span></span><span style=display:flex><span>                (setupWarnings <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span> <span style=color:#ff79c6>&amp;&amp;</span> setupWarnings <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>?</span> setupWarnings <span style=color:#ff79c6>:</span> (setupWarnings <span style=color:#ff79c6>=</span> [])).push({
+</span></span><span style=display:flex><span>                    text<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;TypeScript compiler options &#34;target&#34; and &#34;useDefineForClassFields&#34; are set to &#34;ES2022&#34; and &#39;</span> <span style=color:#ff79c6>+</span>
+</span></span><span style=display:flex><span>                        <span style=color:#f1fa8c>&#39;&#34;false&#34; respectively by the Angular CLI.&#39;</span>,
+</span></span><span style=display:flex><span>                    location<span style=color:#ff79c6>:</span> { file<span style=color:#ff79c6>:</span> pluginOptions.tsconfig },
+</span></span><span style=display:flex><span>                    notes<span style=color:#ff79c6>:</span> [
+</span></span><span style=display:flex><span>                        {
+</span></span><span style=display:flex><span>                            text<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;To control ECMA version and features use the Browerslist configuration. &#39;</span> <span style=color:#ff79c6>+</span>
+</span></span><span style=display:flex><span>                                <span style=color:#f1fa8c>&#39;For more information, see https://angular.io/guide/build#configuring-browser-compatibility&#39;</span>,
+</span></span><span style=display:flex><span>                        },
+</span></span><span style=display:flex><span>                    ],
+</span></span><span style=display:flex><span>                });
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>            <span style=color:#6272a4>// The file emitter created during `onStart` that will be used during the build in `onLoad` callbacks for TS files
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>            <span style=color:#8be9fd;font-style:italic>let</span> fileEmitter;
+</span></span><span style=display:flex><span>            <span style=color:#6272a4>// The stylesheet resources from component stylesheets that will be added to the build results output files
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>            <span style=color:#8be9fd;font-style:italic>let</span> stylesheetResourceFiles;
+</span></span><span style=display:flex><span>            <span style=color:#8be9fd;font-style:italic>let</span> previousBuilder;
+</span></span><span style=display:flex><span>            <span style=color:#8be9fd;font-style:italic>let</span> previousAngularProgram;
+</span></span><span style=display:flex><span>            <span style=color:#ff79c6>const</span> babelDataCache <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> Map();
+</span></span><span style=display:flex><span>            <span style=color:#ff79c6>const</span> diagnosticCache <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> WeakMap();
+</span></span><span style=display:flex><span>            build.onStart(<span style=color:#ff79c6>async</span> () =&gt; {
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>const</span> result <span style=color:#ff79c6>=</span> {
+</span></span><span style=display:flex><span>                    warnings<span style=color:#ff79c6>:</span> setupWarnings,
+</span></span><span style=display:flex><span>                };
+</span></span><span style=display:flex><span>                <span style=color:#6272a4>// Reset the setup warnings so that they are only shown during the first build.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                setupWarnings <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>undefined</span>;
+</span></span><span style=display:flex><span>                <span style=color:#6272a4>// Reset debug performance tracking
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                (<span style=color:#bd93f9>0</span>, profiling_1.resetCumulativeDurations)();
+</span></span><span style=display:flex><span>                <span style=color:#6272a4>// Reset stylesheet resource output files
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                stylesheetResourceFiles <span style=color:#ff79c6>=</span> [];
+</span></span><span style=display:flex><span>                <span style=color:#6272a4>// Create TypeScript compiler host
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                <span style=color:#ff79c6>const</span> host <span style=color:#ff79c6>=</span> typescript_1.<span style=color:#ff79c6>default</span>.createIncrementalCompilerHost(compilerOptions);
+</span></span><span style=display:flex><span>                <span style=color:#6272a4>// Temporarily process external resources via readResource.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                <span style=color:#6272a4>// The AOT compiler currently requires this hook to allow for a transformResource hook.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                <span style=color:#6272a4>// Once the AOT compiler allows only a transformResource hook, this can be reevaluated.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                host.readResource <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>async</span> <span style=color:#8be9fd;font-style:italic>function</span> (fileName) {
+</span></span><span style=display:flex><span>                    <span style=color:#8be9fd;font-style:italic>var</span> _a, _b, _c;
+</span></span><span style=display:flex><span>                    <span style=color:#6272a4>// Template resources (.html/.svg) files are not bundled or transformed
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                    <span style=color:#ff79c6>if</span> (fileName.endsWith(<span style=color:#f1fa8c>&#39;.html&#39;</span>) <span style=color:#ff79c6>||</span> fileName.endsWith(<span style=color:#f1fa8c>&#39;.svg&#39;</span>)) {
+</span></span><span style=display:flex><span>                        <span style=color:#ff79c6>return</span> (_a <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>this</span>.readFile(fileName)) <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span> <span style=color:#ff79c6>&amp;&amp;</span> _a <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>?</span> _a <span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;&#39;</span>;
+</span></span><span style=display:flex><span>                    }
+</span></span><span style=display:flex><span>                    <span style=color:#ff79c6>const</span> { contents, resourceFiles, errors, warnings } <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>await</span> (<span style=color:#bd93f9>0</span>, stylesheets_1.bundleStylesheetFile)(fileName, styleOptions);
+</span></span><span style=display:flex><span>                    ((_b <span style=color:#ff79c6>=</span> result.errors) <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span> <span style=color:#ff79c6>&amp;&amp;</span> _b <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>?</span> _b <span style=color:#ff79c6>:</span> (result.errors <span style=color:#ff79c6>=</span> [])).push(...errors);
+</span></span><span style=display:flex><span>                    ((_c <span style=color:#ff79c6>=</span> result.warnings) <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span> <span style=color:#ff79c6>&amp;&amp;</span> _c <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>?</span> _c <span style=color:#ff79c6>:</span> (result.warnings <span style=color:#ff79c6>=</span> [])).push(...warnings);
+</span></span><span style=display:flex><span>                    stylesheetResourceFiles.push(...resourceFiles);
+</span></span><span style=display:flex><span>                    <span style=color:#ff79c6>return</span> contents;
+</span></span><span style=display:flex><span>                };
+</span></span><span style=display:flex><span>                <span style=color:#6272a4>// Add an AOT compiler resource transform hook
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                host.transformResource <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>async</span> <span style=color:#8be9fd;font-style:italic>function</span> (data, context) {
+</span></span><span style=display:flex><span>                    <span style=color:#8be9fd;font-style:italic>var</span> _a, _b, _c;
+</span></span><span style=display:flex><span>                    <span style=color:#6272a4>// Only inline style resources are transformed separately currently
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                    <span style=color:#ff79c6>if</span> (context.resourceFile <span style=color:#ff79c6>||</span> context.type <span style=color:#ff79c6>!==</span> <span style=color:#f1fa8c>&#39;style&#39;</span>) {
+</span></span><span style=display:flex><span>                        <span style=color:#ff79c6>return</span> <span style=color:#ff79c6>null</span>;
+</span></span><span style=display:flex><span>                    }
+</span></span><span style=display:flex><span>                    <span style=color:#6272a4>// The file with the resource content will either be an actual file (resourceFile)
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                    <span style=color:#6272a4>// or the file containing the inline component style text (containingFile).
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                    <span style=color:#ff79c6>const</span> file <span style=color:#ff79c6>=</span> (_a <span style=color:#ff79c6>=</span> context.resourceFile) <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span> <span style=color:#ff79c6>&amp;&amp;</span> _a <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>?</span> _a <span style=color:#ff79c6>:</span> context.containingFile;
+</span></span><span style=display:flex><span>                    <span style=color:#ff79c6>const</span> { contents, resourceFiles, errors, warnings } <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>await</span> (<span style=color:#bd93f9>0</span>, stylesheets_1.bundleStylesheetText)(data, {
+</span></span><span style=display:flex><span>                        resolvePath<span style=color:#ff79c6>:</span> path.dirname(file),
+</span></span><span style=display:flex><span>                        virtualName<span style=color:#ff79c6>:</span> file,
+</span></span><span style=display:flex><span>                    }, styleOptions);
+</span></span><span style=display:flex><span>                    ((_b <span style=color:#ff79c6>=</span> result.errors) <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span> <span style=color:#ff79c6>&amp;&amp;</span> _b <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>?</span> _b <span style=color:#ff79c6>:</span> (result.errors <span style=color:#ff79c6>=</span> [])).push(...errors);
+</span></span><span style=display:flex><span>                    ((_c <span style=color:#ff79c6>=</span> result.warnings) <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span> <span style=color:#ff79c6>&amp;&amp;</span> _c <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>?</span> _c <span style=color:#ff79c6>:</span> (result.warnings <span style=color:#ff79c6>=</span> [])).push(...warnings);
+</span></span><span style=display:flex><span>                    stylesheetResourceFiles.push(...resourceFiles);
+</span></span><span style=display:flex><span>                    <span style=color:#ff79c6>return</span> { content<span style=color:#ff79c6>:</span> contents };
+</span></span><span style=display:flex><span>                };
+</span></span><span style=display:flex><span>                <span style=color:#6272a4>// Temporary deep import for host augmentation support
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                <span style=color:#ff79c6>const</span> { augmentHostWithCaching, augmentHostWithReplacements, augmentProgramWithVersioning, } <span style=color:#ff79c6>=</span> require(<span style=color:#f1fa8c>&#39;@ngtools/webpack/src/ivy/host&#39;</span>);
+</span></span><span style=display:flex><span>                <span style=color:#6272a4>// Augment TypeScript Host for file replacements option
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                <span style=color:#ff79c6>if</span> (pluginOptions.fileReplacements) {
+</span></span><span style=display:flex><span>                    augmentHostWithReplacements(host, pluginOptions.fileReplacements);
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>                <span style=color:#6272a4>// Augment TypeScript Host with source file caching if provided
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                <span style=color:#ff79c6>if</span> (pluginOptions.sourceFileCache) {
+</span></span><span style=display:flex><span>                    augmentHostWithCaching(host, pluginOptions.sourceFileCache);
+</span></span><span style=display:flex><span>                    <span style=color:#6272a4>// Allow the AOT compiler to request the set of changed templates and styles
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                    host.getModifiedResourceFiles <span style=color:#ff79c6>=</span> <span style=color:#8be9fd;font-style:italic>function</span> () {
+</span></span><span style=display:flex><span>                        <span style=color:#8be9fd;font-style:italic>var</span> _a;
+</span></span><span style=display:flex><span>                        <span style=color:#ff79c6>return</span> (_a <span style=color:#ff79c6>=</span> pluginOptions.sourceFileCache) <span style=color:#ff79c6>===</span> <span style=color:#ff79c6>null</span> <span style=color:#ff79c6>||</span> _a <span style=color:#ff79c6>===</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>?</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>:</span> _a.modifiedFiles;
+</span></span><span style=display:flex><span>                    };
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>                <span style=color:#6272a4>// Create the Angular specific program that contains the Angular compiler
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                <span style=color:#ff79c6>const</span> angularProgram <span style=color:#ff79c6>=</span> (<span style=color:#bd93f9>0</span>, profiling_1.profileSync)(<span style=color:#f1fa8c>&#39;NG_CREATE_PROGRAM&#39;</span>, () =&gt; <span style=color:#ff79c6>new</span> NgtscProgram(rootNames, compilerOptions, host, previousAngularProgram));
+</span></span><span style=display:flex><span>                previousAngularProgram <span style=color:#ff79c6>=</span> angularProgram;
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>const</span> angularCompiler <span style=color:#ff79c6>=</span> angularProgram.compiler;
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>const</span> typeScriptProgram <span style=color:#ff79c6>=</span> angularProgram.getTsProgram();
+</span></span><span style=display:flex><span>                augmentProgramWithVersioning(typeScriptProgram);
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>const</span> builder <span style=color:#ff79c6>=</span> typescript_1.<span style=color:#ff79c6>default</span>.createEmitAndSemanticDiagnosticsBuilderProgram(typeScriptProgram, host, previousBuilder, configurationDiagnostics);
+</span></span><span style=display:flex><span>                previousBuilder <span style=color:#ff79c6>=</span> builder;
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>await</span> (<span style=color:#bd93f9>0</span>, profiling_1.profileAsync)(<span style=color:#f1fa8c>&#39;NG_ANALYZE_PROGRAM&#39;</span>, () =&gt; angularCompiler.analyzeAsync());
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>const</span> affectedFiles <span style=color:#ff79c6>=</span> (<span style=color:#bd93f9>0</span>, profiling_1.profileSync)(<span style=color:#f1fa8c>&#39;NG_FIND_AFFECTED&#39;</span>, () =&gt; findAffectedFiles(builder, angularCompiler));
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>if</span> (pluginOptions.sourceFileCache) {
+</span></span><span style=display:flex><span>                    <span style=color:#ff79c6>for</span> (<span style=color:#ff79c6>const</span> affected <span style=color:#ff79c6>of</span> affectedFiles) {
+</span></span><span style=display:flex><span>                        pluginOptions.sourceFileCache.typeScriptFileCache.<span style=color:#ff79c6>delete</span>((<span style=color:#bd93f9>0</span>, node_url_1.pathToFileURL)(affected.fileName).href);
+</span></span><span style=display:flex><span>                    }
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>                <span style=color:#8be9fd;font-style:italic>function</span><span style=color:#ff79c6>*</span> collectDiagnostics() {
+</span></span><span style=display:flex><span>                    <span style=color:#6272a4>// Collect program level diagnostics
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                    <span style=color:#ff79c6>yield</span><span style=color:#ff79c6>*</span> builder.getConfigFileParsingDiagnostics();
+</span></span><span style=display:flex><span>                    <span style=color:#ff79c6>yield</span><span style=color:#ff79c6>*</span> angularCompiler.getOptionDiagnostics();
+</span></span><span style=display:flex><span>                    <span style=color:#ff79c6>yield</span><span style=color:#ff79c6>*</span> builder.getOptionsDiagnostics();
+</span></span><span style=display:flex><span>                    <span style=color:#ff79c6>yield</span><span style=color:#ff79c6>*</span> builder.getGlobalDiagnostics();
+</span></span><span style=display:flex><span>                    <span style=color:#6272a4>// Collect source file specific diagnostics
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                    <span style=color:#ff79c6>const</span> optimizeFor <span style=color:#ff79c6>=</span> affectedFiles.size <span style=color:#ff79c6>&gt;</span> <span style=color:#bd93f9>1</span> <span style=color:#ff79c6>?</span> OptimizeFor.WholeProgram <span style=color:#ff79c6>:</span> OptimizeFor.SingleFile;
+</span></span><span style=display:flex><span>                    <span style=color:#ff79c6>for</span> (<span style=color:#ff79c6>const</span> sourceFile <span style=color:#ff79c6>of</span> builder.getSourceFiles()) {
+</span></span><span style=display:flex><span>                        <span style=color:#ff79c6>if</span> (angularCompiler.ignoreForDiagnostics.has(sourceFile)) {
+</span></span><span style=display:flex><span>                            <span style=color:#ff79c6>continue</span>;
+</span></span><span style=display:flex><span>                        }
+</span></span><span style=display:flex><span>                        <span style=color:#6272a4>// TypeScript will use cached diagnostics for files that have not been
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                        <span style=color:#6272a4>// changed or affected for this build when using incremental building.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                        <span style=color:#ff79c6>yield</span><span style=color:#ff79c6>*</span> (<span style=color:#bd93f9>0</span>, profiling_1.profileSync)(<span style=color:#f1fa8c>&#39;NG_DIAGNOSTICS_SYNTACTIC&#39;</span>, () =&gt; builder.getSyntacticDiagnostics(sourceFile), <span style=color:#ff79c6>true</span>);
+</span></span><span style=display:flex><span>                        <span style=color:#ff79c6>yield</span><span style=color:#ff79c6>*</span> (<span style=color:#bd93f9>0</span>, profiling_1.profileSync)(<span style=color:#f1fa8c>&#39;NG_DIAGNOSTICS_SEMANTIC&#39;</span>, () =&gt; builder.getSemanticDiagnostics(sourceFile), <span style=color:#ff79c6>true</span>);
+</span></span><span style=display:flex><span>                        <span style=color:#6272a4>// Declaration files cannot have template diagnostics
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                        <span style=color:#ff79c6>if</span> (sourceFile.isDeclarationFile) {
+</span></span><span style=display:flex><span>                            <span style=color:#ff79c6>continue</span>;
+</span></span><span style=display:flex><span>                        }
+</span></span><span style=display:flex><span>                        <span style=color:#6272a4>// Only request Angular template diagnostics for affected files to avoid
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                        <span style=color:#6272a4>// overhead of template diagnostics for unchanged files.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                        <span style=color:#ff79c6>if</span> (affectedFiles.has(sourceFile)) {
+</span></span><span style=display:flex><span>                            <span style=color:#ff79c6>const</span> angularDiagnostics <span style=color:#ff79c6>=</span> (<span style=color:#bd93f9>0</span>, profiling_1.profileSync)(<span style=color:#f1fa8c>&#39;NG_DIAGNOSTICS_TEMPLATE&#39;</span>, () =&gt; angularCompiler.getDiagnosticsForFile(sourceFile, optimizeFor), <span style=color:#ff79c6>true</span>);
+</span></span><span style=display:flex><span>                            diagnosticCache.set(sourceFile, angularDiagnostics);
+</span></span><span style=display:flex><span>                            <span style=color:#ff79c6>yield</span><span style=color:#ff79c6>*</span> angularDiagnostics;
+</span></span><span style=display:flex><span>                        }
+</span></span><span style=display:flex><span>                        <span style=color:#ff79c6>else</span> {
+</span></span><span style=display:flex><span>                            <span style=color:#ff79c6>const</span> angularDiagnostics <span style=color:#ff79c6>=</span> diagnosticCache.get(sourceFile);
+</span></span><span style=display:flex><span>                            <span style=color:#ff79c6>if</span> (angularDiagnostics) {
+</span></span><span style=display:flex><span>                                <span style=color:#ff79c6>yield</span><span style=color:#ff79c6>*</span> angularDiagnostics;
+</span></span><span style=display:flex><span>                            }
+</span></span><span style=display:flex><span>                        }
+</span></span><span style=display:flex><span>                    }
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>                (<span style=color:#bd93f9>0</span>, profiling_1.profileSync)(<span style=color:#f1fa8c>&#39;NG_DIAGNOSTICS_TOTAL&#39;</span>, () =&gt; {
+</span></span><span style=display:flex><span>                    <span style=color:#8be9fd;font-style:italic>var</span> _a, _b;
+</span></span><span style=display:flex><span>                    <span style=color:#ff79c6>for</span> (<span style=color:#ff79c6>const</span> diagnostic <span style=color:#ff79c6>of</span> collectDiagnostics()) {
+</span></span><span style=display:flex><span>                        <span style=color:#ff79c6>const</span> message <span style=color:#ff79c6>=</span> convertTypeScriptDiagnostic(diagnostic, host);
+</span></span><span style=display:flex><span>                        <span style=color:#ff79c6>if</span> (diagnostic.category <span style=color:#ff79c6>===</span> typescript_1.<span style=color:#ff79c6>default</span>.DiagnosticCategory.<span style=color:#8be9fd;font-style:italic>Error</span>) {
+</span></span><span style=display:flex><span>                            ((_a <span style=color:#ff79c6>=</span> result.errors) <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span> <span style=color:#ff79c6>&amp;&amp;</span> _a <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>?</span> _a <span style=color:#ff79c6>:</span> (result.errors <span style=color:#ff79c6>=</span> [])).push(message);
+</span></span><span style=display:flex><span>                        }
+</span></span><span style=display:flex><span>                        <span style=color:#ff79c6>else</span> {
+</span></span><span style=display:flex><span>                            ((_b <span style=color:#ff79c6>=</span> result.warnings) <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span> <span style=color:#ff79c6>&amp;&amp;</span> _b <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>?</span> _b <span style=color:#ff79c6>:</span> (result.warnings <span style=color:#ff79c6>=</span> [])).push(message);
+</span></span><span style=display:flex><span>                        }
+</span></span><span style=display:flex><span>                    }
+</span></span><span style=display:flex><span>                });
+</span></span><span style=display:flex><span>                fileEmitter <span style=color:#ff79c6>=</span> createFileEmitter(builder, mergeTransformers(angularCompiler.prepareEmit().transformers, {
+</span></span><span style=display:flex><span>                    before<span style=color:#ff79c6>:</span> [replaceBootstrap(() =&gt; builder.getProgram().getTypeChecker())],
+</span></span><span style=display:flex><span>                }), (sourceFile) =&gt; angularCompiler.incrementalCompilation.recordSuccessfulEmit(sourceFile));
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>return</span> result;
+</span></span><span style=display:flex><span>            });
+</span></span><span style=display:flex><span>            build.onLoad({ filter<span style=color:#ff79c6>:</span> compilerOptions.allowJs <span style=color:#ff79c6>?</span> <span style=color:#f1fa8c>/\.[cm]?[jt]sx?$/</span> <span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>/\.[cm]?tsx?$/</span> }, (args) =&gt; (<span style=color:#bd93f9>0</span>, profiling_1.profileAsync)(<span style=color:#f1fa8c>&#39;NG_EMIT_TS*&#39;</span>, <span style=color:#ff79c6>async</span> () =&gt; {
+</span></span><span style=display:flex><span>                <span style=color:#8be9fd;font-style:italic>var</span> _a, _b, _c, _d, _e, _f;
+</span></span><span style=display:flex><span>                assert.ok(fileEmitter, <span style=color:#f1fa8c>&#39;Invalid plugin execution order&#39;</span>);
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>const</span> request <span style=color:#ff79c6>=</span> (_b <span style=color:#ff79c6>=</span> (_a <span style=color:#ff79c6>=</span> pluginOptions.fileReplacements) <span style=color:#ff79c6>===</span> <span style=color:#ff79c6>null</span> <span style=color:#ff79c6>||</span> _a <span style=color:#ff79c6>===</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>?</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>:</span> _a[args.path]) <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span> <span style=color:#ff79c6>&amp;&amp;</span> _b <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>?</span> _b <span style=color:#ff79c6>:</span> args.path;
+</span></span><span style=display:flex><span>                <span style=color:#6272a4>// The filename is currently used as a cache key. Since the cache is memory only,
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                <span style=color:#6272a4>// the options cannot change and do not need to be represented in the key. If the
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                <span style=color:#6272a4>// cache is later stored to disk, then the options that affect transform output
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                <span style=color:#6272a4>// would need to be added to the key as well as a check for any change of content.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                <span style=color:#8be9fd;font-style:italic>let</span> contents <span style=color:#ff79c6>=</span> (_c <span style=color:#ff79c6>=</span> pluginOptions.sourceFileCache) <span style=color:#ff79c6>===</span> <span style=color:#ff79c6>null</span> <span style=color:#ff79c6>||</span> _c <span style=color:#ff79c6>===</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>?</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>:</span> _c.typeScriptFileCache.get((<span style=color:#bd93f9>0</span>, node_url_1.pathToFileURL)(request).href);
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>if</span> (contents <span style=color:#ff79c6>===</span> <span style=color:#ff79c6>undefined</span>) {
+</span></span><span style=display:flex><span>                    <span style=color:#ff79c6>const</span> typescriptResult <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>await</span> fileEmitter(request);
+</span></span><span style=display:flex><span>                    <span style=color:#ff79c6>if</span> (<span style=color:#ff79c6>!</span>typescriptResult) {
+</span></span><span style=display:flex><span>                        <span style=color:#6272a4>// No TS result indicates the file is not part of the TypeScript program.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                        <span style=color:#6272a4>// If allowJs is enabled and the file is JS then defer to the next load hook.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                        <span style=color:#ff79c6>if</span> (compilerOptions.allowJs <span style=color:#ff79c6>&amp;&amp;</span> <span style=color:#f1fa8c>/\.[cm]?js$/</span>.test(request)) {
+</span></span><span style=display:flex><span>                            <span style=color:#ff79c6>return</span> <span style=color:#ff79c6>undefined</span>;
+</span></span><span style=display:flex><span>                        }
+</span></span><span style=display:flex><span>                        <span style=color:#6272a4>// Otherwise return an error
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                        <span style=color:#ff79c6>return</span> {
+</span></span><span style=display:flex><span>                            errors<span style=color:#ff79c6>:</span> [
+</span></span><span style=display:flex><span>                                createMissingFileError(request, args.path, (_d <span style=color:#ff79c6>=</span> build.initialOptions.absWorkingDir) <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span> <span style=color:#ff79c6>&amp;&amp;</span> _d <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>?</span> _d <span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;&#39;</span>),
+</span></span><span style=display:flex><span>                            ],
+</span></span><span style=display:flex><span>                        };
+</span></span><span style=display:flex><span>                    }
+</span></span><span style=display:flex><span>                    <span style=color:#ff79c6>const</span> data <span style=color:#ff79c6>=</span> (_e <span style=color:#ff79c6>=</span> typescriptResult.content) <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>null</span> <span style=color:#ff79c6>&amp;&amp;</span> _e <span style=color:#ff79c6>!==</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>?</span> _e <span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;&#39;</span>;
+</span></span><span style=display:flex><span>                    <span style=color:#6272a4>// The pre-transformed data is used as a cache key. Since the cache is memory only,
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                    <span style=color:#6272a4>// the options cannot change and do not need to be represented in the key. If the
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                    <span style=color:#6272a4>// cache is later stored to disk, then the options that affect transform output
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                    <span style=color:#6272a4>// would need to be added to the key as well.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                    contents <span style=color:#ff79c6>=</span> babelDataCache.get(data);
+</span></span><span style=display:flex><span>                    <span style=color:#ff79c6>if</span> (contents <span style=color:#ff79c6>===</span> <span style=color:#ff79c6>undefined</span>) {
+</span></span><span style=display:flex><span>                        <span style=color:#ff79c6>const</span> transformedData <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>await</span> transformWithBabel(request, data, pluginOptions);
+</span></span><span style=display:flex><span>                        contents <span style=color:#ff79c6>=</span> Buffer.from(transformedData, <span style=color:#f1fa8c>&#39;utf-8&#39;</span>);
+</span></span><span style=display:flex><span>                        babelDataCache.set(data, contents);
+</span></span><span style=display:flex><span>                    }
+</span></span><span style=display:flex><span>                    (_f <span style=color:#ff79c6>=</span> pluginOptions.sourceFileCache) <span style=color:#ff79c6>===</span> <span style=color:#ff79c6>null</span> <span style=color:#ff79c6>||</span> _f <span style=color:#ff79c6>===</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>?</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>:</span> _f.typeScriptFileCache.set((<span style=color:#bd93f9>0</span>, node_url_1.pathToFileURL)(request).href, contents);
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>return</span> {
+</span></span><span style=display:flex><span>                    contents,
+</span></span><span style=display:flex><span>                    loader<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;js&#39;</span>,
+</span></span><span style=display:flex><span>                };
+</span></span><span style=display:flex><span>            }, <span style=color:#ff79c6>true</span>));
+</span></span><span style=display:flex><span>            build.onLoad({ filter<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>/\.[cm]?js$/</span> }, (args) =&gt; (<span style=color:#bd93f9>0</span>, profiling_1.profileAsync)(<span style=color:#f1fa8c>&#39;NG_EMIT_JS*&#39;</span>, <span style=color:#ff79c6>async</span> () =&gt; {
+</span></span><span style=display:flex><span>                <span style=color:#8be9fd;font-style:italic>var</span> _a, _b;
+</span></span><span style=display:flex><span>                <span style=color:#6272a4>// The filename is currently used as a cache key. Since the cache is memory only,
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                <span style=color:#6272a4>// the options cannot change and do not need to be represented in the key. If the
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                <span style=color:#6272a4>// cache is later stored to disk, then the options that affect transform output
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                <span style=color:#6272a4>// would need to be added to the key as well as a check for any change of content.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>                <span style=color:#8be9fd;font-style:italic>let</span> contents <span style=color:#ff79c6>=</span> (_a <span style=color:#ff79c6>=</span> pluginOptions.sourceFileCache) <span style=color:#ff79c6>===</span> <span style=color:#ff79c6>null</span> <span style=color:#ff79c6>||</span> _a <span style=color:#ff79c6>===</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>?</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>:</span> _a.babelFileCache.get(args.path);
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>if</span> (contents <span style=color:#ff79c6>===</span> <span style=color:#ff79c6>undefined</span>) {
+</span></span><span style=display:flex><span>                    <span style=color:#ff79c6>const</span> data <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>await</span> fs.readFile(args.path, <span style=color:#f1fa8c>&#39;utf-8&#39;</span>);
+</span></span><span style=display:flex><span>                    <span style=color:#ff79c6>const</span> transformedData <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>await</span> transformWithBabel(args.path, data, pluginOptions);
+</span></span><span style=display:flex><span>                    contents <span style=color:#ff79c6>=</span> Buffer.from(transformedData, <span style=color:#f1fa8c>&#39;utf-8&#39;</span>);
+</span></span><span style=display:flex><span>                    (_b <span style=color:#ff79c6>=</span> pluginOptions.sourceFileCache) <span style=color:#ff79c6>===</span> <span style=color:#ff79c6>null</span> <span style=color:#ff79c6>||</span> _b <span style=color:#ff79c6>===</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>?</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>:</span> _b.babelFileCache.set(args.path, contents);
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>return</span> {
+</span></span><span style=display:flex><span>                    contents,
+</span></span><span style=display:flex><span>                    loader<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;js&#39;</span>,
+</span></span><span style=display:flex><span>                };
+</span></span><span style=display:flex><span>            }, <span style=color:#ff79c6>true</span>));
+</span></span><span style=display:flex><span>            build.onEnd((result) =&gt; {
+</span></span><span style=display:flex><span>                <span style=color:#8be9fd;font-style:italic>var</span> _a;
+</span></span><span style=display:flex><span>                <span style=color:#ff79c6>if</span> (stylesheetResourceFiles.length) {
+</span></span><span style=display:flex><span>                    (_a <span style=color:#ff79c6>=</span> result.outputFiles) <span style=color:#ff79c6>===</span> <span style=color:#ff79c6>null</span> <span style=color:#ff79c6>||</span> _a <span style=color:#ff79c6>===</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>?</span> <span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span> <span style=color:#ff79c6>:</span> _a.push(...stylesheetResourceFiles);
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>                (<span style=color:#bd93f9>0</span>, profiling_1.logCumulativeDurations)();
+</span></span><span style=display:flex><span>            });
+</span></span><span style=display:flex><span>        },
+</span></span><span style=display:flex><span>    };
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>OH MY&mldr; IT&rsquo;S SO LONG AND COMPLICATED!</p><p>It is, but there are a lot of source code lines in four main &ldquo;sections&rdquo;:</p><ul><li><code>build.onStart()</code> - a hook that is called <strong>only once</strong> on the build start</li><li><code>build.onLoad()</code> - with filter set to <code>compilerOptions.allowJs ? /\.[cm]?[jt]sx?$/ : /\.[cm]?tsx?$/</code>, so this is the one which compiles all the Typescript files</li><li><code>build.onLoad()</code> - with filter set to <code>/\.[cm]?js$/</code>, for Javascript files</li><li><code>build.onEnd()</code> - a hook called <strong>only once</strong> on the end of the build</li></ul><p>From documentation and experiments with <code>esbuild</code> I know that <code>build.onLoad()</code> hooks are called multiple times.
+It&rsquo;s harder to measure time for them, so I&rsquo;ve started with the rest of the hooks first.</p><p>The results that I got are pretty interesting:</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>&gt; ~/D/experiment-angular-15-esbuild main yarn build
+</span></span><span style=display:flex><span>yarn run v1.22.17
+</span></span><span style=display:flex><span>$ ng build
+</span></span><span style=display:flex><span>The esbuild browser application builder (&#39;browser-esbuild&#39;) is currently experimental.
+</span></span><span style=display:flex><span>The &#39;extractLicenses&#39; option is currently unsupported by this experimental builder and will be ignored.
+</span></span><span style=display:flex><span>The &#39;progress&#39; option is currently unsupported by this experimental builder and will be ignored.
+</span></span><span style=display:flex><span>build.onStart() 116283 ms
+</span></span><span style=display:flex><span>build.onEnd() 0 ms
+</span></span><span style=display:flex><span>Complete. [129.851 seconds]
+</span></span><span style=display:flex><span>✨  Done in 131.65s.
+</span></span></code></pre></td></tr></table></div></div><p>For some reason, the first called hook is the slowest one.
+Knowing that, the rest of the research is a lot easier to do.
+I decided to do fast bisection on that function, and after few tries I found the slowest line of code.
+I modified the code to measure it, and everything you can find in a code box below.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#6272a4>// build.onStart(build.onStart(async () =&gt; { ...
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span><span style=color:#ff79c6>const</span> builder <span style=color:#ff79c6>=</span> typescript_1.<span style=color:#ff79c6>default</span>.createEmitAndSemanticDiagnosticsBuilderProgram(typeScriptProgram, host, previousBuilder, configurationDiagnostics);
+</span></span><span style=display:flex><span>previousBuilder <span style=color:#ff79c6>=</span> builder;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>const</span> profilingStart <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> <span style=color:#8be9fd;font-style:italic>Date</span>().getTime();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>await</span> (<span style=color:#bd93f9>0</span>, profiling_1.profileAsync)(<span style=color:#f1fa8c>&#39;NG_ANALYZE_PROGRAM&#39;</span>, () <span style=color:#ff79c6>=&gt;</span> angularCompiler.analyzeAsync());
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>const</span> profilingEnd <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> <span style=color:#8be9fd;font-style:italic>Date</span>().getTime();
+</span></span><span style=display:flex><span>console.log(<span style=color:#f1fa8c>&#39;NG_ANALYZE_PROGRAM&#39;</span>, profilingEnd <span style=color:#ff79c6>-</span> profilingStart, <span style=color:#f1fa8c>&#39;ms&#39;</span>); <span style=color:#6272a4>// &lt;- Interesting part
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>const</span> affectedFiles <span style=color:#ff79c6>=</span> (<span style=color:#bd93f9>0</span>, profiling_1.profileSync)(<span style=color:#f1fa8c>&#39;NG_FIND_AFFECTED&#39;</span>, () <span style=color:#ff79c6>=&gt;</span> findAffectedFiles(builder, angularCompiler));
+</span></span><span style=display:flex><span><span style=color:#ff79c6>if</span> (pluginOptions.sourceFileCache) {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>for</span> (<span style=color:#ff79c6>const</span> affected <span style=color:#ff79c6>of</span> affectedFiles) {
+</span></span><span style=display:flex><span>        pluginOptions.sourceFileCache.typeScriptFileCache.<span style=color:#ff79c6>delete</span>((<span style=color:#bd93f9>0</span>, node_url_1.pathToFileURL)(affected.fileName).href);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span><span style=color:#6272a4>// ...
+</span></span></span></code></pre></td></tr></table></div></div><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>&gt; ~/D/experiment-angular-15-esbuild main yarn build
+</span></span><span style=display:flex><span>yarn run v1.22.17
+</span></span><span style=display:flex><span>$ ng build
+</span></span><span style=display:flex><span>The esbuild browser application builder (&#39;browser-esbuild&#39;) is currently experimental.
+</span></span><span style=display:flex><span>The &#39;extractLicenses&#39; option is currently unsupported by this experimental builder and will be ignored.
+</span></span><span style=display:flex><span>The &#39;progress&#39; option is currently unsupported by this experimental builder and will be ignored.
+</span></span><span style=display:flex><span>NG_ANALYZE_PROGRAM 127212 ms
+</span></span><span style=display:flex><span>build.onStart() 141464 ms
+</span></span><span style=display:flex><span>build.onEnd() 0 ms
+</span></span><span style=display:flex><span>Complete. [159.394 seconds]
+</span></span><span style=display:flex><span>✨  Done in 160.80s.
+</span></span></code></pre></td></tr></table></div></div><p>It looks like <code>angularCompiler.analyzeAsync()</code> took 127,2s (about 80%) of the whole 159.4s building time!</p><h2 id=ngcompileranalyzeasync><code>NgCompiler.analyzeAsync()</code></h2><p>I don&rsquo;t want to do the complete analysis of that method (because I&rsquo;m not prepared to do this&mldr; yet),
+but I think that it&rsquo;s worth posting at least the comment that is above this method:</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#6272a4>/**
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * Perform Angular&#39;s analysis step (as a precursor to `getDiagnostics` or `prepareEmit`)
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * asynchronously.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> *
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * Normally, this operation happens lazily whenever `getDiagnostics` or `prepareEmit` are called.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * However, certain consumers may wish to allow for an asynchronous phase of analysis, where
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * resources such as `styleUrls` are resolved asynchronously. In these cases `analyzeAsync` must
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> * be called first, and its `Promise` awaited prior to calling any other APIs of `NgCompiler`.
+</span></span></span><span style=display:flex><span><span style=color:#6272a4> */</span>
+</span></span><span style=display:flex><span>analyzeAsync()<span style=color:#ff79c6>:</span> Promise&lt;<span style=color:#ff79c6>void</span>&gt;;
+</span></span></code></pre></td></tr></table></div></div><h2 id=summary>Summary</h2><p>I found
+that <code>esbuild</code> builder for Angular is using the same <code>NgCompiler</code> that we know from standard Webpack-based builder.
+This might be the problem.</p><p>When I first time heard about <code>esbuild</code> I learned that it is so fast, because it has been written in go.
+Go is an extremely fast language, and it is able to process code using threads.
+Javascript can use only one thread, so it must be slower.</p><p>For now <code>NgCompiler</code> is written in Javascript, and it&rsquo;s slow.
+I have a hope that it will eventually change in next versions,
+because <code>esbuild</code>, <code>swc</code>
+and <code>vite</code> proved that it&rsquo;s worth going outside the Javascript comfort zone when you want
+to have a faster building processes.</p></div></article><div id=footer-post-container><div id=footer-post><div id=nav-footer style=display:none><ul><li><a href=/>Home</a></li><li><a href=/posts>All posts</a></li><li><a href=/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></div><div id=toc-footer style=display:none><nav id=TableOfContents><ul><li><a href=#prepare>Prepare</a></li><li><a href=#plugin-code>Plugin code</a></li><li><a href=#ngcompileranalyzeasync><code>NgCompiler.analyzeAsync()</code></a></li><li><a href=#summary>Summary</a></li></ul></nav></div><div id=share-footer style=display:none><ul><li><a class=icon href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fmythical-angular.dev%2fposts%2fangular-15-esbuild-angular-plugin%2f" aria-label=Facebook><i class="fab fa-facebook fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://twitter.com/share?url=https%3a%2f%2fmythical-angular.dev%2fposts%2fangular-15-esbuild-angular-plugin%2f&text=Angular%2015%20-%20esbuild%20%60angular-compiler%60%20plugin" aria-label=Twitter><i class="fab fa-twitter fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fmythical-angular.dev%2fposts%2fangular-15-esbuild-angular-plugin%2f&title=Angular%2015%20-%20esbuild%20%60angular-compiler%60%20plugin" aria-label=Linkedin><i class="fab fa-linkedin fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fmythical-angular.dev%2fposts%2fangular-15-esbuild-angular-plugin%2f&is_video=false&description=Angular%2015%20-%20esbuild%20%60angular-compiler%60%20plugin" aria-label=Pinterest><i class="fab fa-pinterest fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="mailto:?subject=Angular%2015%20-%20esbuild%20%60angular-compiler%60%20plugin&body=Check out this article: https%3a%2f%2fmythical-angular.dev%2fposts%2fangular-15-esbuild-angular-plugin%2f" aria-label=Email><i class="fas fa-envelope fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://getpocket.com/save?url=https%3a%2f%2fmythical-angular.dev%2fposts%2fangular-15-esbuild-angular-plugin%2f&title=Angular%2015%20-%20esbuild%20%60angular-compiler%60%20plugin" aria-label=Pocket><i class="fab fa-get-pocket fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="http://reddit.com/submit?url=https%3a%2f%2fmythical-angular.dev%2fposts%2fangular-15-esbuild-angular-plugin%2f&title=Angular%2015%20-%20esbuild%20%60angular-compiler%60%20plugin" aria-label=reddit><i class="fab fa-reddit fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="http://www.tumblr.com/share/link?url=https%3a%2f%2fmythical-angular.dev%2fposts%2fangular-15-esbuild-angular-plugin%2f&name=Angular%2015%20-%20esbuild%20%60angular-compiler%60%20plugin&description=In%20the%20two%20previous%20articles%20I%20tried%20to%20test%20and%20diagnose%20the%20esbuild%20builder%20for%20Angular.%20It%20has%20been%20introduced%20recently%20in%20Angular%2015%2c%20and%20it%20should%20fix%20my%20main%20problems%20with%20building%20time%20using%20ng%20cli.%0aUnfortunately%20after%20a%20few%20first%20tests%2c%20%40angular-devkit%2fbuild-angular%3abrowser-esbuild%20was%20faster%20than%20%40angular-devkit%2fbuild-angular%3abrowser%2c%20but%20not%20as%20fast%20as%20advertised%20on%20the%20esbuild%20webpage.%0aIn%20the%20second%20article%2c%20I%20found%20out%20that%20the%20configuration%20contains%20custom%20plugins%20added%20by%20Angular%20repository%3a" aria-label=Tumblr><i class="fab fa-tumblr fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fmythical-angular.dev%2fposts%2fangular-15-esbuild-angular-plugin%2f&t=Angular%2015%20-%20esbuild%20%60angular-compiler%60%20plugin" aria-label="Hacker News"><i class="fab fa-hacker-news fa-lg" aria-hidden=true></i></a></li></ul></div><div id=actions-footer><a id=menu-toggle class=icon href=# onclick='return $("#nav-footer").toggle(),!1' aria-label=Menu><i class="fas fa-bars fa-lg" aria-hidden=true></i> Menu</a>
+<a id=toc-toggle class=icon href=# onclick='return $("#toc-footer").toggle(),!1' aria-label=TOC><i class="fas fa-list fa-lg" aria-hidden=true></i> TOC</a>
+<a id=share-toggle class=icon href=# onclick='return $("#share-footer").toggle(),!1' aria-label=Share><i class="fas fa-share-alt fa-lg" aria-hidden=true></i> share</a>
+<a id=top style=display:none class=icon href=# onclick='$("html, body").animate({scrollTop:0},"fast")' aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg" aria-hidden=true></i> Top</a></div></div></div><footer id=footer><div class=footer-left>Copyright &copy; 2022 Kamil Gałek</div><div class=footer-right><nav><ul><li><a href=/>Home</a></li><li><a href=/posts>All posts</a></li><li><a href=/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></nav></div></footer></div></body><link rel=stylesheet href=/lib/font-awesome/css/all.min.css><script src=/lib/jquery/jquery.min.js></script>
+<script src=/js/main.js></script>
+<script src=/js/code-copy.js></script></html>
