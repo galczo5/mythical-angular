@@ -1,5 +1,5 @@
 ---
-title: "Myth: There is no difference between ApplicationRef.tick() and ChangeDetectorRef.detectChanges()"
+title: "Angular Myth: There is no difference between ApplicationRef.tick() and ChangeDetectorRef.detectChanges()"
 date: 2022-05-21
 draft: false
 ---

@@ -1,5 +1,5 @@
 ---
-title: "Myth: Async pipes are good for performance"
+title: "Angular Myth: Async pipes are good for performance"
 date: 2022-01-29
 draft: false
 ---

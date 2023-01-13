@@ -1,5 +1,5 @@
 ---
-title: "Myth: Change Detection Strategies"
+title: "Angular Myth: Change Detection Strategies"
 date: 2022-02-20
 draft: false
 ---

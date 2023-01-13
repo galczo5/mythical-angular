@@ -1,5 +1,5 @@
 ---
-title: "Myth: Using set instead ngOnChanges improves the performance"
+title: "Angular Myth: Using set instead ngOnChanges improves the performance"
 date: 2022-02-06
 draft: false
 ---

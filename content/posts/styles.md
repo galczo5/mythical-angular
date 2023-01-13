@@ -1,5 +1,5 @@
 ---
-title: "Myth: Component styles"
+title: "Angular Myth: Component styles"
 date: 2022-03-10
 draft: false
 ---
