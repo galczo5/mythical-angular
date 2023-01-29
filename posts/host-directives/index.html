@@ -1,0 +1,337 @@
+<!doctype html><html lang=en-us><head><link rel=preload href=/lib/font-awesome/webfonts/fa-brands-400.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=preload href=/lib/font-awesome/webfonts/fa-regular-400.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=preload href=/lib/font-awesome/webfonts/fa-solid-900.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=preload href=/lib/JetBrainsMono/web/woff2/JetBrainsMono-Regular.woff2 as=font type=font/woff2 crossorigin=anonymous><script type=text/javascript src=https://latest.cactus.chat/cactus.js></script>
+<link rel=stylesheet href=https://latest.cactus.chat/style.css type=text/css><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><title>What you can do with host directives | Mythical Angular</title><link rel=canonical href=https://mythical-angular.dev/posts/host-directives/><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="all,follow"><meta name=googlebot content="index,follow,snippet,archive"><meta property="og:title" content="What you can do with host directives"><meta property="og:description" content="Host directives were a highly requested feature for a very long time. I think that this feature is great. First of all, I don&rsquo;t have to create unnecessary div or other elements to add a directive to my components. I don&rsquo;t have to create additional inputs, and outputs and pass them to the template.
+The next idea about host directives, which is quite intuitive and obvious to me, is that finally we can encapsulate some behavior or logic in directives, and compose our components with it easily."><meta property="og:type" content="article"><meta property="og:url" content="https://mythical-angular.dev/posts/host-directives/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2023-01-28T00:00:00+00:00"><meta property="article:modified_time" content="2023-01-28T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="What you can do with host directives"><meta name=twitter:description content="Host directives were a highly requested feature for a very long time. I think that this feature is great. First of all, I don&rsquo;t have to create unnecessary div or other elements to add a directive to my components. I don&rsquo;t have to create additional inputs, and outputs and pass them to the template.
+The next idea about host directives, which is quite intuitive and obvious to me, is that finally we can encapsulate some behavior or logic in directives, and compose our components with it easily."><link rel=stylesheet href=https://mythical-angular.dev/css/styles.94f653e9e151e28067a7c5dbbc4600cbd5a3c721e79faaf971e523c40f3b249b8e4f20bb57810dfffa8d559ca5c140fd56eb4cd9c0853113ad08e66afdb08bdd.css integrity="sha512-lPZT6eFR4oBnp8XbvEYAy9WjxyHnn6r5ceUjxA87JJuOTyC7V4EN//qNVZylwUD9VutM2cCFMROtCOZq/bCL3Q=="><link rel=stylesheet href=https://mythical-angular.dev/css/custom.css><!--[if lt IE 9]><script src=https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js></script>
+<script src=https://oss.maxcdn.com/respond/1.4.2/respond.min.js></script><![endif]--><link rel=icon type=image/png href=https://mythical-angular.dev/images/favicon.ico><script async src="https://www.googletagmanager.com/gtag/js?id=G-X7BCK4L1CF"></script>
+<script>var doNotTrack=!1;if(!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-X7BCK4L1CF",{anonymize_ip:!1})}</script></head><body class="max-width mx-auto px3 ltr"><div class="content index py4"><header id=header><a href=https://mythical-angular.dev><div id=logo style=background-image:url(https://mythical-angular.dev/logo.jpeg)></div><div id=title><h1>Mythical Angular</h1></div></a><div id=nav><ul><li class=icon><a href=# aria-label=Menu><i class="fas fa-bars fa-2x" aria-hidden=true></i></a></li><li><a href=/>Home</a></li><li><a href=/posts>All posts</a></li><li><a href=/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></div></header><article class=post itemscope itemtype=http://schema.org/BlogPosting><header><h1 class=posttitle itemprop="name headline">What you can do with host directives</h1><div class=meta><div class=postdate><time datetime="2023-01-28 00:00:00 +0000 UTC" itemprop=datePublished>2023-01-28</time></div></div></header><div class=content itemprop=articleBody><p>Host directives were a highly requested feature for a very long time.
+I think that this feature is great.
+First of all, I don&rsquo;t have to create unnecessary div or other elements to add a directive to my components.
+I don&rsquo;t have to create additional inputs, and outputs and pass them to the template.</p><p>The next idea about host directives,
+which is quite intuitive and obvious to me,
+is that finally we can encapsulate some behavior or logic in directives, and compose our components with it easily.
+Using this method allows us to drastically increase the re-usability of our code.</p><p>Today I want to show you the idea of how you can use host directives to improve your unit testing approach.
+This method is not only healthy for TTD, but it helps a lot in the matter of the separation of businesses and rendering logic.</p><h2 id=code>Code</h2><p>First of all, let&rsquo;s start with the code.
+Working app with simple unit tests you can find in my repo:
+<a href=https://github.com/galczo5/experiment-host-directives>github.com/galczo5/experiment-host-directives</a>. Today there is no need
+to deploy it because I&rsquo;m focusing on the code, developer experience, and a little on architecture.</p><p>The GitHub repo contains a simple app that has three main components:</p><ul><li>User list - presents a list of users, each row can be selected</li><li>User details - presents detailed information about the selected user</li><li>Filter input - used to filter users on the list</li></ul><p><img src=/images/host-directives-app.png alt=host-directives-app></p><p>It&rsquo;s extremely simple,
+and I bet that almost every front-end developer had to create a feature like this at some point.</p><h2 id=idea>Idea</h2><p>The main idea is to move all non-UI logic to the directive.
+The directive has to be a host directive and should expose inputs and outputs to be visible as we do it for components.</p><p>At this stage, we have UI logic in the component and business logic in the directive.
+This solution has a few advantages, for example, it&rsquo;s a lot easier to replace/rewrite the UI layer of your app.
+The second advantage is that you can create multiple components for the same logic.
+You can have different ways to select users but the logic for that is the same.
+What&rsquo;s more, with this approach it&rsquo;s quite easy to compose your components with directives,
+which I mentioned in the intro.</p><p>All of this is super cool, but there is one advantage that convinces me completely.
+If you split your code as I described, it should be easy to create unit tests.
+From my previous articles, you might know, that I prefer my tests to be extremely fast.</p><p>To achieve this, I cannot use <code>TestBed</code> and I would use esbuild as a transformer in jest.
+When the most important code is in a directive, there is no dilemma.
+There is no UI so I don&rsquo;t need to use <code>TestBed</code>!</p><p>In this approach, some may say architecture, when I discussed it with other devs I found one more problem to solve.
+We need to create a good way of communication between our directive and a component.</p><h2 id=communication-and-example>Communication and example</h2><p>Let&rsquo;s go back to our example.
+The user list has to fetch data from some kind of API.
+The call should contain information about the filter applied in the filter input.</p><p>I created a directive that gets filter value on input and gets filtered user in the <code>ngOnChanges</code> hook.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">36
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">37
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">38
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">39
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">40
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">41
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">42
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">43
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">44
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>import</span> {Directive, Input, OnChanges, OnDestroy, Self, SimpleChanges} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;@angular/core&#39;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {UserListService} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;./user-list.service&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {Subject, takeUntil} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;rxjs&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {UsersService} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;./users.service&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>@Directive</span>({
+</span></span><span style=display:flex><span>  selector<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;[appUserList]&#39;</span>,
+</span></span><span style=display:flex><span>  standalone: <span style=color:#8be9fd>true</span>,
+</span></span><span style=display:flex><span>  providers<span style=color:#ff79c6>:</span> [
+</span></span><span style=display:flex><span>    UserListService
+</span></span><span style=display:flex><span>  ]
+</span></span><span style=display:flex><span>})
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> UserListDirective <span style=color:#ff79c6>implements</span> OnChanges, OnDestroy {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#8be9fd;font-style:italic>@Input</span>()
+</span></span><span style=display:flex><span>  filterValue <span style=color:#ff79c6>=</span> <span style=color:#f1fa8c>&#39;&#39;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> <span style=color:#ff79c6>readonly</span> onDestroy$ <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> Subject&lt;<span style=color:#ff79c6>void</span>&gt;();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>constructor</span>(
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>private</span> <span style=color:#ff79c6>readonly</span> usersService: <span style=color:#8be9fd>UsersService</span>,
+</span></span><span style=display:flex><span>    <span style=color:#8be9fd;font-style:italic>@Self</span>() <span style=color:#ff79c6>private</span> <span style=color:#ff79c6>readonly</span> userListService: <span style=color:#8be9fd>UserListService</span>
+</span></span><span style=display:flex><span>  ) {
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ngOnChanges(changes: <span style=color:#8be9fd>SimpleChanges</span>)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (changes[<span style=color:#f1fa8c>&#39;filterValue&#39;</span>]) {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>this</span>.getFilteredUsers();
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ngOnDestroy()<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>.onDestroy$.next(<span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span>);
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>.onDestroy$.complete();
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> getFilteredUsers()<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>.usersService.getFilteredUsers(<span style=color:#ff79c6>this</span>.filterValue)
+</span></span><span style=display:flex><span>      .pipe(
+</span></span><span style=display:flex><span>        takeUntil(<span style=color:#ff79c6>this</span>.onDestroy$)
+</span></span><span style=display:flex><span>      )
+</span></span><span style=display:flex><span>      .subscribe(users <span style=color:#ff79c6>=&gt;</span> <span style=color:#ff79c6>this</span>.userListService.setUsers(users));
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>When the data is fetched I pass it through the <code>UserListService</code>,
+which is provided with <code>@Self()</code> and is declared in the directive using <code>providers</code> field.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>import</span> {Injectable} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;@angular/core&#39;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {Observable, ReplaySubject, Subject} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;rxjs&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>@Injectable</span>()
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> UserListService {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> <span style=color:#ff79c6>readonly</span> users$ <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> ReplaySubject&lt;<span style=color:#ff79c6>Array</span>&lt;<span style=color:#50fa7b>string</span>&gt;<span style=color:#ff79c6>&gt;</span>(<span style=color:#bd93f9>1</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  setUsers(users: <span style=color:#8be9fd>Array</span>&lt;<span style=color:#ff79c6>string</span>&gt;)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>.users$.next(users);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  getUsers()<span style=color:#ff79c6>:</span> Observable&lt;<span style=color:#ff79c6>Array</span>&lt;<span style=color:#50fa7b>string</span>&gt;<span style=color:#ff79c6>&gt;</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> <span style=color:#ff79c6>this</span>.users$.asObservable();
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>Now my component can consume this service and treat it as a contract or API.
+If I would like to create another component that acts like the previous one,
+simply, just add a host directive and react on changes from <code>UserListService</code>.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>import</span> {Component, EventEmitter, Output, Self} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;@angular/core&#39;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {CommonModule} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;@angular/common&#39;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {UserListService} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;./user-list.service&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {ListComponent} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;../list/list.component&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {PushModule} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;@rx-angular/template/push&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {UserListDirective} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;./user-list.directive&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>@Component</span>({
+</span></span><span style=display:flex><span>  selector<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;app-user-list&#39;</span>,
+</span></span><span style=display:flex><span>  standalone: <span style=color:#8be9fd>true</span>,
+</span></span><span style=display:flex><span>  imports<span style=color:#ff79c6>:</span> [CommonModule, ListComponent, PushModule],
+</span></span><span style=display:flex><span>  template<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>`
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>    &lt;app-list [items]=&#34;userListService.getUsers() | push&#34;
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>              (itemSelected)=&#34;userSelected.emit($event)&#34;&gt;&lt;/app-list&gt;
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>  `</span>,
+</span></span><span style=display:flex><span>  hostDirectives<span style=color:#ff79c6>:</span> [
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>      directive: <span style=color:#8be9fd>UserListDirective</span>,
+</span></span><span style=display:flex><span>      inputs<span style=color:#ff79c6>:</span> [<span style=color:#f1fa8c>&#39;filterValue&#39;</span>]
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  ]
+</span></span><span style=display:flex><span>})
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> UserListComponent {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#8be9fd;font-style:italic>@Output</span>()
+</span></span><span style=display:flex><span>  userSelected <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> EventEmitter&lt;<span style=color:#ff79c6>string</span>&gt;();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>constructor</span>(
+</span></span><span style=display:flex><span>    <span style=color:#8be9fd;font-style:italic>@Self</span>() <span style=color:#ff79c6>readonly</span> userListService: <span style=color:#8be9fd>UserListService</span>
+</span></span><span style=display:flex><span>  ) {
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>In this case, unit tests for <code>UserListService</code> would be straightforward.
+This service will not contain any complicated logic,
+because its only responsibility is to be a proxy between UI and business logic.</p><p>There is no need to create unit tests for <code>UserListComponent</code> if <code>ListComponent</code> is tested.
+is easier to test, because it doesn&rsquo;t contain any UI logic.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">36
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">37
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">38
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">39
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">40
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">41
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">42
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">43
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">44
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">45
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">46
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">47
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">48
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>import</span> {UserListDirective} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;./user-list.directive&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {UsersService} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;./users.service&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {Observable, <span style=color:#ff79c6>of</span>, take} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;rxjs&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {FakeHttpService} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;../fake-http.service&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {UserListService} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;./user-list.service&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>class</span> MockUserService <span style=color:#ff79c6>extends</span> UsersService {
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>constructor</span>() {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>super</span>(<span style=color:#ff79c6>null</span> <span style=color:#ff79c6>as</span> <span style=color:#8be9fd>unknown</span> <span style=color:#ff79c6>as</span> FakeHttpService);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  override getFilteredUsers(filter: <span style=color:#8be9fd>string</span>)<span style=color:#ff79c6>:</span> Observable&lt;<span style=color:#ff79c6>Array</span>&lt;<span style=color:#50fa7b>string</span>&gt;<span style=color:#ff79c6>&gt;</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span> <span style=color:#ff79c6>of</span>(
+</span></span><span style=display:flex><span>      [<span style=color:#f1fa8c>&#39;user1&#39;</span>, <span style=color:#f1fa8c>&#39;user2&#39;</span>, <span style=color:#f1fa8c>&#39;user3&#39;</span>].filter(x <span style=color:#ff79c6>=&gt;</span> x.includes(filter))
+</span></span><span style=display:flex><span>    );
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>describe(<span style=color:#f1fa8c>&#39;user-list-directive&#39;</span>, <span style=color:#8be9fd;font-style:italic>function</span> () {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  it(<span style=color:#f1fa8c>&#39;should pass filtered users on filter change&#39;</span>, <span style=color:#8be9fd;font-style:italic>function</span> (done) {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> userListService <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> UserListService();
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> userListDirective <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> UserListDirective(
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>new</span> MockUserService(),
+</span></span><span style=display:flex><span>      userListService
+</span></span><span style=display:flex><span>    );
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    userListService.getUsers()
+</span></span><span style=display:flex><span>      .pipe(take(<span style=color:#bd93f9>1</span>))
+</span></span><span style=display:flex><span>      .subscribe(users <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>        expect(users).toEqual([<span style=color:#f1fa8c>&#39;user1&#39;</span>]);
+</span></span><span style=display:flex><span>        userListDirective.ngOnDestroy();
+</span></span><span style=display:flex><span>        done();
+</span></span><span style=display:flex><span>      });
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    userListDirective.filterValue <span style=color:#ff79c6>=</span> <span style=color:#f1fa8c>&#39;1&#39;</span>;
+</span></span><span style=display:flex><span>    userListDirective.ngOnChanges({
+</span></span><span style=display:flex><span>      filterValue<span style=color:#ff79c6>:</span> {
+</span></span><span style=display:flex><span>        currentValue<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;1&#39;</span>,
+</span></span><span style=display:flex><span>        previousValue: <span style=color:#8be9fd>undefined</span>,
+</span></span><span style=display:flex><span>        firstChange: <span style=color:#8be9fd>true</span>,
+</span></span><span style=display:flex><span>        isFirstChange<span style=color:#ff79c6>:</span> () <span style=color:#ff79c6>=&gt;</span> <span style=color:#ff79c6>true</span>
+</span></span><span style=display:flex><span>      }
+</span></span><span style=display:flex><span>    });
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  });
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>});
+</span></span></code></pre></td></tr></table></div></div><h2 id=conclusion>Conclusion</h2><p>The introduction of the host directives feature might change the way we use Angular.
+It&rsquo;s not only a simple helper that will help us to reduce one <code>div</code> in our code.</p><p>It encourages us to change our approach to managing our code.
+It amazes me how I can change my code and boosts the re-usability of my code (if well designed).</p><h2 id=bonus-alternative-scenarios-and-ideas-that-i-considered>Bonus: Alternative scenarios and ideas that I considered</h2><p>I think that I should publish not only the final product of my thoughts but also the &ldquo;alternative&rdquo;
+paths that I considered.
+This way, you&rsquo;ll know more about the whole process and the pluses and minuses of other approaches.</p><h3 id=why-host-directive-and-not-a-service-the-service-does-not-contain-a-template-and-it-was-available-to-use-a-long-time-ago>Why host directive and not a service? The service does not contain a template and it was available to use a long time ago.</h3><p>So, that&rsquo;s right.
+But services cannot contain inputs and outputs, so they are not exposing API that can be used in templates.
+You can still achieve a similar result
+but your component will contain unnecessary logic only to pass data to the service.
+So, it&rsquo;s not only responsible for UI, but it&rsquo;s a proxy for business logic too.</p><h3 id=why-do-i-prefer-to-have-an-additional-service-as-a-proxy-instead-of-injecting-an-instance-of-the-directive-directly>Why do I prefer to have an additional service as a proxy instead of injecting an instance of the directive directly?</h3><p>This one is tricky.
+First of all, if you inject the instance, you have all access to everything that is inside.
+Your directive will not deal only with the complex logic but with being an API for a component also.</p><p>The second reason is that it&rsquo;s easier to mock service in unit tests.
+In most cases, this proxy service will contain a very simple logic, and probably will be stateless.
+In my case, there is no need to mock it, because I can use <code>setUsers()</code> method.</p></div></article><div id=footer-post-container><div id=footer-post><div id=nav-footer style=display:none><ul><li><a href=/>Home</a></li><li><a href=/posts>All posts</a></li><li><a href=/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></div><div id=toc-footer style=display:none><nav id=TableOfContents><ul><li><a href=#code>Code</a></li><li><a href=#idea>Idea</a></li><li><a href=#communication-and-example>Communication and example</a></li><li><a href=#conclusion>Conclusion</a></li><li><a href=#bonus-alternative-scenarios-and-ideas-that-i-considered>Bonus: Alternative scenarios and ideas that I considered</a><ul><li><a href=#why-host-directive-and-not-a-service-the-service-does-not-contain-a-template-and-it-was-available-to-use-a-long-time-ago>Why host directive and not a service? The service does not contain a template and it was available to use a long time ago.</a></li><li><a href=#why-do-i-prefer-to-have-an-additional-service-as-a-proxy-instead-of-injecting-an-instance-of-the-directive-directly>Why do I prefer to have an additional service as a proxy instead of injecting an instance of the directive directly?</a></li></ul></li></ul></nav></div><div id=share-footer style=display:none><ul><li><a class=icon href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fmythical-angular.dev%2fposts%2fhost-directives%2f" aria-label=Facebook><i class="fab fa-facebook fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://twitter.com/share?url=https%3a%2f%2fmythical-angular.dev%2fposts%2fhost-directives%2f&text=What%20you%20can%20do%20with%20host%20directives" aria-label=Twitter><i class="fab fa-twitter fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fmythical-angular.dev%2fposts%2fhost-directives%2f&title=What%20you%20can%20do%20with%20host%20directives" aria-label=Linkedin><i class="fab fa-linkedin fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fmythical-angular.dev%2fposts%2fhost-directives%2f&is_video=false&description=What%20you%20can%20do%20with%20host%20directives" aria-label=Pinterest><i class="fab fa-pinterest fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="mailto:?subject=What%20you%20can%20do%20with%20host%20directives&body=Check out this article: https%3a%2f%2fmythical-angular.dev%2fposts%2fhost-directives%2f" aria-label=Email><i class="fas fa-envelope fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://getpocket.com/save?url=https%3a%2f%2fmythical-angular.dev%2fposts%2fhost-directives%2f&title=What%20you%20can%20do%20with%20host%20directives" aria-label=Pocket><i class="fab fa-get-pocket fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="http://reddit.com/submit?url=https%3a%2f%2fmythical-angular.dev%2fposts%2fhost-directives%2f&title=What%20you%20can%20do%20with%20host%20directives" aria-label=reddit><i class="fab fa-reddit fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="http://www.tumblr.com/share/link?url=https%3a%2f%2fmythical-angular.dev%2fposts%2fhost-directives%2f&name=What%20you%20can%20do%20with%20host%20directives&description=Host%20directives%20were%20a%20highly%20requested%20feature%20for%20a%20very%20long%20time.%20I%20think%20that%20this%20feature%20is%20great.%20First%20of%20all%2c%20I%20don%26rsquo%3bt%20have%20to%20create%20unnecessary%20div%20or%20other%20elements%20to%20add%20a%20directive%20to%20my%20components.%20I%20don%26rsquo%3bt%20have%20to%20create%20additional%20inputs%2c%20and%20outputs%20and%20pass%20them%20to%20the%20template.%0aThe%20next%20idea%20about%20host%20directives%2c%20which%20is%20quite%20intuitive%20and%20obvious%20to%20me%2c%20is%20that%20finally%20we%20can%20encapsulate%20some%20behavior%20or%20logic%20in%20directives%2c%20and%20compose%20our%20components%20with%20it%20easily." aria-label=Tumblr><i class="fab fa-tumblr fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fmythical-angular.dev%2fposts%2fhost-directives%2f&t=What%20you%20can%20do%20with%20host%20directives" aria-label="Hacker News"><i class="fab fa-hacker-news fa-lg" aria-hidden=true></i></a></li></ul></div><div id=actions-footer><a id=menu-toggle class=icon href=# onclick='return $("#nav-footer").toggle(),!1' aria-label=Menu><i class="fas fa-bars fa-lg" aria-hidden=true></i> Menu</a>
+<a id=toc-toggle class=icon href=# onclick='return $("#toc-footer").toggle(),!1' aria-label=TOC><i class="fas fa-list fa-lg" aria-hidden=true></i> TOC</a>
+<a id=share-toggle class=icon href=# onclick='return $("#share-footer").toggle(),!1' aria-label=Share><i class="fas fa-share-alt fa-lg" aria-hidden=true></i> share</a>
+<a id=top style=display:none class=icon href=# onclick='$("html, body").animate({scrollTop:0},"fast")' aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg" aria-hidden=true></i> Top</a></div></div></div><footer id=footer><div class=footer-left>Copyright &copy; 2023 Kamil Gałek</div><div class=footer-right><nav><ul><li><a href=/>Home</a></li><li><a href=/posts>All posts</a></li><li><a href=/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></nav></div></footer></div></body><link rel=stylesheet href=/lib/font-awesome/css/all.min.css><script src=/lib/jquery/jquery.min.js></script>
+<script src=/js/main.js></script>
+<script src=/js/code-copy.js></script></html>
