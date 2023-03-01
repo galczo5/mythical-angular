@@ -1,0 +1,837 @@
+<!doctype html><html lang=en-us><head><link rel=preload href=/lib/font-awesome/webfonts/fa-brands-400.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=preload href=/lib/font-awesome/webfonts/fa-regular-400.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=preload href=/lib/font-awesome/webfonts/fa-solid-900.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=preload href=/lib/JetBrainsMono/web/woff2/JetBrainsMono-Regular.woff2 as=font type=font/woff2 crossorigin=anonymous><script type=text/javascript src=https://latest.cactus.chat/cactus.js></script>
+<link rel=stylesheet href=https://latest.cactus.chat/style.css type=text/css><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><title>I'm preparing myself for the lightning talk, so here you have 5 cool usages of inject function in Angular | Mythical Angular</title><link rel=canonical href=https://mythical-angular.dev/posts/5-inject-usages/><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="all,follow"><meta name=googlebot content="index,follow,snippet,archive"><meta property="og:title" content="I'm preparing myself for the lightning talk, so here you have 5 cool usages of inject function in Angular"><meta property="og:description" content="Spring conferences are coming. It&rsquo;s the perfect time to prepare a lighting talk subject. In this article I will describe the code from one of my subjects: 5 cool usages of inject() function from Angular.
+Code, unit tests, and a simple app for manual testing you can find in the repository: github.com/galczo5/ng-inject-lightning-talk.
+Usage 1: Preventing memory leaks with useOnDestroy There are a lot of different ways of preventing observable memory leaks in components."><meta property="og:type" content="article"><meta property="og:url" content="https://mythical-angular.dev/posts/5-inject-usages/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2023-02-25T00:00:00+00:00"><meta property="article:modified_time" content="2023-02-25T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="I'm preparing myself for the lightning talk, so here you have 5 cool usages of inject function in Angular"><meta name=twitter:description content="Spring conferences are coming. It&rsquo;s the perfect time to prepare a lighting talk subject. In this article I will describe the code from one of my subjects: 5 cool usages of inject() function from Angular.
+Code, unit tests, and a simple app for manual testing you can find in the repository: github.com/galczo5/ng-inject-lightning-talk.
+Usage 1: Preventing memory leaks with useOnDestroy There are a lot of different ways of preventing observable memory leaks in components."><link rel=stylesheet href=https://mythical-angular.dev/css/styles.94f653e9e151e28067a7c5dbbc4600cbd5a3c721e79faaf971e523c40f3b249b8e4f20bb57810dfffa8d559ca5c140fd56eb4cd9c0853113ad08e66afdb08bdd.css integrity="sha512-lPZT6eFR4oBnp8XbvEYAy9WjxyHnn6r5ceUjxA87JJuOTyC7V4EN//qNVZylwUD9VutM2cCFMROtCOZq/bCL3Q=="><link rel=stylesheet href=https://mythical-angular.dev/css/custom.css><!--[if lt IE 9]><script src=https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js></script>
+<script src=https://oss.maxcdn.com/respond/1.4.2/respond.min.js></script><![endif]--><link rel=icon type=image/png href=https://mythical-angular.dev/images/favicon.ico><script async src="https://www.googletagmanager.com/gtag/js?id=G-X7BCK4L1CF"></script>
+<script>var doNotTrack=!1;if(!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-X7BCK4L1CF",{anonymize_ip:!1})}</script></head><body class="max-width mx-auto px3 ltr"><div class="content index py4"><header id=header><a href=https://mythical-angular.dev><div id=logo style=background-image:url(https://mythical-angular.dev/logo.jpeg)></div><div id=title><h1>Mythical Angular</h1></div></a><div id=nav><ul><li class=icon><a href=# aria-label=Menu><i class="fas fa-bars fa-2x" aria-hidden=true></i></a></li><li><a href=/>Home</a></li><li><a href=/posts>All posts</a></li><li><a href=/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></div></header><article class=post itemscope itemtype=http://schema.org/BlogPosting><header><h1 class=posttitle itemprop="name headline">I'm preparing myself for the lightning talk, so here you have 5 cool usages of inject function in Angular</h1><div class=meta><div class=postdate><time datetime="2023-02-25 00:00:00 +0000 UTC" itemprop=datePublished>2023-02-25</time></div></div></header><div class=content itemprop=articleBody><p>Spring conferences are coming.
+It&rsquo;s the perfect time to prepare a lighting talk subject.
+In this article I will describe the code from one of my subjects: 5 cool usages of <code>inject()</code> function from Angular.</p><p>Code, unit tests, and a simple app for manual testing you can find in the repository: <a href=https://github.com/galczo5/ng-inject-lightning-talk>github.com/galczo5/ng-inject-lightning-talk</a>.</p><p><img src=/images/inject-examples.png alt=tick></p><h2 id=usage-1-preventing-memory-leaks-with-useondestroy>Usage 1: Preventing memory leaks with <code>useOnDestroy</code></h2><p>There are a lot of different ways of preventing observable memory leaks in components.
+The first and the best one is to avoid subscriptions in component typescript code
+and move it to the template using <code>async</code> or <code>push</code> pipe.</p><p>If it&rsquo;s not possible for any reason you can use <code>useOnDestroy</code> function.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>import</span> {ChangeDetectorRef, inject, ViewRef} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;@angular/core&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {Subject} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;rxjs&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#8be9fd;font-style:italic>function</span> useOnDestroy() {
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>const</span> onDestroy$ <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> Subject&lt;<span style=color:#ff79c6>void</span>&gt;();
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>const</span> viewRef <span style=color:#ff79c6>=</span> inject(ChangeDetectorRef) <span style=color:#ff79c6>as</span> ViewRef;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  viewRef.onDestroy(() <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>    onDestroy$.next(<span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span>);
+</span></span><span style=display:flex><span>    onDestroy$.complete();
+</span></span><span style=display:flex><span>  })
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>return</span> onDestroy$;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>It&rsquo;s quite simple. I&rsquo;m injecting <code>ChangeDetectorRef</code> which in components is implemented by <code>ViewRef</code>.
+This cast is not the perfect solution,
+but there is no other (as far as I know, let me know if there is) way of injecting <code>ViewRef</code> into the component.</p><p>Having <code>ViewRef</code> allows me to provide a callback that will be executed on component destroy.</p><p>How to use it? Quite simple:</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">36
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">37
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">38
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">39
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">40
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>import</span> {Component} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;@angular/core&#39;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {interval, takeUntil} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;rxjs&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {useOnDestroy} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;../util/useOnDestroy&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>@Component</span>({
+</span></span><span style=display:flex><span>  selector<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;app-root&#39;</span>,
+</span></span><span style=display:flex><span>  template<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>`
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>  `</span>
+</span></span><span style=display:flex><span>})
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> AppComponent {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  intervalSub <span style=color:#ff79c6>=</span> interval(<span style=color:#bd93f9>1000</span>)
+</span></span><span style=display:flex><span>    .pipe(
+</span></span><span style=display:flex><span>      takeUntil(useOnDestroy())
+</span></span><span style=display:flex><span>    )
+</span></span><span style=display:flex><span>    .subscribe(i <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>      <span style=color:#6272a4>// some stuff
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>    });
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#6272a4>// OR
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>@Component</span>({
+</span></span><span style=display:flex><span>  selector<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;app-root&#39;</span>,
+</span></span><span style=display:flex><span>  template<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>`
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>  `</span>
+</span></span><span style=display:flex><span>})
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> AppComponent {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#6272a4>// You can reuse it
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>  onDestroy$ <span style=color:#ff79c6>=</span> useOnDestroy();
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  intervalSub <span style=color:#ff79c6>=</span> interval(<span style=color:#bd93f9>1000</span>)
+</span></span><span style=display:flex><span>    .pipe(
+</span></span><span style=display:flex><span>      takeUntil(<span style=color:#ff79c6>this</span>.onDestroy$)
+</span></span><span style=display:flex><span>    )
+</span></span><span style=display:flex><span>    .subscribe(i <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>      <span style=color:#6272a4>// some stuff
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>    });
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>I&rsquo;ve tested it manually and with unit tests, which you can find below.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">36
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">37
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">38
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">39
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">40
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">41
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">42
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">43
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">44
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">45
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">46
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">47
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">48
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">49
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">50
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">51
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">52
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">53
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">54
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">55
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">56
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">57
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">58
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">59
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">60
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">61
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">62
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">63
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">64
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">65
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">66
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">67
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">68
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">69
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>import</span> {TestBed} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;@angular/core/testing&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {Component} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;@angular/core&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {Subject, takeUntil} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;rxjs&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {useOnDestroy} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;./useOnDestroy&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {CommonModule} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;@angular/common&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>@Component</span>({
+</span></span><span style=display:flex><span>  selector<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;app-test&#39;</span>,
+</span></span><span style=display:flex><span>  template<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;&#39;</span>
+</span></span><span style=display:flex><span>})
+</span></span><span style=display:flex><span><span style=color:#ff79c6>class</span> TestComponent {
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> <span style=color:#ff79c6>readonly</span> onDestroy$ <span style=color:#ff79c6>=</span> useOnDestroy();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  stream$ <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> Subject()
+</span></span><span style=display:flex><span>    .pipe(
+</span></span><span style=display:flex><span>      takeUntil(<span style=color:#ff79c6>this</span>.onDestroy$)
+</span></span><span style=display:flex><span>    );
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>@Component</span>({
+</span></span><span style=display:flex><span>  selector<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;app-test&#39;</span>,
+</span></span><span style=display:flex><span>  template<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;&#39;</span>
+</span></span><span style=display:flex><span>})
+</span></span><span style=display:flex><span><span style=color:#ff79c6>class</span> ShouldNotWorkTestComponent {
+</span></span><span style=display:flex><span>  stream$ <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> Subject();
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>describe(<span style=color:#f1fa8c>&#39;useOnDestroy&#39;</span>, () <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  it(<span style=color:#f1fa8c>&#39;should close the stream when component is destroyed&#39;</span>, done <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    TestBed.configureTestingModule({
+</span></span><span style=display:flex><span>        imports<span style=color:#ff79c6>:</span> [CommonModule],
+</span></span><span style=display:flex><span>        declarations<span style=color:#ff79c6>:</span> [TestComponent]
+</span></span><span style=display:flex><span>      }
+</span></span><span style=display:flex><span>    ).compileComponents();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> fixture <span style=color:#ff79c6>=</span> TestBed.createComponent&lt;<span style=color:#ff79c6>TestComponent</span>&gt;(TestComponent);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    fixture.componentInstance.stream$
+</span></span><span style=display:flex><span>      .subscribe({
+</span></span><span style=display:flex><span>        complete<span style=color:#ff79c6>:</span> () <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>          expect(<span style=color:#ff79c6>true</span>).toBeTrue();
+</span></span><span style=display:flex><span>          done();
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>      })
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    fixture.destroy();
+</span></span><span style=display:flex><span>  });
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  it(<span style=color:#f1fa8c>&#39;should not close the stream when component is destroyed and there is useOnDestroy&#39;</span>, done <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    TestBed.configureTestingModule({
+</span></span><span style=display:flex><span>      imports<span style=color:#ff79c6>:</span> [CommonModule],
+</span></span><span style=display:flex><span>      declarations<span style=color:#ff79c6>:</span> [ShouldNotWorkTestComponent]
+</span></span><span style=display:flex><span>    }).compileComponents();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> fixture <span style=color:#ff79c6>=</span> TestBed.createComponent&lt;<span style=color:#ff79c6>ShouldNotWorkTestComponent</span>&gt;(ShouldNotWorkTestComponent);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    fixture.componentInstance.stream$
+</span></span><span style=display:flex><span>      .subscribe({
+</span></span><span style=display:flex><span>        complete<span style=color:#ff79c6>:</span> () <span style=color:#ff79c6>=&gt;</span> expect(<span style=color:#ff79c6>true</span>).toBeFalse()
+</span></span><span style=display:flex><span>      });
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    fixture.destroy();
+</span></span><span style=display:flex><span>    done();
+</span></span><span style=display:flex><span>  });
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>});
+</span></span></code></pre></td></tr></table></div></div><h2 id=usage-2-improve-performance-with-usehostbinding>Usage 2: Improve performance with <code>useHostBinding</code></h2><p>The standard way of adding a class to the component is to use the <code>@HostBinding</code> decoration.
+I have only one problem with this method.
+It requires running a change detection cycle to apply changes to the component.</p><p>If you work with disabled NgZones, it&rsquo;s a problem.
+What&rsquo;s more, I don&rsquo;t like the idea of running change detection to add a CSS class.</p><p>Well-known technique to handle this problem is to use the <code>Renderer2</code> instance.
+This method can be simply improved with the <code>inject()</code> function.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>import</span> {ElementRef, inject, Renderer2} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;@angular/core&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#8be9fd;font-style:italic>function</span> useHostBinding(className: <span style=color:#8be9fd>string</span>, enabledByDefault: <span style=color:#8be9fd>boolean</span>) {
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>const</span> renderer2 <span style=color:#ff79c6>=</span> inject(Renderer2);
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>const</span> nativeElement <span style=color:#ff79c6>=</span> inject(ElementRef).nativeElement;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#8be9fd;font-style:italic>let</span> value <span style=color:#ff79c6>=</span> enabledByDefault;
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>if</span> (value) {
+</span></span><span style=display:flex><span>    renderer2.addClass(nativeElement, className);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>return</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>set</span>(newValue: <span style=color:#8be9fd>boolean</span>) {
+</span></span><span style=display:flex><span>      value <span style=color:#ff79c6>=</span> newValue;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>if</span> (value) {
+</span></span><span style=display:flex><span>        renderer2.addClass(nativeElement, className);
+</span></span><span style=display:flex><span>      } <span style=color:#ff79c6>else</span> {
+</span></span><span style=display:flex><span>        renderer2.removeClass(nativeElement, className);
+</span></span><span style=display:flex><span>      }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    },
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>get</span>() {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>return</span> value;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>The function injects <code>Renderer2</code>, and <code>ElementRef</code> and uses them to add or remove CSS class to the component host element.
+The result of the function contains an object
+that can return the current state and a setter function that can be used to set a new state.</p><p>Does it look like a React hook&mldr;? YES. I found it extremely useful.
+Usage is simple, the DX of using it is fine and it improves the performance of my app in many cases.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">36
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">37
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">38
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">39
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">40
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">41
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">42
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">43
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">44
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">45
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">46
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">47
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">48
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">49
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>import</span> {Component, DoCheck, NgZone, OnInit, ViewEncapsulation} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#39;@angular/core&#39;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {useHostBinding} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;../../../util/useHostBinding&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {interval, takeUntil} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;rxjs&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {useOnDestroy} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;../../../util/useOnDestroy&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>@Component</span>({
+</span></span><span style=display:flex><span>  selector<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;app-use-host-binding&#39;</span>,
+</span></span><span style=display:flex><span>  template<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>`
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>    &lt;div style=&#34;display: flex; height: 500px; width: 100%; align-items: center; justify-content: center;&#34;&gt;
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>      This block is changing color and no change detection is triggered
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>    &lt;/div&gt;
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>  `</span>,
+</span></span><span style=display:flex><span>  styles<span style=color:#ff79c6>:</span> [<span style=color:#f1fa8c>`
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>    app-use-host-binding {
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>      display: flex;
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>      border: 1px dashed gray;
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>    }
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>    .red {
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>      background: red;
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>    }
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>  `</span>],
+</span></span><span style=display:flex><span>  encapsulation: <span style=color:#8be9fd>ViewEncapsulation.None</span>
+</span></span><span style=display:flex><span>})
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> UseHostBindingComponent <span style=color:#ff79c6>implements</span> OnInit, DoCheck {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  background <span style=color:#ff79c6>=</span> useHostBinding(<span style=color:#f1fa8c>&#39;red&#39;</span>, <span style=color:#ff79c6>false</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> <span style=color:#ff79c6>readonly</span> onDestroy$ <span style=color:#ff79c6>=</span> useOnDestroy();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>constructor</span>(<span style=color:#ff79c6>private</span> <span style=color:#ff79c6>readonly</span> ngZone: <span style=color:#8be9fd>NgZone</span>) {
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ngDoCheck()<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    console.log(<span style=color:#f1fa8c>&#39;DoCheck called!&#39;</span>);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ngOnInit()<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>.ngZone.runOutsideAngular(() <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>      interval(<span style=color:#bd93f9>1000</span>)
+</span></span><span style=display:flex><span>        .pipe(takeUntil(<span style=color:#ff79c6>this</span>.onDestroy$))
+</span></span><span style=display:flex><span>        .subscribe(() <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>          <span style=color:#ff79c6>const</span> oldValue <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>this</span>.background.<span style=color:#ff79c6>get</span>();
+</span></span><span style=display:flex><span>          <span style=color:#ff79c6>this</span>.background.<span style=color:#ff79c6>set</span>(<span style=color:#ff79c6>!</span>oldValue);
+</span></span><span style=display:flex><span>        });
+</span></span><span style=display:flex><span>    });
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>If you&rsquo;re looking for unit tests for that function, you&rsquo;ll find it in my <a href=https://github.com/galczo5/ng-inject-lightning-talk>repository</a>.</p><h2 id=usage-3-stream-based-hostlistener>Usage 3: Stream-based <code>HostListener</code></h2><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">7
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>import</span> {ElementRef, inject} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;@angular/core&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {fromEvent} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;rxjs&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#8be9fd;font-style:italic>function</span> useHostListen&lt;<span style=color:#ff79c6>T</span> <span style=color:#50fa7b>extends</span> <span style=color:#50fa7b>Event</span>&gt;(eventName: <span style=color:#8be9fd>string</span>) {
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>const</span> nativeElement <span style=color:#ff79c6>=</span> inject(ElementRef).nativeElement;
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>return</span> fromEvent&lt;<span style=color:#ff79c6>T</span>&gt;(nativeElement, eventName);
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>This one is extremely simple.
+I&rsquo;m injecting <code>ElementRef</code> and I&rsquo;m using <code>fromEvent</code> to create a stream from an event listener.</p><p>Why do I like to use it instead of <code>@HostListener</code>?
+First of all, I don&rsquo;t need to create a method which is not used directly anywhere.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">9
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>@Directive</span>({selector<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;button[counting]&#39;</span>})
+</span></span><span style=display:flex><span><span style=color:#ff79c6>class</span> CountClicks {
+</span></span><span style=display:flex><span>  numberOfClicks <span style=color:#ff79c6>=</span> <span style=color:#bd93f9>0</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#8be9fd;font-style:italic>@HostListener</span>(<span style=color:#f1fa8c>&#39;click&#39;</span>, [<span style=color:#f1fa8c>&#39;$event.target&#39;</span>])
+</span></span><span style=display:flex><span>  onClick(btn) {
+</span></span><span style=display:flex><span>    console.log(<span style=color:#f1fa8c>&#39;button&#39;</span>, btn, <span style=color:#f1fa8c>&#39;number of clicks:&#39;</span>, <span style=color:#ff79c6>this</span>.numberOfClicks<span style=color:#ff79c6>++</span>);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>For example, in this case, <a href=https://angular.io/api/core/HostListener>Angular docs</a>,
+method <code>onClick</code> is not called anywhere.
+The same code using <code>useHostListen</code> should look like this:</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>@Directive</span>({selector<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;button[counting]&#39;</span>})
+</span></span><span style=display:flex><span><span style=color:#ff79c6>class</span> CountClicks {
+</span></span><span style=display:flex><span>  numberOfClicks <span style=color:#ff79c6>=</span> <span style=color:#bd93f9>0</span>;
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>constructor</span>() {
+</span></span><span style=display:flex><span>    useHostListen(<span style=color:#f1fa8c>&#39;click&#39;</span>)
+</span></span><span style=display:flex><span>      .pipe(takeUntil(useOnDestroy()))
+</span></span><span style=display:flex><span>      .subscribe((event: <span style=color:#8be9fd>MouseEvent</span>) <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>        console.log(<span style=color:#f1fa8c>&#39;button&#39;</span>, event.target, <span style=color:#f1fa8c>&#39;number of clicks:&#39;</span>, <span style=color:#ff79c6>this</span>.numberOfClicks<span style=color:#ff79c6>++</span>);
+</span></span><span style=display:flex><span>      });
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>In addition, because it&rsquo;s stream-based, you can take advantage of it and use operators to manipulate your data flow.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>@Directive</span>({selector<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;complex&#39;</span>})
+</span></span><span style=display:flex><span><span style=color:#ff79c6>class</span> ComplexExample {
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>constructor</span>(<span style=color:#ff79c6>private</span> <span style=color:#ff79c6>readonly</span> httpClient: <span style=color:#8be9fd>HttpClient</span>) {
+</span></span><span style=display:flex><span>    combineLatest(
+</span></span><span style=display:flex><span>      useHostListen(<span style=color:#f1fa8c>&#39;click&#39;</span>),
+</span></span><span style=display:flex><span>      useHostListen(<span style=color:#f1fa8c>&#39;mouseenter&#39;</span>)
+</span></span><span style=display:flex><span>    )
+</span></span><span style=display:flex><span>      .pipe(
+</span></span><span style=display:flex><span>        switchMap(event <span style=color:#ff79c6>=&gt;</span> <span style=color:#ff79c6>this</span>.httpClient.<span style=color:#ff79c6>get</span>(<span style=color:#f1fa8c>&#39;url-example&#39;</span>)),
+</span></span><span style=display:flex><span>        takeUntil(useOnDestroy())
+</span></span><span style=display:flex><span>      )
+</span></span><span style=display:flex><span>      .subscribe((event: <span style=color:#8be9fd>MouseEvent</span>) <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>        console.log(<span style=color:#f1fa8c>&#39;It is so easy to use&#39;</span>);
+</span></span><span style=display:flex><span>      });
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><h2 id=usage-4-stream-based-hostlistener-but-runs-outside-angular-zone>Usage 4: Stream-based <code>HostListener</code>, but runs outside Angular zone</h2><p>It&rsquo;s very similar to the previous one.
+The only difference is that it runs outside the Angular zone,
+so events handled with this method won&rsquo;t trigger unnecessary change detection cycles.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>import</span> {ElementRef, inject, NgZone} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;@angular/core&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {fromEvent, Subject, takeUntil} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;rxjs&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {useOnDestroy} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;./useOnDestroy&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#8be9fd;font-style:italic>function</span> useZonelessHostListen&lt;<span style=color:#ff79c6>T</span> <span style=color:#50fa7b>extends</span> <span style=color:#50fa7b>Event</span>&gt;(eventName: <span style=color:#8be9fd>string</span>) {
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>const</span> nativeElement <span style=color:#ff79c6>=</span> inject(ElementRef).nativeElement;
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>const</span> ngZone <span style=color:#ff79c6>=</span> inject(NgZone);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>const</span> events$ <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> Subject&lt;<span style=color:#ff79c6>T</span>&gt;();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ngZone.runOutsideAngular(() <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>    fromEvent&lt;<span style=color:#ff79c6>T</span>&gt;(nativeElement, eventName)
+</span></span><span style=display:flex><span>      .pipe(
+</span></span><span style=display:flex><span>        takeUntil(useOnDestroy())
+</span></span><span style=display:flex><span>      )
+</span></span><span style=display:flex><span>      .subscribe(value <span style=color:#ff79c6>=&gt;</span>
+</span></span><span style=display:flex><span>        events$.next(value)
+</span></span><span style=display:flex><span>      );
+</span></span><span style=display:flex><span>  })
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>return</span> events$.asObservable();
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>It might be useful when you need to handle <code>mousemove</code> or <code>mouseover</code> events.</p><h2 id=usage-5-observable-onchanges-method>Usage 5: Observable <code>OnChanges</code> method</h2><p>The final one is the most complicated today.
+Technically it&rsquo;s not using inject,
+but it looks similar to the previous <code>useOnDestroy</code>,
+<code>useHostBinding</code>, <code>useHostListen</code>, and <code>useZonelessHostListen</code> functions.
+Its main strength is in synergy with other functions.</p><p>I named that function <code>useOnChanges</code>. The main goal is to create streams from <code>ngOnChanges</code> method.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#ff79c6>import</span> {OnChanges, SimpleChanges} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;@angular/core&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {Subject, takeUntil} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;rxjs&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>import</span> {useOnDestroy} <span style=color:#ff79c6>from</span> <span style=color:#f1fa8c>&#34;./useOnDestroy&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#8be9fd;font-style:italic>function</span> useOnChanges&lt;<span style=color:#ff79c6>T</span> <span style=color:#50fa7b>extends</span> <span style=color:#50fa7b>OnChanges</span>&gt;(component: <span style=color:#8be9fd>T</span>, ...input: <span style=color:#8be9fd>Array</span>&lt;<span style=color:#ff79c6>keyof</span> <span style=color:#50fa7b>T</span>&gt;) {
+</span></span><span style=display:flex><span>  <span style=color:#8be9fd;font-style:italic>let</span> originalNgOnChanges <span style=color:#ff79c6>=</span> component.ngOnChanges;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>const</span> stream$ <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> Subject&lt;<span style=color:#ff79c6>void</span>&gt;()
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>const</span> wrapper <span style=color:#ff79c6>=</span> (changes: <span style=color:#8be9fd>SimpleChanges</span>) <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>const</span> anyChanged <span style=color:#ff79c6>=</span> (input <span style=color:#ff79c6>as</span> <span style=color:#8be9fd;font-style:italic>Array</span>&lt;<span style=color:#ff79c6>string</span>&gt;)
+</span></span><span style=display:flex><span>      .some(i <span style=color:#ff79c6>=&gt;</span> <span style=color:#ff79c6>!!</span>changes[i]);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> (anyChanged) {
+</span></span><span style=display:flex><span>      stream$.next(<span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span>);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    originalNgOnChanges(changes);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  component.ngOnChanges <span style=color:#ff79c6>=</span> wrapper;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>return</span> stream$
+</span></span><span style=display:flex><span>    .pipe(
+</span></span><span style=display:flex><span>      takeUntil(useOnDestroy())
+</span></span><span style=display:flex><span>    );
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>The function copies the reference to the original <code>ngOnChanges</code> method, then wraps it with additional behavior.
+That allows us to emit a value on the result stream.
+The next function call will wrap it again, and so on.</p><p>I think that it&rsquo;s interesting because of its usage.
+For example, let&rsquo;s assume that we have to create a component that will get the user id on input.
+After each id change component have to get user details from the HTTP client.
+If the user is active, the background color should be green, if not, red.
+In the end, user details should be passed to view.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">36
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">37
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">38
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">39
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">40
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">41
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">42
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">43
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">44
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">45
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">46
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">47
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">48
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">49
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">50
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">51
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">52
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">53
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">54
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">55
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">56
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">57
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">58
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">59
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">60
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">61
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">62
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">63
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">64
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">65
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">66
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">67
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">68
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">69
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>@Component</span>({
+</span></span><span style=display:flex><span>  selector<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;app-root&#39;</span>,
+</span></span><span style=display:flex><span>  template<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>`
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>    {{ userDetails$ | async }}
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>  `</span>
+</span></span><span style=display:flex><span>})
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> AppComponent <span style=color:#ff79c6>implements</span> OnChanges {
+</span></span><span style=display:flex><span>  <span style=color:#8be9fd;font-style:italic>@Input</span>()
+</span></span><span style=display:flex><span>  userId<span style=color:#ff79c6>!:</span> <span style=color:#8be9fd>string</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> <span style=color:#ff79c6>readonly</span> background <span style=color:#ff79c6>=</span> useHostBinding(<span style=color:#f1fa8c>&#39;valid&#39;</span>, <span style=color:#ff79c6>false</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  userDetails$ <span style=color:#ff79c6>=</span> combineLatest(<span style=color:#ff79c6>of</span>(inject(HttpClient)), useOnChanges(<span style=color:#ff79c6>this</span>, <span style=color:#f1fa8c>&#39;userId&#39;</span>))
+</span></span><span style=display:flex><span>    .pipe(
+</span></span><span style=display:flex><span>      switchMap(([httpClient]<span style=color:#ff79c6>:</span> [HttpClient]) <span style=color:#ff79c6>=&gt;</span>
+</span></span><span style=display:flex><span>        httpClient.<span style=color:#ff79c6>get</span>(<span style=color:#f1fa8c>&#39;https://catfact.ninja/fact?id=&#39;</span> <span style=color:#ff79c6>+</span> <span style=color:#ff79c6>this</span>.userId)
+</span></span><span style=display:flex><span>      ),
+</span></span><span style=display:flex><span>      tap(response <span style=color:#ff79c6>=&gt;</span> <span style=color:#ff79c6>this</span>.background.<span style=color:#ff79c6>get</span>(response.isValid))
+</span></span><span style=display:flex><span>    );
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ngOnChanges()<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#6272a4>// How it looks like without useOnChanges
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>@Component</span>({
+</span></span><span style=display:flex><span>  selector<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>&#39;app-root&#39;</span>,
+</span></span><span style=display:flex><span>  template<span style=color:#ff79c6>:</span> <span style=color:#f1fa8c>`
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>    {{ userDetails }}
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c>  `</span>
+</span></span><span style=display:flex><span>})
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> AppComponent <span style=color:#ff79c6>implements</span> OnChanges, OnDestroy {
+</span></span><span style=display:flex><span>  <span style=color:#8be9fd;font-style:italic>@Input</span>()
+</span></span><span style=display:flex><span>  userId<span style=color:#ff79c6>!:</span> <span style=color:#8be9fd>string</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#8be9fd;font-style:italic>@HostBinding</span>(<span style=color:#f1fa8c>&#39;class.valid&#39;</span>)
+</span></span><span style=display:flex><span>  background <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>false</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  userDetails <span style=color:#ff79c6>=</span> {};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> <span style=color:#ff79c6>readonly</span> onDestroy$ <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>new</span> Subject&lt;<span style=color:#ff79c6>void</span>&gt;();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>constructor</span>(<span style=color:#ff79c6>private</span> <span style=color:#ff79c6>readonly</span> httpClient: <span style=color:#8be9fd>HttpClient</span>) {
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ngOnDestroy()<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>.onDestroy$.next(<span style=color:#ff79c6>void</span> <span style=color:#bd93f9>0</span>);
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>.onDestroy$.complete();
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ngOnChanges(changes: <span style=color:#8be9fd>SimpleChanges</span>)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#6272a4>// This one does not suggest names of the input. useOnChanges does
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>    <span style=color:#ff79c6>if</span> (changes.userId) {
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>this</span>.fetchUserDetails(<span style=color:#ff79c6>this</span>.userId);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>private</span> fetchUserDetails(id: <span style=color:#8be9fd>string</span>)<span style=color:#ff79c6>:</span> <span style=color:#ff79c6>void</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>this</span>.httpClient.<span style=color:#ff79c6>get</span>(<span style=color:#f1fa8c>&#39;https://catfact.ninja/fact?id=&#39;</span> <span style=color:#ff79c6>+</span> id)
+</span></span><span style=display:flex><span>      .pipe(
+</span></span><span style=display:flex><span>        takeUntil(<span style=color:#ff79c6>this</span>.onDestroy$)
+</span></span><span style=display:flex><span>      )
+</span></span><span style=display:flex><span>      .subscribe(data <span style=color:#ff79c6>=&gt;</span> {
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>this</span>.userDetails <span style=color:#ff79c6>=</span> data;
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>this</span>.background <span style=color:#ff79c6>=</span> data.isValid;
+</span></span><span style=display:flex><span>      })
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>The readability of the code that uses <code>useOnChanges</code> is of course strongly connected to the experience in working with streams.
+Some developers may be confused about it, so I can&rsquo;t fully recommend this approach to anyone.</p><p>Still, it&rsquo;s interesting.</p><h2 id=summary>Summary</h2><p>I think that the first four functions (<code>useOnDestroy</code>,
+<code>useHostBinding</code>, <code>useHostListen</code>, and <code>useZonelessHostListen</code>)
+are straightforward and you may find a lot of usage for them.</p><p>The last one is quite complicated.
+It allows you to change your mindset from a &ldquo;lifecycle approach&rdquo; to a more &ldquo;streams/reactive approach&rdquo;.
+I like to think that input is a stream, and at some point, you need to convert a value to observable.
+You may pass these observables to component children, but it&rsquo;s a subject for the next article.</p><p><img src=/images/sad.png alt=tick></p><p>I have a homework for you.
+The idea is to leave you with a challenge that you can solve after reading this article.
+The goal to achieve is to let you write some code and better experience the magic of <code>inject()</code> based functions.</p><p>I will post the usage of my imagined fuctions and I will let you to think about them.
+After few weeks I will post my solutions.</p><p>PS. Don&rsquo;t be afraid to change my usages if you think that you want to create a better solution.</p><div class=highlight><div style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#6272a4>// Example 1
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>// Template: Table of cat facts
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span><span style=color:#8be9fd;font-style:italic>@Component</span>({ <span style=color:#6272a4>/* ... */</span> })
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> Component {
+</span></span><span style=display:flex><span>    catFacts$ <span style=color:#ff79c6>=</span> useHttpResource(<span style=color:#f1fa8c>&#39;GET&#39;</span>, <span style=color:#f1fa8c>&#39;https://catfact.ninja/facts&#39;</span>);
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#6272a4>// Example 2
+</span></span></span><span style=display:flex><span><span style=color:#6272a4>// Template: Table of cat facts
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span><span style=color:#8be9fd;font-style:italic>@Component</span>({ <span style=color:#6272a4>/* ... */</span> })
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> Component {
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#8be9fd;font-style:italic>@Input</span>()
+</span></span><span style=display:flex><span>    id<span style=color:#ff79c6>!:</span> <span style=color:#8be9fd>string</span>;
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    catFacts$ <span style=color:#ff79c6>=</span> useOnInit(<span style=color:#ff79c6>this</span>, <span style=color:#f1fa8c>&#34;id&#34;</span>)
+</span></span><span style=display:flex><span>        .pipe(
+</span></span><span style=display:flex><span>            useCatFacts(), <span style=color:#6272a4>// Pass id to useCatFacts: https://catfact.ninja/facts/${id}
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>            useMessageErrorHandler() <span style=color:#6272a4>// Create dynamically component that will display readable error
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>        );
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#6272a4>// Example 3
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span><span style=color:#8be9fd;font-style:italic>@Component</span>({ <span style=color:#6272a4>/* ... */</span> })
+</span></span><span style=display:flex><span><span style=color:#ff79c6>export</span> <span style=color:#ff79c6>class</span> Component {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>private</span> <span style=color:#ff79c6>readonly</span> navigateToCatFacts <span style=color:#ff79c6>=</span> useNavigation(<span style=color:#f1fa8c>&#34;/cat/facts&#34;</span>);
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    onClick() {
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>this</span>.navigateToCatFacts();
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div></div></article><div id=footer-post-container><div id=footer-post><div id=nav-footer style=display:none><ul><li><a href=/>Home</a></li><li><a href=/posts>All posts</a></li><li><a href=/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></div><div id=toc-footer style=display:none><nav id=TableOfContents><ul><li><a href=#usage-1-preventing-memory-leaks-with-useondestroy>Usage 1: Preventing memory leaks with <code>useOnDestroy</code></a></li><li><a href=#usage-2-improve-performance-with-usehostbinding>Usage 2: Improve performance with <code>useHostBinding</code></a></li><li><a href=#usage-3-stream-based-hostlistener>Usage 3: Stream-based <code>HostListener</code></a></li><li><a href=#usage-4-stream-based-hostlistener-but-runs-outside-angular-zone>Usage 4: Stream-based <code>HostListener</code>, but runs outside Angular zone</a></li><li><a href=#usage-5-observable-onchanges-method>Usage 5: Observable <code>OnChanges</code> method</a></li><li><a href=#summary>Summary</a></li></ul></nav></div><div id=share-footer style=display:none><ul><li><a class=icon href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fmythical-angular.dev%2fposts%2f5-inject-usages%2f" aria-label=Facebook><i class="fab fa-facebook fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://twitter.com/share?url=https%3a%2f%2fmythical-angular.dev%2fposts%2f5-inject-usages%2f&text=I%27m%20preparing%20myself%20for%20the%20lightning%20talk%2c%20so%20here%20you%20have%205%20cool%20usages%20of%20inject%20function%20in%20Angular" aria-label=Twitter><i class="fab fa-twitter fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fmythical-angular.dev%2fposts%2f5-inject-usages%2f&title=I%27m%20preparing%20myself%20for%20the%20lightning%20talk%2c%20so%20here%20you%20have%205%20cool%20usages%20of%20inject%20function%20in%20Angular" aria-label=Linkedin><i class="fab fa-linkedin fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fmythical-angular.dev%2fposts%2f5-inject-usages%2f&is_video=false&description=I%27m%20preparing%20myself%20for%20the%20lightning%20talk%2c%20so%20here%20you%20have%205%20cool%20usages%20of%20inject%20function%20in%20Angular" aria-label=Pinterest><i class="fab fa-pinterest fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="mailto:?subject=I%27m%20preparing%20myself%20for%20the%20lightning%20talk%2c%20so%20here%20you%20have%205%20cool%20usages%20of%20inject%20function%20in%20Angular&body=Check out this article: https%3a%2f%2fmythical-angular.dev%2fposts%2f5-inject-usages%2f" aria-label=Email><i class="fas fa-envelope fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://getpocket.com/save?url=https%3a%2f%2fmythical-angular.dev%2fposts%2f5-inject-usages%2f&title=I%27m%20preparing%20myself%20for%20the%20lightning%20talk%2c%20so%20here%20you%20have%205%20cool%20usages%20of%20inject%20function%20in%20Angular" aria-label=Pocket><i class="fab fa-get-pocket fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="http://reddit.com/submit?url=https%3a%2f%2fmythical-angular.dev%2fposts%2f5-inject-usages%2f&title=I%27m%20preparing%20myself%20for%20the%20lightning%20talk%2c%20so%20here%20you%20have%205%20cool%20usages%20of%20inject%20function%20in%20Angular" aria-label=reddit><i class="fab fa-reddit fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="http://www.tumblr.com/share/link?url=https%3a%2f%2fmythical-angular.dev%2fposts%2f5-inject-usages%2f&name=I%27m%20preparing%20myself%20for%20the%20lightning%20talk%2c%20so%20here%20you%20have%205%20cool%20usages%20of%20inject%20function%20in%20Angular&description=Spring%20conferences%20are%20coming.%20It%26rsquo%3bs%20the%20perfect%20time%20to%20prepare%20a%20lighting%20talk%20subject.%20In%20this%20article%20I%20will%20describe%20the%20code%20from%20one%20of%20my%20subjects%3a%205%20cool%20usages%20of%20inject%28%29%20function%20from%20Angular.%0aCode%2c%20unit%20tests%2c%20and%20a%20simple%20app%20for%20manual%20testing%20you%20can%20find%20in%20the%20repository%3a%20github.com%2fgalczo5%2fng-inject-lightning-talk.%0aUsage%201%3a%20Preventing%20memory%20leaks%20with%20useOnDestroy%20There%20are%20a%20lot%20of%20different%20ways%20of%20preventing%20observable%20memory%20leaks%20in%20components." aria-label=Tumblr><i class="fab fa-tumblr fa-lg" aria-hidden=true></i></a></li><li><a class=icon href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fmythical-angular.dev%2fposts%2f5-inject-usages%2f&t=I%27m%20preparing%20myself%20for%20the%20lightning%20talk%2c%20so%20here%20you%20have%205%20cool%20usages%20of%20inject%20function%20in%20Angular" aria-label="Hacker News"><i class="fab fa-hacker-news fa-lg" aria-hidden=true></i></a></li></ul></div><div id=actions-footer><a id=menu-toggle class=icon href=# onclick='return $("#nav-footer").toggle(),!1' aria-label=Menu><i class="fas fa-bars fa-lg" aria-hidden=true></i> Menu</a>
+<a id=toc-toggle class=icon href=# onclick='return $("#toc-footer").toggle(),!1' aria-label=TOC><i class="fas fa-list fa-lg" aria-hidden=true></i> TOC</a>
+<a id=share-toggle class=icon href=# onclick='return $("#share-footer").toggle(),!1' aria-label=Share><i class="fas fa-share-alt fa-lg" aria-hidden=true></i> share</a>
+<a id=top style=display:none class=icon href=# onclick='$("html, body").animate({scrollTop:0},"fast")' aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg" aria-hidden=true></i> Top</a></div></div></div><footer id=footer><div class=footer-left>Copyright &copy; 2023 Kamil Gałek</div><div class=footer-right><nav><ul><li><a href=/>Home</a></li><li><a href=/posts>All posts</a></li><li><a href=/tags>Tags</a></li><li><a href=https://github.com/galczo5>GitHub</a></li></ul></nav></div></footer></div></body><link rel=stylesheet href=/lib/font-awesome/css/all.min.css><script src=/lib/jquery/jquery.min.js></script>
+<script src=/js/main.js></script>
+<script src=/js/code-copy.js></script></html>
