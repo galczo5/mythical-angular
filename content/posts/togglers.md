@@ -1,5 +1,5 @@
 ---
-title: "What you can do with Angular 14 inject"
+title: "What you can do with Angular 14 inject function"
 date: 2022-06-26
 draft: false
 ---

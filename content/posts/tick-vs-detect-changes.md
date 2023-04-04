@@ -240,7 +240,7 @@ function ChildComponent_Template(rf, ctx) {
 I wanted to mention that to remind you that there is no magic in the Angular source code,
 and it's not that hard to understand it.
 
-Ok, back to our `refreshView`, because fun begins in this function.
+Ok, back to our `refreshView`, because fun begins in the function.
 
 ```typescript
 /**
