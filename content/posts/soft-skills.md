@@ -3,6 +3,7 @@ title: "5 soft skills you can learn at conferences"
 date: 2023-06-05
 draft: false
 ---
+(Sorry for a clickbait article name, naming articles is even harder than naming variables)
 
 It has been a long time since my last post.
 Many things have happened.
