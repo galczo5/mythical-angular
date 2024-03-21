@@ -4,7 +4,7 @@ date: 2024-03-20
 draft: false
 ---
 
-Not so long ago, we got a new feature for Angular. We can now create inputs using a single function that returns a signal. It looks nice when the code does not contain the `@Input()` decorator, but what's more important, it's using a new reactivity approach powered by signals.
+Not so long ago, we got a new feature for Angular. We can now create inputs using a simple function that returns a signal. It looks nice when the code does not contain the `@Input()` decorator, but what's more important, it's using a new reactivity approach powered by signals.
 
 ```typescript
 text = input('default value');
