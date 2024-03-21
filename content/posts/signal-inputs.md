@@ -105,7 +105,9 @@ export function createInputSignal<ReadT, WriteT>(
 }
 ```
 
-Before I started to investigate the subject, I was sure that this function was using the `inject()` function to do awesome things with it. I was wrong.
+Before I started to investigate the subject, I was sure that this function was using the `inject()` function to do awesome things with it.
+
+I was wrong.
 
 As you can see, `inputFunction` is calling `createInputSignal` function, and the only thing that is happening inside is a simple code that creates a `node`, assign `initialValue` and `transformFn` and then create a signal.
 
@@ -187,7 +189,7 @@ var Py = (() => {
 
 I know it's not easy to read, but that's what it looks like after optimization.
 
-In this code `Py` is our `ChildComponent`, `Ad` is `AppComponent`. **As you can see, inputs are added during Angular compilation.** It's important, because it means that inputs are not resolved in runtime, and you cannot easily create a custom "clone" of `input` function.
+In this code `Py` is our `ChildComponent`, `Ad` is `AppComponent`. **As you can see, inputs are added during Angular compilation.** It's important, because it means that inputs are not resolved in runtime, and you cannot easily create a custom "clone" of `input()` function.
 
 To be honest, I shouldn't be surprised. We have ahead-of-time compilation for a reason.
 
@@ -299,7 +301,7 @@ var Py = (() => {
 })()
 ```
 
-Still no change. Input was not added; even in the code, it looks like something that might work.
+Still no change. Input was not added, even if in the code it looks like something that might work.
 
 ### Inputs in functions
 
@@ -353,7 +355,7 @@ var Fy = (() => {
 })()
 ```
 
-As you can see, there is no additional input. Even if you try to inline the function, compiler will not recognize a new input.
+Even if you try to inline the function, compiler will not recognize a new input.
 
 ```typescript
 @Component({/* ... */})
